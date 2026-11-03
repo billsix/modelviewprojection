@@ -22,8 +22,9 @@ parser); the imgui menubar sets only the view. Both are GL 3.3 core, shader-base
   half-height (zoom), tick/grid spacing; arrows pan, `-`/`=` zoom, `G` toggles the grid, `F11`
   fullscreen. The plot→NDC view is the course's **ortho edge** (`matrix_stack.ortho`).
 - **`grapher3d.py`** — plots an `f(x,y)` height field (domain x→world x, y→world z, value→up/y) as
-  a **wireframe mesh by default**, with a height-shaded solid as an opt-in toggle. Surface menu picks the function (saddle,
-  paraboloid, ripple, waves); Controls menu sets the grid steps **dx** and **dy** (live rebuild)
+  a **wireframe mesh by default**, with a height-shaded solid as an opt-in toggle. The Surface
+  menu picks the function (saddle, paraboloid, ripple, waves); Controls menu sets the grid steps
+  **dx** and **dy** (live rebuild)
   and toggles wireframe/solid; an orbit camera (left-drag / arrows / scroll) looks around it.
   Perspective via `cayley_gl.setup_orbit_view` (`matrix_stack.perspective`). Lighting was kept out
   of scope — it is the follow-on task.
@@ -61,23 +62,18 @@ accumulated additive features (pyproject already at 0.1.0), release-worthy on it
 not forced by this work. Terminology caveat carried into the follow-on: Blinn's half *vector*
 (bisector of L and V) is not the GA rotor half-*angle* `cos(θ/2) + I sin(θ/2)`.
 
-## Review fixes (2026-11-03, maintainer review before merge)
+## Review fixes (2026-11-03)
 
-Two defects surfaced in the on-display review and were fixed on the same branch:
+The maintainer's on-display review found two defects, fixed on the same branch:
 
-1. **2D curve "holes" at the sin/cos peaks — depth-buffer z-fighting (the real root cause).**
-   `_pipeline.setup_window` leaves `GL_DEPTH_TEST` on (`GL_LESS`) for all programs, and the 2D plot
-   draws everything at `z=0`. A curve pixel that lands on an already-drawn grid/axis pixel then has
-   **equal** depth and fails `GL_LESS`, so it is dropped. The sin/cos peaks sit exactly on the `y=1`
-   grid line (grid spacing 1.0), so each peak runs *along* that line and the curve was rejected for
-   a whole stretch — the holes. Fixed by **clearing the depth buffer after drawing the graph paper
-   (grid + axes), before the curves** (`glClear(GL_DEPTH_BUFFER_BIT)` in `frame`), so the plotted
-   curves always draw over the paper. (Maintainer's diagnosis; verified at the default view.)
-   - A first pass had instead enabled `GL_LINE_SMOOTH` + alpha blending and **resampled each curve
-     to the visible x-window, one point per pixel column on view change** — kept, because it is a
-     genuine improvement (segments stay ~1px at every zoom: smooth zoomed in, gapless zoomed out,
-     which a fixed 4000-vertex set over `[-50, 50]` cannot be at both ends) — but it did *not* fix
-     the peak holes on its own; the depth clear is what resolved them.
+1. **2D curve "holes" at the sin/cos peaks — depth-buffer z-fighting.** The shared GL setup leaves
+   `GL_DEPTH_TEST` on (`GL_LESS`) and the 2D plot is all at `z=0`, so a curve pixel coincident with
+   an already-drawn grid pixel is depth-rejected; the peaks sit on the `y=1` grid line, so each was
+   dropped for a whole stretch. Fixed by clearing the depth buffer after the graph paper, before the
+   curves. A first pass (kept) had instead enabled `GL_LINE_SMOOTH` + blending and resampled each
+   curve to the visible window one point per pixel column — a real smoothness win at every zoom, but
+   not what fixed the holes (it treated a depth problem as a rasterization one). Both traps, and the
+   resampling technique, are written up in `tasks/reference/gl-and-imgui-gotchas.md` §8.
 2. **3D started as a solid surface, not a wireframe.** The agreed starting point was a bare
    wireframe mesh. `View3D.show_solid` now defaults to `False` (wireframe-only on launch); the
    height-shaded solid stays available via the Controls menu / `S`.
@@ -87,7 +83,8 @@ Two defects surfaced in the on-display review and were fixed on the same branch:
 Both programs: ruff-clean (line-length 80), ty-clean (modulo the host-only `glfw`
 `_GLFWwindowPointerT` stub diagnostic that `mvpvisualization/modelview.py` also shows — the
 container gate resolves it), and the local/module annotation checker clean. Rendered headless via
-`tools/verify_render.sh` (12 frames, Xvfb `:99`): grapher2d drew all four curves in their exact
-colours over the grid; grapher3d drew the saddle `x*y/4` as the expected hyperbolic paraboloid
-(height-shaded solid + wireframe + 3D axes/ticks). The maintainer's on-display pass (pan/zoom,
-menubar interaction, Wayland) is the remaining check.
+`tools/verify_render.sh` (Xvfb `:99`): grapher2d drew all four curves in their exact colours over
+the grid, with the sin/cos peaks solid after the depth-clear fix (verified at the default view and
+held zoom-out); grapher3d drew the saddle `x*y/4` as the expected hyperbolic paraboloid, now a bare
+wireframe on launch. The maintainer's on-display pass (pan/zoom, menubar interaction, Wayland) is
+the remaining check.
