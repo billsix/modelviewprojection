@@ -1,49 +1,54 @@
 # Lean image for nested-podman builds — what "minimal" means for modelviewprojection
 
-**Status:** proposed — research done 2026-09-10 (survey of the Dockerfile + Makefile from the
-runClaudeInContainer sandbox); **implementation needs go-ahead**. One of the per-project children of
-runClaudeInContainer `tasks/minimal-image-for-nested-podman-standard.md` (the convention: every optional-feature build flag defaults to its lean value when
-`NESTED_PODMAN=1`); the fleet-wide findings table is runClaudeInContainer `tasks/reference/minimal-nested-images.md`. Created 2026-09-10 at the maintainer's
-request (William Emerison Six <billsix@gmail.com>: "go through all of my projects with CLAUDE.md …
-research what a minimal nested podman container would be for them").
-**Priority:** 3
-**Difficulty:** 3
+**Done 2026-11-04.** The flag mechanism had already landed on master (commit `6189c16e`, "mvp: finish
+Makefile/Dockerfile conformance to the standard template"); this pass measured both image sizes and
+recorded the convention in `CLAUDE.md`. Branch `minimal-nested-image`.
 
-## BLUF
+## What was delivered
 
-Make `make image` inside a sandbox (which exports `NESTED_PODMAN=1`) build a lean image that fits
-the nested RAM store and still runs this project's gate, while a host `make image` stays
-byte-identical — via the idiom `FLAG ?= $(if $(filter 1,$(NESTED_PODMAN)),0,1)` on each optional-feature flag (the `PODMAN_RUN_FLAGS`
-pattern applied to build flags; reference implementation: runCrushInContainer `client/Makefile`,
-`FULL_TOOLCHAIN`). Done = the flags below carry the nested-aware default, a nested `make image`
-builds and passes the gate, both image sizes are measured and recorded here and in `CLAUDE.md`.
+`make image MINIMAL_IMAGE=1` builds a lean export/airgap/CI image; a plain `make image` (host OR
+nested) still builds the full one. Measured sizes on 2026-11-04:
 
-## Context — read first
+| image | size |
+| --- | --- |
+| full (`make image`) | **6.61 GB** |
+| lean (`MINIMAL_IMAGE=1`) | **4.35 GB** |
 
-- runClaudeInContainer `tasks/reference/minimal-nested-images.md` — the standard, the idiom, the rules (a project's *gates* and *product build deps* are never
-  trimmed; only editors, docs toolchains, notebooks, GUI extras), and every project's row.
-- This repo's `Dockerfile`, `Makefile` (flag block + `image` target), `entrypoint/*install*.sh`.
-- The flag-coverage rule (cross-project `CLAUDE.md` › "Verification gates in nested containers"): a
-  lean build verifies nothing about the layers it skips — when a change touches what a skipped layer
-  consumes, build with that flag ON.
+`CLAUDE.md` › "Dev environment" now carries the one-line rule (what `MINIMAL_IMAGE=1` drops, that
+`make test` stays green on the lean image, how to add a flag back, and that `MINIMAL_IMAGE` is build
+content independent of `NESTED_PODMAN`).
 
-## Findings (2026-09-10)
+## Implemented under the CURRENT standard, not this task's original wording — read before merging
 
-**What the image installs today.** Flags `BUILD_DOCS` (1: TeX, sphinx, inkscape, ImageMagick, gnuplot, graphviz, mathjax + texExpToPng built from a pinned clone), `USE_EMACS` (1), `USE_JUPYTER` (1: jupyter/jupyterlab/ffmpeg/moviepy), `USE_X_WINDOWS` (1: mesa-dri-drivers + X/Wayland client libs), `USE_SPYDER` (0). Unconditional: the GL/Python runtime (glfw, pyopengl, numpy, sympy, wxpython, pytest, ruff, ty, uv) + venv + pyright. **Also found: this checkout's Makefile has no `PODMAN_RUN_FLAGS` line at all** (the 2026-08-29 rollout record says mvp was converted — the branch checked here is `morePorts`; verify on master).
+This task was filed **2026-09-10**, before the **2026-09-27 rename** of the lean-image idiom from
+`NESTED_PODMAN`-keyed to **`MINIMAL_IMAGE`-keyed** (the overload of `NESTED_PODMAN` for build content
+silently downgraded the runCrush client; see runClaudeInContainer
+`tasks/reference/minimal-nested-images.md`). So two things in the original plan were deliberately
+**not** followed, because the later standard supersedes them:
 
-**What "minimal" is here.** Nested default: `USE_EMACS=0`, `USE_JUPYTER=0`. **Keep `USE_X_WINDOWS=1`** — it installs `mesa-dri-drivers`, which is what makes the headless Xvfb-in-sandbox rendering of the demos work (CLAUDE.md's verified recipe); and **keep `BUILD_DOCS=1`** — `make html` is the book gate and the doc-region checker runs in-container; a lean image that can't build the book would silently pass book-breaking edits (flag-coverage rule).
+1. **The idiom is `FLAG ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)`, NOT `...$(NESTED_PODMAN)...`.** A
+   nested `make image` now builds the **full** image (the inner store is disk-backed, not the RAM
+   store the 2026-09-10 BLUF assumed); lean is an explicit opt-in. This is what master already does.
+2. **`BUILD_DOCS` and `USE_X_WINDOWS` ARE `MINIMAL_IMAGE`-keyed** (droppable), contrary to this task's
+   2026-09-10 finding that they must stay `?= 1`. Master made this call deliberately and documents it
+   in the Makefile flag-block comment: the **pytest gate (`make test`) needs none of them** —
+   glfw/pyopengl are in the base group + requirements.txt — so a lean image still runs the full test
+   gate. The book build (`make html`) and headless-render paths are separate gates you run with the
+   flags ON explicitly, satisfying the flag-coverage rule. (If the maintainer wants the lean image to
+   also carry the book/headless-render gate by default, that's the one thing to revisit — but the
+   documented decision is that the lean image's job is the test/lint gate.)
 
-**Notes.** Emacs here also pulls `python3-lsp-server` for its LSP config — that goes with it. The 'do not change the Dockerfile for mvp' instruction (2026-07-18) was about adding xvfb to the image; flipping defaults in the Makefile touches no Dockerfile line — but confirm before touching the Dockerfile at all.
+## Verification
 
-## Plan
+- Built the lean image (a zero-build-arg `podman build`, equivalent to `MINIMAL_IMAGE=1` since every
+  Dockerfile optional ARG defaults to 0) → 4.35 GB, exit 0; ePiX install step correctly skipped. Full
+  image on disk measured 6.61 GB. Throwaway lean image removed after measuring.
+- The flags + `PODMAN_RUN_FLAGS ?= $(if $(filter 1,$(NESTED_PODMAN)),--cgroups=disabled)` are present
+  and threaded through every `$(CONTAINER_CMD) run` line on master (confirmed; the 2026-09-10 note
+  that a branch lacked `PODMAN_RUN_FLAGS` referred to the then-current `morePorts` branch).
 
-- [ ] Makefile: `USE_EMACS` and `USE_JUPYTER` get the nested-aware default; `BUILD_DOCS` and `USE_X_WINDOWS` keep `?= 1` with a comment naming the two verification paths they serve.
-- [ ] Restore/confirm `PODMAN_RUN_FLAGS ?= $(if $(filter 1,$(NESTED_PODMAN)),--cgroups=disabled)` threaded into the `run` lines on whichever branch lacks it.
-- [ ] Measure both images (the full one is large: TeX + jupyter + wx); `CLAUDE.md` 'Dev environment' + the nested-podman paragraph under 'How to resolve drift'.
-- [ ] Record both sizes (host full vs nested lean) here and in `CLAUDE.md`; add the standard's one-line
-      rule to `CLAUDE.md` ("nested = lean image automatically; `FLAG=1` overrides").
+## Related
 
-## Open questions
-
-None — the standard's decisions (dnf-only, gates never trimmed) were the maintainer's on 2026-09-10;
-anything project-specific to decide is flagged inline above.
+- runClaudeInContainer `tasks/reference/minimal-nested-images.md` — the standard + the fleet row.
+- runClaudeInContainer `tasks/minimal-image-for-nested-podman-standard.md` — the umbrella this was a
+  per-project child of.

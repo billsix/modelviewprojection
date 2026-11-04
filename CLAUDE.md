@@ -43,6 +43,8 @@ Which SuperBible demos are already in the curriculum (do not re-port), the wishl
 
 Bill's host is Fedora 43 (glibc 2.42). System SDL2 is the SDL2-compat shim on SDL3 — breaks SDL2-audio apps. I can build/package locally, but Bill verifies anything requiring a display, FUSE, or audio. **Never edit the vendored `entrypoint/dotfiles/.emacs.d/elpa/` tree** — it is committed on purpose (refreshed only via `make update-emacs-packages`).
 
+**`make image` builds the FULL image by default (host or nested); `make image MINIMAL_IMAGE=1` builds a lean export/airgap/CI image** (~4.35 GB vs the full ~6.61 GB). The optional-feature flags carry `?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)`, so `MINIMAL_IMAGE=1` drops `BUILD_DOCS` (TeX + Sphinx), `USE_EMACS`, `USE_JUPYTER`, `USE_X_WINDOWS` (mesa/X client libs) and `USE_EPIX`; `make test` (pytest) still runs green on the lean image since glfw/pyopengl live in the base group. Add any one back with its flag (`make image MINIMAL_IMAGE=1 BUILD_DOCS=1`). `MINIMAL_IMAGE` is build CONTENT and is independent of `NESTED_PODMAN` (run capability, used only by `PODMAN_RUN_FLAGS`); the sandbox does NOT export it, so a plain nested `make image` still builds the full image. Convention: runClaudeInContainer `tasks/reference/minimal-nested-images.md`.
+
 ---
 
 ## Keeping the Dockerfile, Makefile, and dependencies in sync
