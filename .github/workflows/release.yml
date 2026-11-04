@@ -32,9 +32,11 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       # All build/bundle logic is in the Makefile (runs identically locally).
-      - name: Build book + release tarball
+      # release-artifacts = release-tarball + release-book-assets, so the Release
+      # gets the source+book tarball AND the standalone PDF/EPUB/HTML-zip.
+      - name: Build book + release artifacts
         run: >-
-          make release-tarball
+          make release-artifacts
           RELEASE_VERSION=${{ github.ref_name }}
           BUILD_DOCS=1 USE_EMACS=0 USE_JUPYTER=0 USE_X_WINDOWS=0
 
@@ -45,8 +47,13 @@ jobs:
           BUILD_DOCS=1 USE_EMACS=0 USE_JUPYTER=0 USE_X_WINDOWS=0
 
       # GitHub-API step (no local `make` equivalent): create the Release and
-      # attach the tarball built by `make release-tarball`.
+      # attach the artifacts built by `make release-artifacts` -- the source+book
+      # tarball plus the three standalone book forms.
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.tar.gz
+          files: |
+            dist/*.tar.gz
+            dist/*.pdf
+            dist/*.epub
+            dist/*-html.zip

@@ -329,6 +329,42 @@ release-tarball: book ## (CI) bundle source + built book -> $(DIST_DIR)/<name>-<
 	rm -rf $(DIST_DIR)/stage
 	@echo "wrote $(DIST_DIR)/$(CONTAINER_NAME)-$(RELEASE_VERSION).tar.gz"
 
+# Stage the three book forms as standalone, individually-downloadable release
+# assets in $(DIST_DIR), so a reader can grab just the PDF (or EPUB, or the HTML
+# site zip) from the Releases page without extracting the source tarball.  The
+# book build (entrypoint.sh, via `docs`) populates output/$(CONTAINER_NAME)/ with
+# the html/ site + .nojekyll, the single book .epub, and the book PDF -- which is
+# named after the project ($(CONTAINER_NAME).pdf) and sits ALONGSIDE ~40 figure
+# PDFs, so the book PDF is named explicitly here, never a *.pdf glob.  Fails
+# loudly if any form is missing rather than shipping a partial asset set.
+.PHONY: release-book-assets
+release-book-assets: book ## (CI) stage standalone book PDF/EPUB/HTML-zip in $(DIST_DIR)
+	mkdir -p $(DIST_DIR)
+	@test -f output/$(CONTAINER_NAME)/$(CONTAINER_NAME).pdf \
+		|| { echo "book PDF output/$(CONTAINER_NAME)/$(CONTAINER_NAME).pdf missing"; exit 1; }
+	cp output/$(CONTAINER_NAME)/$(CONTAINER_NAME).pdf \
+		$(DIST_DIR)/$(CONTAINER_NAME)-$(RELEASE_VERSION).pdf
+	@epub=$$(ls output/$(CONTAINER_NAME)/*.epub 2>/dev/null | head -1); \
+		test -n "$$epub" \
+		|| { echo "book EPUB output/$(CONTAINER_NAME)/*.epub missing"; exit 1; }; \
+		cp "$$epub" $(DIST_DIR)/$(CONTAINER_NAME)-$(RELEASE_VERSION).epub
+	@test -f output/$(CONTAINER_NAME)/html/index.html \
+		|| { echo "book HTML output/$(CONTAINER_NAME)/html/index.html missing"; exit 1; }
+	rm -f $(DIST_DIR)/$(CONTAINER_NAME)-$(RELEASE_VERSION)-html.zip
+	cd output/$(CONTAINER_NAME) && zip -r -q -X \
+		$(abspath $(DIST_DIR))/$(CONTAINER_NAME)-$(RELEASE_VERSION)-html.zip html \
+		&& { [ -f .nojekyll ] && zip -q \
+			$(abspath $(DIST_DIR))/$(CONTAINER_NAME)-$(RELEASE_VERSION)-html.zip .nojekyll \
+			|| true; }
+	@echo "wrote $(DIST_DIR)/$(CONTAINER_NAME)-$(RELEASE_VERSION).pdf .epub -html.zip"
+
+# Umbrella: the full release asset set -- the source+book tarball AND the three
+# standalone book forms.  The release workflow calls this one target; running it
+# locally (`make release-artifacts RELEASE_VERSION=... BUILD_DOCS=1`) reproduces
+# exactly what a tagged release attaches.
+.PHONY: release-artifacts
+release-artifacts: release-tarball release-book-assets ## (CI) full release asset set: tarball + standalone book forms
+
 # Tag the built image with the release version + latest and push to the registry.
 # The CALLER must already be logged in ($(CONTAINER_CMD) login) -- the workflow
 # does that with GITHUB_TOKEN.  IMAGE_REF overridable for a different registry.
