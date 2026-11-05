@@ -3,7 +3,7 @@ furo
 gacalc==0.0.20
 glfw
 ImageIO
-imgui-bundle[glfw]==1.92.801
+imgui-bundle[glfw]==1.93.0
 isort
 # single-device audio backend (decode + PlaybackDevice); replaced
 # just_playback 2026-07-09 -- see tasks/leadingedge-audio-clunk-and-freeze.md
@@ -15,6 +15,7 @@ matplotlib
 moviepy
 myst-nb
 nbsphinx
+Pillow==13.0.0
 numpy
 # glTF 2.0 reader/writer. Used by demo22b (src/.../demos/demo22b/), which
 # round-trips the demo22 scene through a .glb. Pure-Python, no native deps.

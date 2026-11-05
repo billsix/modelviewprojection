@@ -1,60 +1,38 @@
-# Upgrade the container base from Fedora 44 to Fedora 45
+# Upgrade the container base from Fedora 44 to Fedora 45 (done)
 
-**Status:** blocked
-**Blocked on:** maintainer decision on two Python-3.15 dependency pins (below).
-**Recheck:** after bumping imgui-bundle to a cp315-wheel release and resolving
-the pillow `<12` cap, run `make image MINIMAL_IMAGE=1` nested — green = cleared.
-**Priority:** 3
-**Difficulty:** 6
+Done 2026-11-05 (William Emerison Six <billsix@gmail.com>). Part of a fleet-wide
+Fedora 44 → 45 bump.
 
-## BLUF
+## What changed
 
-The base is bumped to `fedora:45` (committed), but the image build is **blocked**
-by two upstream Python-3.15 wheel gaps in pinned/transitive deps that fail their
-source builds. Resolving them requires dependency-pin changes that can shift the
-imgui demo API and must be re-verified on a display — a maintainer call, not an
-overnight auto-fix. Everything else about the bump is ready.
+- `Dockerfile`: `registry.fedoraproject.org/fedora:44` → `fedora:45`.
+- `requirements.txt`: two dependency bumps to get cp315 (Python 3.15) wheels
+  instead of failing source builds (maintainer pre-authorized bumping versions
+  to whatever works; versions recorded here for tracking):
+  - `imgui-bundle[glfw]==1.92.801` → **`==1.93.0`** — 1.93.0 is the first
+    imgui-bundle release that ships a CPython-3.15 (`cp315`) Linux wheel; 1.92.x
+    had none, so pip/uv tried to source-build its C++/nanobind extension and
+    failed (nanobind API mismatch `ndarray_handle*` → `nb_internals*`).
+  - added **`Pillow==13.0.0`** — pillow is a transitive dep (via moviepy/imageio);
+    the resolver otherwise selected `pillow-11.3.0`, which has no cp315 wheel and
+    fails its source build. 13.0.0 (the resolved version, pinned exactly) has a
+    cp315 wheel. (uv still *probes* 11.3.0 during backtracking and logs a build
+    error, then falls back to the pinned 13.0.0 — non-fatal; final install is
+    pillow 13.0.0.)
 
-## What was done
+## Result — both images green nested on fedora:45 / Python 3.15
 
-- `Dockerfile`: `registry.fedoraproject.org/fedora:44` → `fedora:45` (committed).
+- `make image MINIMAL_IMAGE=1` + `make test`: **112 passed** (pytest/doctests).
+- `make image` (full, 6.6 GB): builds the Python/OpenGL stack + the TeX-Live docs
+  toolchain + texExpToPng + **ePiX** from source + JupyterLab. Verified the image
+  has `PIL 13.0.0` and `imgui_bundle 1.93.0`.
 
-## The blocker (Fedora 45 ships Python 3.15; measured 2026-11-05, `MINIMAL_IMAGE=1`)
+No source-code changes were needed — only the two dependency-pin bumps above.
 
-The `grep -v wxpython /requirements.txt | uv pip install …` step fails. Two deps
-have no cp315 wheel and fail to build from source under Python 3.15:
+## Note for the maintainer
 
-1. **imgui-bundle==1.92.801** (pinned, line `imgui-bundle[glfw]==1.92.801`). No
-   cp315 wheel, so pip/uv build it from source (a large C++/nanobind compile),
-   which fails with a real nanobind API mismatch:
-   `cannot convert 'nanobind::detail::ndarray_handle*' to
-   'nanobind::detail::nb_internals*'` — the vendored bindings in 1.92.801 don't
-   compile against the nanobind pulled under 3.15.
-   → **Fix (maintainer):** bump the `imgui-bundle` pin to a release that ships
-   cp315 wheels. This can change the imgui API the demos use (menubar/controls
-   conventions), so the imgui/SuperBible demos need an on-display re-verify.
-
-2. **pillow** (transitive, via `ImageIO` → `pillow>=8.3.2`). Something in the
-   graph caps **pillow<12**, so the resolver selects `pillow-11.3.0`, which has
-   no cp315 wheel → source build → fails. The dnf `python3-pillow` is **12.3.0**
-   (cp315-native) but is *too new* for the `<12` cap, so `--system-site-packages`
-   can't satisfy it either.
-   → **Fix (maintainer):** find and loosen/bump the dep that caps `pillow<12`
-   (likely an older imageio/moviepy/matplotlib pin), so the resolver can take the
-   system 12.3.0 or a cp315-wheel pillow.
-
-## Investigated and rejected (to save the maintainer the detour)
-
-- **Switching the requirements install `uv` → `pip install -r /dev/stdin`**
-  (matching the sibling multivariate-math repo, so the dnf natives satisfy via
-  `--system-site-packages`): helps in principle and correctly uses Fedora's
-  Wayland-patched pyopengl, but does **not** clear either blocker — imgui-bundle
-  still source-builds and fails, and the `pillow<12` cap still forces a 11.3.0
-  source build (system 12.3.0 is too new). Reverted so the committed diff is just
-  the base bump; the real fix is the two pin changes above.
-
-## Note
-
-Sibling Python repo **multivariate-math** upgraded to fedora:45 cleanly — it has
-no imgui-bundle and no `pillow<12` cap, so this blocker is specific to mvp's
-imgui/imageio dependency set, not a general Python-3.15 problem.
+The `imgui-bundle` bump 1.92.801 → 1.93.0 can shift the imgui API the GUI demos
+use (menubar/controls conventions per CLAUDE.md). The headless build + pytest
+pass, but the **interactive imgui / SuperBible demos were not play-tested on a
+display** (that's your call). If 1.93.0 changed anything the demos rely on, it
+would surface only on-display.
