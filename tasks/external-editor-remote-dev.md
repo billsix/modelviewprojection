@@ -101,7 +101,7 @@ Architecture A as the primary:
 
 Verify per conventions: nested `make image` across flag permutations (SSH group present
 iff flag on); actually attach VS Code Remote-SSH and Zed remote to a running
-`make lsp-start` container and confirm pylsp/ty/ruff drive completions, hover, diagnostics.
+`make lsp-start` container and confirm pyright/ruff drive completions, hover, diagnostics.
 
 ## Open questions (must be answered before any code)
 
@@ -113,9 +113,10 @@ iff flag on); actually attach VS Code Remote-SSH and Zed remote to a running
    host-mounted dir (recommended — download once, no image bloat, no offline-build
    violation), bake into image (offline but version-brittle), or accept re-download each
    session?
-3. **Extra LSP server.** Add `basedpyright` (recommended — strong completions/hover for
-   both VS Code and Zed, alongside pylsp+ty+ruff), add Microsoft `pyright` (npm-based), or
-   keep pylsp+ty+ruff only (leaner, weaker completions)?
+3. **Extra LSP server.** The image already has npm `pyright` and `ruff` for Emacs (since
+   2026-11-05; pylsp was dropped then). Add `basedpyright` (recommended when this was written,
+   before pyright was installed — strong completions/hover for both VS Code and Zed), or reuse
+   the installed `pyright` + `ruff` only (nothing new to install)?
 4. **SSH auth.** Mount host `~/.ssh/authorized_keys` read-only (recommended — key-based,
    required by Zed, nothing in the repo), generate a gitignored project keypair, or
    password auth (not recommended; Zed can't save password prompts)?
