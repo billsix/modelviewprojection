@@ -4,6 +4,7 @@
 
 (setq package-selected-packages
       '(lsp-mode
+        lsp-pyright
         yasnippet
         lsp-treemacs
         helm-lsp

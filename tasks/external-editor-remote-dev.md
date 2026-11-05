@@ -71,9 +71,10 @@ breaks. This is **not** how VS Code/Zed attach. Do not pursue.
 
 ## Current state of this repo (what the task builds on)
 
-- In-container language servers already installed for the embedded Emacs `lsp-mode`:
-  **`python3-lsp-server` (pylsp)**, **`ty server`** (registered as a custom lsp-mode
-  client in `entrypoint/dotfiles/.emacs.d/init.el`), and **`ruff`** (lint/format).
+- In-container language servers already installed for the embedded Emacs `lsp-mode`
+  (as of 2026-11-05): **pyright** (npm, driven by `lsp-pyright`; see
+  `entrypoint/04-install-emacs.sh`), **`ty`** (the type-check gate, also usable as
+  `ty server`), and **`ruff`** (lint/format).
 - **No `openssh-server`** in the image — architecture A needs it added as a flag-gated
   install group (`entrypoint/07-install-ssh.sh`, dispatched by a Dockerfile ARG per the
   "Host-agnostic setup belongs in a script" convention; ARG defaults 0, Makefile flag
