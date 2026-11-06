@@ -1,17 +1,17 @@
-autoflake
-furo
+autoflake==2.4.0
+furo==2025.12.19
 gacalc==0.0.20
-glfw
-ImageIO
+glfw==2.11.0
+ImageIO==2.38.1
 imgui-bundle[glfw]==1.93.0
-isort
+isort==9.0.2
 # single-device audio backend (decode + PlaybackDevice); replaced
 # just_playback 2026-07-09 -- see tasks/leadingedge-audio-clunk-and-freeze.md
-miniaudio
-jupyter
-jupytext
-mathjax
-matplotlib
+miniaudio==1.71
+jupyter==1.1.1
+jupytext==1.19.6
+mathjax==0.1.2
+matplotlib==3.11.2
 # Pinned to a 2.x: the notebook (notebooksrc/ndc.py) uses the top-level
 # moviepy.ImageSequenceClip, which only exists in moviepy >= 2.0. Unpinned, the
 # resolver backtracks to the 6-year-old 1.0.3 (no top-level ImageSequenceClip ->
@@ -22,20 +22,23 @@ matplotlib
 # 3.15 with pillow 13 (pinning 2.1.2/2.2.1 lands one patch below, so pin the
 # version that actually installs). See tasks/reference/design-decisions.md.
 moviepy==2.1.1
-myst-nb
-nbsphinx
+myst-nb==1.4.0
+nbsphinx==0.9.8
 Pillow==13.0.0
-numpy
+numpy==2.5.4
 # glTF 2.0 reader/writer. Used by demo22b (src/.../demos/demo22b/), which
 # round-trips the demo22 scene through a .glb. Pure-Python, no native deps.
 pygltflib==1.16.5
-PyOpenGL
+PyOpenGL==3.1.10
 # The optional C accelerator for PyOpenGL (silences the 'No OpenGL_accelerate
 # module loaded' INFO and speeds up per-call array marshalling). Pinned to
 # match the dnf python3-pyopengl version in the Dockerfile -- bump together.
 PyOpenGL-accelerate==3.1.10
-pytest
-Sphinx
-sphinxcontrib-bibtex
-sympy
-wxpython
+pytest==9.2.0
+Sphinx==9.2.0
+sphinxcontrib-bibtex==2.7.0
+sympy==1.14.0
+# In-container wxpython comes from the dnf python3-wxpython4 package and is
+# filtered OUT of the pip install (`grep -v wxpython`); this pin only drives a
+# host pip install. Keep it matching the Dockerfile's distro version.
+wxpython==4.2.5
