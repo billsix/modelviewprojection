@@ -79,13 +79,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
      echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
      echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history && \
-     # moviepy pins pillow<12, but Python 3.15 only has a cp315 pillow wheel at
-     # >=12.3.0 (we pin Pillow==13.0.0). Override moviepy's cap so uv installs the
-     # pinned moviepy 2.x instead of silently backtracking to the ancient 1.0.3;
-     # moviepy 2.x works with pillow 13 (verified: ImageSequenceClip + libx264).
-     printf 'pillow==13.0.0\n' > /tmp/uv-override.txt && \
-     grep -v wxpython /requirements.txt | uv pip install --python /venv/bin/python --override /tmp/uv-override.txt -r - && \
-     rm /requirements.txt /tmp/uv-override.txt
+     grep -v wxpython /requirements.txt | uv pip install --python /venv/bin/python -r - && \
+     rm /requirements.txt
 
 # gacalc SOURCE version for the book's literalinclude (docs-only, see below).
 # MUST match the gacalc== pin in requirements.txt -- the same version drives both

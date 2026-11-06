@@ -51,9 +51,9 @@
 import warnings
 from typing import Any
 
+import imageio.v3 as iio
 import IPython.display
 import matplotlib
-import moviepy
 import numpy as np
 from gacalc.g2 import Vector, e_1, e_2
 from gacalc.transforms import (
@@ -219,13 +219,17 @@ for i in range(sixty_fps_times_2_sec):
 # use, it doesn't really matter for our understanding.
 
 # %%
-np_frames: list[np.ndarray] = [np.array(img) for img in frames]
-
 frames_np: list[np.ndarray] = [np.array(img) for img in frames]
-clip: moviepy.ImageSequenceClip = moviepy.ImageSequenceClip(frames_np, fps=60)
-# logger=None silences moviepy's tqdm progress bar; its U+2588 fill chars
-# break pdflatex when notebook output is captured into LaTeX.
-clip.write_videofile("animation.mp4", codec="libx264", logger=None)
+# imageio writes the mp4 silently through its ffmpeg backend (no progress bar to
+# corrupt the notebook output captured into LaTeX). macro_block_size=1 keeps the
+# exact 400x300 frame size instead of padding the height up to a multiple of 16.
+iio.imwrite(
+    "animation.mp4",
+    np.stack(frames_np),
+    fps=60,
+    codec="libx264",
+    macro_block_size=1,
+)
 
 IPython.display.Video("animation.mp4", embed=True)
 
