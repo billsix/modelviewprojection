@@ -12,7 +12,16 @@ jupyter
 jupytext
 mathjax
 matplotlib
-moviepy
+# Pinned to a 2.x: the notebook (notebooksrc/ndc.py) uses the top-level
+# moviepy.ImageSequenceClip, which only exists in moviepy >= 2.0. Unpinned, the
+# resolver backtracks to the 6-year-old 1.0.3 (no top-level ImageSequenceClip ->
+# ty error AND a runtime AttributeError), because moviepy caps pillow<12 while we
+# need Pillow 13 (the only pillow with a cp315 wheel on Python 3.15). That cap is
+# overly conservative -- moviepy 2.x works with pillow 13 -- so the Dockerfile's
+# uv install overrides it. 2.1.1 is the newest that resolves cleanly on Python
+# 3.15 with pillow 13 (pinning 2.1.2/2.2.1 lands one patch below, so pin the
+# version that actually installs). See tasks/reference/design-decisions.md.
+moviepy==2.1.1
 myst-nb
 nbsphinx
 Pillow==13.0.0
