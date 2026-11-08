@@ -1,28 +1,31 @@
 # Anchor the `.dockerignore` cache patterns with `**/`
 
-**Status:** in progress. Created 2026-11-08 (William Emerison Six <billsix@gmail.com> asked for it).
-**Priority:** 3
-**Difficulty:** 1
+Done 2026-11-08 (William Emerison Six <billsix@gmail.com> asked for it), on branch
+`dockerignore-anchor-patterns`.
 
-## BLUF
+## What changed
 
 `.dockerignore` patterns are anchored at the context root, unlike `.gitignore`, so `__pycache__/`,
-`*.py[cod]` and `*.egg-info/` exclude only top-level matches. The host's nested `__pycache__`
-directories (126 on 2026-11-08) and `src/*.egg-info` and anything else under the baked `COPY . /mvp` reach every directory `COPY`. Prefix them with
-`**/`. Done = a probe build that copies the whole context finds no `__pycache__`, `.pyc` or
-`.egg-info`, and still finds no `elpa/` or `.git`.
+`*.py[cod]`, `.pytest_cache/`, `.ruff_cache/`, `*.egg-info/` and `.ipynb_checkpoints/` excluded only
+top-level matches. The `Dockerfile` bakes the source with `COPY . /mvp`, so the host's nested caches went
+into every image. The patterns are now `**/`-prefixed, with a comment saying why; `build/`, `dist/` and
+`output/` stay root-only. Found while adding `.dockerignore` to github.com/billsix/methodfinder; the rule
+is in the Dockerfile contract's `.dockerignore` bullet (personal overlay, github.com/billsix/dotfiles
+`.ai-coding-conventions.personal.md`).
 
-## Context
+A stale `git am` session (one patch, "added task to migrate to doctests", already committed) blocked
+the branch switch; it was cleared with `git am --quit` at the maintainer's request, leaving `master`
+unchanged at `d8377514`.
 
-- Found while adding `.dockerignore` to github.com/billsix/methodfinder: its image kept
-  `src/methodfinder/__pycache__` until the pattern became `**/__pycache__/`. The rule is in the
-  Dockerfile contract (personal overlay, github.com/billsix/dotfiles `.ai-coding-conventions.personal.md`).
-- Same patterns to anchor: `__pycache__/`, `*.py[cod]`, `.pytest_cache/`, `.ruff_cache/`, `*.egg-info/`,
-  `.ipynb_checkpoints/`. `build/` and `dist/` stay root-only (that is where they appear).
+## Verification (2026-11-08, nested podman)
 
-## Plan
+A probe build with this repo as context (`FROM fedora:45`, `COPY . /ctx` like the real `COPY . /mvp`,
+then a `RUN` counting files):
 
-1. Probe before: `podman build --no-cache -f <probe>/Dockerfile .`, where the probe is
-   `FROM fedora:45`, `COPY . /ctx`, then a `RUN` that counts `__pycache__`/`.pyc`/`.egg-info`/elpa/.git.
-2. Anchor the patterns, with a comment on why.
-3. Probe after: all counts 0.
+| | `__pycache__` | `.pyc` | `.egg-info` | `elpa/` | `.git` |
+|---|---|---|---|---|---|
+| before | 126 | 241 | 1 | 0 | 0 |
+| after | 0 | 0 | 0 | 0 | 0 |
+
+A full `make image` was not run: only exclusions changed, the probe performs the same `COPY .`, and
+none of the newly excluded paths is named by a `COPY`.
