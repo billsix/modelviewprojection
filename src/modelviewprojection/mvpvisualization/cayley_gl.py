@@ -10,14 +10,28 @@
 This module is **mechanism only** -- the reusable pieces a Cayley demo needs:
 standard pipelines + geometry (a :class:`StandardObjects`), ``draw_*``
 helpers that read the current model matrix, imgui *widgets* (``render_tree`` /
-``gui_button``), the orbit camera + input, and a loop runner.  Demos drive the
-matrix stack with ``matrix_stack`` directly -- no wrappers here for that.
+``gui_button``), the orbit camera + input, and the per-frame steps.  Demos
+drive the matrix stack with ``matrix_stack`` directly -- no wrappers here for
+that.
 
 It owns NO policy: not the per-frame draw choreography, not the reveal/graying
 decisions, not which imgui panels exist.  Those differ per demo and live in each
-demo file (which composes these helpers).  Earlier this file was a
-``run(config)`` god-function with feature flags -- that conflated mechanism and
-policy; this is the dissolution.
+demo file (which composes these helpers).
+
+Nor does it own the event loop.  Each demo writes its own, calling the frame
+steps in this order::
+
+    window, impl, imguiio = cayley_gl.setup("Title")
+    ...
+    glfw.set_key_callback(window, on_key)  # after setup: replaces imgui's
+    t_prev: float = glfw.get_time()
+    while not glfw.window_should_close(window):
+        t_prev = cayley_gl.begin_frame(impl, t_prev)
+        imgui_menubar()  # after begin_frame, before the clear
+        w, h = cayley_gl.clear_viewport(window)
+        frame(w, h)
+        cayley_gl.end_frame(window, impl)
+    cayley_gl.shutdown()
 """
 
 from __future__ import annotations
@@ -640,43 +654,46 @@ def common_key(
 
 
 # ---------------------------------------------------------------------------
-# Loop runner (generic timing/poll/menubar/swap; the body is the demo's).
+# Frame steps.  The demo owns its loop and calls these in order each frame.
 # ---------------------------------------------------------------------------
 
 
-def run_loop(
-    window: "GLFWWindow",
-    impl: "GlfwRenderer",
-    frame: typing.Callable[[int, int], None],
-    menubar: typing.Callable[[], None] | None = None,
-    on_key: typing.Callable[..., None] | None = None,
-    target_framerate: int = 60,
-) -> None:
-    """Drive the GL/ImGui loop.  ``menubar()`` (if given) draws the demo's main
-    menu bar each frame; ``frame(w, h)`` draws the scene + any floating panels.
-    ``on_key`` (if given) is installed as the GLFW key callback AFTER the
-    GlfwRenderer, so it wins -- imgui then gets no key events, which is fine for
-    these mouse-driven menus."""
-    if on_key is not None:
-        glfw.set_key_callback(window, on_key)
-    t_prev: float = glfw.get_time()
-    while not glfw.window_should_close(window):
-        while glfw.get_time() < t_prev + 1.0 / target_framerate:
-            pass
-        t_prev = glfw.get_time()
-        glfw.poll_events()
-        impl.process_inputs()
-        imgui.new_frame()
-        if menubar is not None:
-            menubar()
-        w, h = glfw.get_framebuffer_size(window)
-        GL.glViewport(0, 0, w, h)
-        mask: int = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
-        GL.glClear(mask)
-        frame(w, h)
-        imgui.render()
-        impl.render(imgui.get_draw_data())
-        glfw.swap_buffers(window)
+def begin_frame(
+    impl: "GlfwRenderer", t_prev: float, target_framerate: int = 60
+) -> float:
+    """Wait until ``1 / target_framerate`` seconds have passed since
+    ``t_prev``, poll events, and start an ImGui frame.  Returns this frame's
+    start time; pass it back as ``t_prev`` next frame.  Draw the menubar after
+    this call and before :func:`clear_viewport`."""
+    while glfw.get_time() < t_prev + 1.0 / target_framerate:
+        pass
+    t_start: float = glfw.get_time()
+    glfw.poll_events()
+    impl.process_inputs()
+    imgui.new_frame()
+    return t_start
+
+
+def clear_viewport(window: "GLFWWindow") -> tuple[int, int]:
+    """Set the viewport to the whole framebuffer and clear color + depth.
+    Returns the framebuffer size ``(w, h)``."""
+    w, h = glfw.get_framebuffer_size(window)
+    GL.glViewport(0, 0, w, h)
+    mask: int = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
+    GL.glClear(mask)
+    return w, h
+
+
+def end_frame(window: "GLFWWindow", impl: "GlfwRenderer") -> None:
+    """Render this frame's ImGui draw data over the scene and swap buffers."""
+    imgui.render()
+    impl.render(imgui.get_draw_data())
+    glfw.swap_buffers(window)
+
+
+def shutdown() -> None:
+    """Free the GL objects the pipelines registered, then terminate GLFW.
+    Call once, after the loop exits."""
     _p.cleanup()
     glfw.terminate()
 

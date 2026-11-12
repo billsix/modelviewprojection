@@ -242,7 +242,7 @@ whose defaults are tuned for the 3D viz engine. Source: the base graphers,
 
 - **Depth-test z-fighting punches holes where two coplanar primitives overlap.**
   `setup_window` enables `GL_DEPTH_TEST` with `GL_LESS` for *every* program and
-  `run_loop` clears depth each frame. A 2D plot draws grid, axes and curves all
+  `cayley_gl.clear_viewport` clears depth each frame. A 2D plot draws grid, axes and curves all
   at `z=0`, so once a grid pixel is written (depth ≈ 0.5) a curve pixel on the
   same spot has **equal** depth, fails `GL_LESS`, and is silently dropped. In
   grapher2d this showed as holes in the sin/cos curves exactly at their peaks:

@@ -308,4 +308,15 @@ def frame(w: int, h: int) -> None:
             standard_objects.draw_mesh(mesh)
 
 
-cayley_gl.run_loop(window, impl, frame, imgui_menubar, on_key)
+# The event loop.  The key callback goes in after cayley_gl.setup created the
+# GlfwRenderer, so it replaces imgui's key handling.  The menubar is drawn
+# after begin_frame and before the clear.
+glfw.set_key_callback(window, on_key)
+t_prev: float = glfw.get_time()
+while not glfw.window_should_close(window):
+    t_prev = cayley_gl.begin_frame(impl, t_prev)
+    imgui_menubar()
+    w, h = cayley_gl.clear_viewport(window)
+    frame(w, h)
+    cayley_gl.end_frame(window, impl)
+cayley_gl.shutdown()

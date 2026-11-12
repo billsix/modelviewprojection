@@ -118,8 +118,8 @@ Extract partially, in three steps:
    `Rect` / `Renderer`; they are excluded on teaching grounds, not by count.
 
 `cayley_gl` should **not** share this library: different stack (imgui + matrix stack vs. a 2D sprite renderer
-+ mixer), different licence, and `ports/` stays independent of the package. Its own library-ification is
-`tasks/cayley-gl-caller-owned-loop.md`.
++ mixer), different licence, and `ports/` stays independent of the package. Its own library-ification (done 2026-11-12) is
+`tasks/archive/2026/11/12/cayley-gl-caller-owned-loop.md`.
 
 ## Open questions
 
