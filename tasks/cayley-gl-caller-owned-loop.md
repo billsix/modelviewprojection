@@ -1,76 +1,70 @@
 # Make cayley_gl a library: replace `run_loop` with functions the caller loops over
 
-**Status:** in progress on branch `cayley-gl-caller-owned-loop` (go-ahead 2026-11-12)
-**Priority:** 6
-**Difficulty:** 3
-**Created:** 2026-11-05 (William Emerison Six <billsix@gmail.com>)
+**Created:** 2026-11-05 (William Emerison Six <billsix@gmail.com>). **Done:** 2026-11-12, on branch
+`cayley-gl-caller-owned-loop`.
 
-## BLUF
+## Summary
 
-`src/modelviewprojection/mvpvisualization/cayley_gl.py` is mostly library-shaped, but `run_loop` owns the event
-loop and calls back into the caller's `frame`/`menubar`/`on_key`. That is the framework shape the maintainer
-avoids ("I like libraries in general, not frameworks"). Replace `run_loop` with `begin_frame` /
-`clear_viewport` / `end_frame` / `shutdown`, and have each of its 9 callers write its own `while` loop. Done
-means `run_loop` is gone, each caller owns its loop, and every visualization and grapher looks and behaves the
-same as before.
+`src/modelviewprojection/mvpvisualization/cayley_gl.py` was library-shaped except for
+`run_loop(window, impl, frame, menubar, on_key, target_framerate)`, which owned the event loop and called back
+into each program's `frame` / `menubar` / `on_key`. That is the framework shape the maintainer avoids
+(`tasks/reference/library-not-framework-authorship-style.md`). `run_loop` was replaced by four frame steps, and
+each of its 9 callers now writes its own loop:
 
-## Context (read first)
+```python
+glfw.set_key_callback(window, on_key)   # after cayley_gl.setup created the GlfwRenderer
+t_prev: float = glfw.get_time()
+while not glfw.window_should_close(window):
+    t_prev = cayley_gl.begin_frame(impl, t_prev)
+    imgui_menubar()
+    w, h = cayley_gl.clear_viewport(window)
+    frame(w, h)
+    cayley_gl.end_frame(window, impl)
+cayley_gl.shutdown()
+```
 
-- `tasks/reference/library-not-framework-authorship-style.md`: the house rule.
-- `cayley_gl.py` (773 lines). Its docstring already says "mechanism only". Callers call down into `setup`,
-  `make_camera`, `orbit_input`, `setup_orbit_view`, `StandardObjects.draw_*`, `build_standard`, `render_tree`,
-  `menu_action`, `toggle_fullscreen` and `common_key`.
-- **The framework-shaped part is `run_loop(window, impl, frame, menubar, on_key, target_framerate)`.** In order,
-  it: installs the key callback (after the GlfwRenderer; its docstring explains why that order matters);
-  busy-waits to the frame rate; polls; calls `impl.process_inputs` and `imgui.new_frame`; calls `menubar()`;
-  sets the viewport and clears; calls `frame(w, h)`; renders imgui and swaps. At the end it calls
-  `_p.cleanup()` and `glfw.terminate()`.
-- The 9 callers each make one `cayley_gl.run_loop(window, impl, frame, imgui_menubar, on_key)` call:
-  - seven visualizations in `mvpvisualization/`: `coordinatesystems`, `model`, `modelview`, `modelview2d`,
-    `modelvieworthoprojection`, `modelviewperspectiveprojection`, `pushmatrix`;
-  - two graphers: `graphingcalculator/grapher2d.py` and `grapher3d.py`.
-- Other global state: `_pipeline.py`'s module-level `all_vaos` / `all_vbos` / `all_programs` registries and the
-  global `matrix_stack.MatrixStack`. Callers keep state in module globals (e.g. `coordinatesystems.py`'s
-  `state` dict and `win_state`).
-- No `doc-region` markers in `mvpvisualization/`, `graphingcalculator/` or `cayley/`, so book listings are not
-  affected (verify again before editing).
+- `begin_frame(impl, t_prev, target_framerate=60) -> float`: busy-waits to the frame rate, polls, runs
+  `impl.process_inputs` and `imgui.new_frame`, and returns the frame's start time.
+- `clear_viewport(window) -> (w, h)`: full-framebuffer viewport, clears color and depth.
+- `end_frame(window, impl)`: renders imgui and swaps.
+- `shutdown()`: `_p.cleanup()`, then `glfw.terminate()`.
 
-## Plan
+The order is the one `run_loop` used: key callback after the GlfwRenderer (so it replaces imgui's key
+handling), menubar after `new_frame` and before the clear.
 
-1. In `cayley_gl.py`, add:
-   - `begin_frame(window, impl, t_prev, fps) -> float`: wait, poll, process inputs, `imgui.new_frame`;
-   - `clear_viewport(window) -> (w, h)`;
-   - `end_frame(window, impl)`: imgui render and swap;
-   - `shutdown()`: `_p.cleanup()`, then terminate.
-
-   Each caller's loop then reads:
-
-   ```python
-   glfw.set_key_callback(window, on_key)   # after the GlfwRenderer is created
-   t = glfw.get_time()
-   while not glfw.window_should_close(window):
-       t = cayley_gl.begin_frame(window, impl, t, 60)
-       imgui_menubar()
-       w, h = cayley_gl.clear_viewport(window)
-       frame(w, h)
-       cayley_gl.end_frame(window, impl)
-   cayley_gl.shutdown()
-   ```
-
-   Keep `run_loop`'s order: menubar after `new_frame` and before the clear.
-2. Convert the 9 callers one at a time, then delete `run_loop`. Estimated diff: about +70 lines across callers
-   and about −35 in `cayley_gl`.
-3. Update `cayley_gl.py`'s docstrings to describe the caller-owned loop, and the authorship-style reference doc
-   if it cites `run_loop`.
-4. Verify:
-   - `make type-check` and `make test`.
-   - Each of the 9 programs, headless under Xvfb with a screenshot after a few frames: it renders, the menubar
-     responds, and Esc / fullscreen keys still work.
+Callers converted: `mvpvisualization/` `coordinatesystems`, `model`, `modelview`, `modelview2d`,
+`modelvieworthoprojection`, `modelviewperspectiveprojection`, `pushmatrix`, and `graphingcalculator/`
+`grapher2d`, `grapher3d`. The `cayley_gl` module docstring shows the loop; `CLAUDE.md`,
+`tasks/reference/notable-subsystems.md` and `tasks/reference/gl-and-imgui-gotchas.md` name the frame steps.
 
 ## Decisions
 
-- Go-ahead to implement, on its own branch with incremental commits, then archive (William Emerison Six
+- Go-ahead to implement on its own branch with incremental commits, then archive (William Emerison Six
   <billsix@gmail.com>, 2026-11-12).
-- Leave `_pipeline`'s module-level registries (`all_vaos` / `all_vbos` / `all_programs`) as they are; moving
-  them into an object returned by `setup` is out of scope. `shutdown()` frees them (William Emerison Six
+- `_pipeline`'s module-level registries (`all_vaos` / `all_vbos` / `all_programs`) stayed as they are; moving
+  them into an object returned by `setup` was out of scope. `shutdown()` frees them (William Emerison Six
   <billsix@gmail.com>, 2026-11-12).
+- `begin_frame` takes no `window` argument, unlike the plan's `begin_frame(window, impl, t_prev, fps)`: none of
+  its steps uses the window, and an unused parameter would only mislead.
+
+## How it was done
+
+1. Added the four frame steps beside `run_loop`.
+2. Converted the 9 callers with a one-shot idempotent codemod (`convert_callers.py` under
+   `tasks/adhoc/cayley-gl-caller-owned-loop/`, removed at archive; a second run reported every file unchanged).
+3. Deleted `run_loop` and updated the docstring and docs.
+
+## Verification
+
+- Before converting, all 9 programs were rendered headless with `tools/verify_render.sh <script> 10 <png>`
+  (Xvfb `:99`, image built with `BUILD_DOCS=0 USE_EMACS=0 USE_EPIX=0 USE_JUPYTER=0`). After the conversion,
+  and again after deleting `run_loop`, every program's frame was pixel-identical to its "before" frame
+  (ImageMagick `compare -metric AE` = 0) with identical colour histograms.
+- `make test`: 112 passed.
+- `make format` and `make type-check` (run as `make -o image …` against the existing image): ruff and the
+  annotation checker clean; `ty` reported one diagnostic, in `tests/test_demo22b_gltf_roundtrip.py`, which this
+  work did not touch: the unpinned dnf `ty` renamed the rule `unresolved-import` to `import-not-found`, so that
+  file's `# ty: ignore[unresolved-import]` now warns.
+- Not exercised headless: key handling (Esc, F11, per-demo keys) and menubar clicks, since the probe drives a
+  fixed frame count. The key callback is installed by the same `glfw.set_key_callback` call, at the same point
+  relative to the GlfwRenderer, as before.
