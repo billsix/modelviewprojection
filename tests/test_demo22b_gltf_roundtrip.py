@@ -47,7 +47,7 @@ _DEMO22B_DIR: Path = (
 )
 sys.path.insert(0, str(_DEMO22B_DIR))
 
-import export_scene as es  # ty: ignore[unresolved-import]  # noqa: E402
+import export_scene as es  # ty: ignore[import-not-found]  # noqa: E402
 
 _DEMO22_DIR: Path = _DEMO22B_DIR.parent / "demo22"
 
