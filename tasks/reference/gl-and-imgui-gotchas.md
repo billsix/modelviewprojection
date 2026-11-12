@@ -45,9 +45,10 @@ sections above are the failure modes.
   (stencil demo disables `GL_STENCIL_TEST`; pstipple scopes
   `GL_POLYGON_STIPPLE`; single-buffered `single` draws imgui before
   `glFlush`). (same archive)
-- **imgui-bundle is unpinned in `requirements.txt`**; a drifted bundled glfw
-  once produced `undefined symbol: glfwGetX11Window`. Known-good wheel:
-  **1.92.801**. Same symbol family as the `PYGLFW_LIBRARY` dual-lib fix in
+- **imgui-bundle's bundled glfw can drift**: an unpinned imgui-bundle once
+  produced `undefined symbol: glfwGetX11Window` (known-good then: 1.92.801).
+  It is now pinned in `requirements.txt` and `constraints.txt`, so a bump is
+  a deliberate `make update-pins` — re-run the GUI programs after one. Same symbol family as the `PYGLFW_LIBRARY` dual-lib fix in
   `design-decisions.md` › Wayland.
   (`tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md`)
 - **`import glfw` must run before `import imgui_bundle` in every demo (the

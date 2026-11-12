@@ -47,10 +47,8 @@ dnf install -y \
     python3-sympy \
     python3-virtualenv \
     python3-wxpython4 \
-    ruff \
     uv \
     tmux \
-    ty \
     which \
     wxGTK \
     wxGTK-devel || status=1

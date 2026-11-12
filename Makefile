@@ -193,6 +193,26 @@ check-format: format ## (CI) run format, then fail if it changed any tracked fil
 	git diff --exit-code
 
 
+# Regenerate constraints.txt: the exact version of every package the image
+# installs into /venv (requirements.txt minus the distro-only wxpython, plus
+# entrypoint/image-requirements.in, and all their transitive dependencies),
+# resolved for the image's own Python.  Needs the network; then `make image`
+# and the gates.
+.PHONY: update-pins
+update-pins: image ## (container, network) re-resolve constraints.txt, the image's pinned Python versions
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm \
+		--entrypoint /bin/bash \
+		$(FILES_TO_MOUNT) \
+		$(CONTAINER_NAME) \
+		-c 'source /venv/bin/activate && cd /mvp && \
+			grep -v wxpython requirements.txt > /tmp/requirements.txt && \
+			uv pip compile /tmp/requirements.txt \
+				entrypoint/image-requirements.in \
+				--python /venv/bin/python \
+				--custom-compile-command "make update-pins" \
+				-o constraints.txt'
+
+
 # Read-only type gate: ty over the whole source (no ruff, no --fix -- nothing is
 # mutated), plus the local-variable annotation checker (tools/, enforcing the
 # "every local is annotated" rule).  Every step runs and the target fails if ANY

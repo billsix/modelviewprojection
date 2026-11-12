@@ -19,6 +19,12 @@ where = ["src"]
 [tool.pytest]
 testpaths = ["tests"]
 
+[tool.ty.environment]
+# tests/test_demo22b_gltf_roundtrip.py imports demo22b's export_scene module
+# after putting this directory on sys.path, as running demo22b.py by path
+# would.  Telling ty about it lets ty resolve and check that import.
+extra-paths = ["src/modelviewprojection/demos/demo22b"]
+
 [tool.ruff]
 # 80 because the book is built as a PDF from this source -- wider lines either
 # wrap badly or run off the page. This governs BOTH the formatter and E501, so

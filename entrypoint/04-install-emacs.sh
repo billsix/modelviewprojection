@@ -20,6 +20,6 @@ dnf install -y \
     emacs-pgtk \
     nodejs \
     npm || status=1
-npm install -g pyright || status=1
+npm install -g pyright@1.1.414 || status=1
 
 exit $status

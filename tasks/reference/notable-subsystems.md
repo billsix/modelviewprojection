@@ -226,6 +226,7 @@ podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.
 - **tmpfs:** the podman image store is a tmpfs (size varies — `df -h /var/lib/containers`,
   16 GB as of 2026-06-14). **`podman rmi` each test image when done** to reclaim it;
   `podman image prune -f` clears dangling layers.
-- After changing `requirements.txt`: re-check whether a new heavy dep should be a
-  *distro* package in the Dockerfile (vs left to pip), then re-run `make image` to
-  confirm.
+- After changing `requirements.txt`: run `make update-pins` (regenerates
+  `constraints.txt`), then `make image` and the gates. A new dep goes into `/venv`
+  like every other; it is distro-only only if it has no usable wheel (`CLAUDE.md`
+  › "Python dependencies — how they are pinned").

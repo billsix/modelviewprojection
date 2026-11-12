@@ -1,0 +1,6 @@
+# Packages the Dockerfile installs into /venv by name, beyond requirements.txt.
+# `make update-pins` compiles this file together with requirements.txt into
+# constraints.txt, which pins every package the image installs.
+setuptools
+wheel
+nanobind

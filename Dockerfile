@@ -10,6 +10,7 @@ COPY entrypoint/dotfiles/ /root/
 COPY entrypoint/*.sh /usr/local/bin
 COPY entrypoint/entrypoint.sh /
 COPY requirements.txt /requirements.txt
+COPY constraints.txt /constraints.txt
 
 # System-package installation lives in per-group scripts (entrypoint/0N-install-*.sh)
 # so the exact same package set can be installed on a bare Fedora host/guest (no
@@ -50,7 +51,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      # 3.12+ venvs no longer seed setuptools, so without this the editable
      # install fails with ModuleNotFoundError and `make format` never runs.
      # (gacalc's Dockerfile does the same thing.)
-     uv pip install setuptools wheel --python /venv/bin/python && \
+     uv pip install setuptools wheel -c /constraints.txt \
+         --python /venv/bin/python && \
      if [ "$USE_JUPYTER" = "1" ]; then \
         jupytext-config set-default-viewer python && \
         # --level=user writes /root/.jupyter/labconfig/, which JupyterLab reads
@@ -79,8 +81,16 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
      echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
      echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history && \
-     grep -v wxpython /requirements.txt | uv pip install --python /venv/bin/python -r - && \
-     rm /requirements.txt
+     # Every Python package goes into /venv, at the exact version in
+     # constraints.txt (direct AND transitive; regenerate with `make
+     # update-pins`).  uv does not count the distro python3-* packages as
+     # installed, so /venv gets its own copy of each and the venv copy wins:
+     # every console script (pytest, sphinx-build, jupyter) is then a
+     # /venv/bin script that can import the venv's packages.  wxpython is the
+     # one distro-only package (python3-wxpython4), so it is filtered out.
+     grep -v wxpython /requirements.txt | \
+         uv pip install --python /venv/bin/python -c /constraints.txt -r - && \
+     rm /requirements.txt /constraints.txt
 
 # gacalc SOURCE version for the book's literalinclude (docs-only, see below).
 # MUST match the gacalc== pin in requirements.txt -- the same version drives both
@@ -119,11 +129,15 @@ tarfile.open(fileobj=io.BytesIO(urllib.request.urlopen(url).read())).extractall(
 ARG USE_EPIX=0
 ARG EPIX_COMMIT=ebf3ca607ae6c1d4fa307e8b0359960d875d219c
 COPY entrypoint/epix/install-epix-deps.sh entrypoint/epix/install-epix.sh /usr/local/bin/
+# constraints.txt is bind-mounted (not left in the image) so nanobind installs
+# at its pinned version.
 RUN --mount=type=cache,target=/var/cache/libdnf5 \
     --mount=type=cache,target=/var/lib/dnf \
+    --mount=type=bind,source=constraints.txt,target=/constraints.txt \
     if [ "$USE_EPIX" = "1" ]; then \
       bash /usr/local/bin/install-epix-deps.sh && \
-      EPIX_COMMIT="$EPIX_COMMIT" bash /usr/local/bin/install-epix.sh ; \
+      EPIX_COMMIT="$EPIX_COMMIT" CONSTRAINTS=/constraints.txt \
+        bash /usr/local/bin/install-epix.sh ; \
     fi
 
 # Bake the project's OWN source into the image so a PULLED image is runnable

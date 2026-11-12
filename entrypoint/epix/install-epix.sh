@@ -51,7 +51,9 @@ epix --version
 # namespace-package shadow.
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 source /venv/bin/activate
-uv pip install --python /venv/bin/python nanobind
+# nanobind is pinned in the repo's constraints.txt; set CONSTRAINTS to that
+# file's path to install the pinned version (unset installs the newest).
+uv pip install --python /venv/bin/python ${CONSTRAINTS:+-c "$CONSTRAINTS"} nanobind
 bash "$SRC/entrypoint/build_py.sh"
 rm -rf "$DEST"
 mv "$SRC" "$DEST"

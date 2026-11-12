@@ -1,3 +1,7 @@
+# Every direct dependency is pinned exactly. constraints.txt pins the full
+# resolved set (these plus every transitive dependency) that the image installs
+# into /venv; after changing a line here, run `make update-pins`. See "Python
+# dependencies" in CLAUDE.md.
 autoflake==2.4.0
 furo==2025.12.19
 gacalc==0.0.20
@@ -29,9 +33,13 @@ PyOpenGL==3.1.10
 # match the dnf python3-pyopengl version in the Dockerfile -- bump together.
 PyOpenGL-accelerate==3.1.10
 pytest==9.2.0
+# The format and type-check gates' tools. Pinned here rather than taken from
+# dnf, whose unpinned ruff/ty change under the gates on every Fedora update.
+ruff==0.17.4
 Sphinx==9.2.0
 sphinxcontrib-bibtex==2.7.0
 sympy==1.14.0
+ty==0.0.99
 # In-container wxpython comes from the dnf python3-wxpython4 package and is
 # filtered OUT of the pip install (`grep -v wxpython`); this pin only drives a
 # host pip install. Keep it matching the Dockerfile's distro version.

@@ -194,8 +194,8 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   `tasks/reference/code-the-classics-tightening.md` §8, frozen vectors).
 - **Never check mvp against an installed gacalc with `ty --python <prefix>`**
   — it gives false readings (e.g. `Vector − Vector → G3`). The container's
-  gate works because `/venv --system-site-packages` puts pip and ty in one
-  environment; outside it, use a venv or `PYTHONPATH`.
+  gate works because `ty` and every Python package are installed in the one
+  `/venv`; outside it, use a venv or `PYTHONPATH`.
   (`tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md`)
 
 ## 6. Bulk-edit playbook (hard-learned, 2026-07-18/19)
