@@ -640,8 +640,48 @@ def common_key(
 
 
 # ---------------------------------------------------------------------------
-# Loop runner (generic timing/poll/menubar/swap; the body is the demo's).
+# Frame steps.  The demo owns its loop and calls these in order each frame.
 # ---------------------------------------------------------------------------
+
+
+def begin_frame(
+    impl: "GlfwRenderer", t_prev: float, target_framerate: int = 60
+) -> float:
+    """Wait until ``1 / target_framerate`` seconds have passed since
+    ``t_prev``, poll events, and start an ImGui frame.  Returns this frame's
+    start time; pass it back as ``t_prev`` next frame.  Draw the menubar after
+    this call and before :func:`clear_viewport`."""
+    while glfw.get_time() < t_prev + 1.0 / target_framerate:
+        pass
+    t_start: float = glfw.get_time()
+    glfw.poll_events()
+    impl.process_inputs()
+    imgui.new_frame()
+    return t_start
+
+
+def clear_viewport(window: "GLFWWindow") -> tuple[int, int]:
+    """Set the viewport to the whole framebuffer and clear color + depth.
+    Returns the framebuffer size ``(w, h)``."""
+    w, h = glfw.get_framebuffer_size(window)
+    GL.glViewport(0, 0, w, h)
+    mask: int = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
+    GL.glClear(mask)
+    return w, h
+
+
+def end_frame(window: "GLFWWindow", impl: "GlfwRenderer") -> None:
+    """Render this frame's ImGui draw data over the scene and swap buffers."""
+    imgui.render()
+    impl.render(imgui.get_draw_data())
+    glfw.swap_buffers(window)
+
+
+def shutdown() -> None:
+    """Free the GL objects the pipelines registered, then terminate GLFW.
+    Call once, after the loop exits."""
+    _p.cleanup()
+    glfw.terminate()
 
 
 def run_loop(
