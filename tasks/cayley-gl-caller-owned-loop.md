@@ -1,6 +1,6 @@
 # Make cayley_gl a library: replace `run_loop` with functions the caller loops over
 
-**Status:** proposed — needs go-ahead
+**Status:** in progress on branch `cayley-gl-caller-owned-loop` (go-ahead 2026-11-12)
 **Priority:** 6
 **Difficulty:** 3
 **Created:** 2026-11-05 (William Emerison Six <billsix@gmail.com>)
@@ -67,8 +67,10 @@ same as before.
    - Each of the 9 programs, headless under Xvfb with a screenshot after a few frames: it renders, the menubar
      responds, and Esc / fullscreen keys still work.
 
-## Open questions
+## Decisions
 
-1. Also move `_pipeline`'s module-level registries (`all_vaos` / `all_vbos` / `all_programs`) into an object
-   returned by `setup`? This is a larger change. Recommendation: not in this task. Keep them as a documented
-   convenience; `shutdown()` already frees them.
+- Go-ahead to implement, on its own branch with incremental commits, then archive (William Emerison Six
+  <billsix@gmail.com>, 2026-11-12).
+- Leave `_pipeline`'s module-level registries (`all_vaos` / `all_vbos` / `all_programs`) as they are; moving
+  them into an object returned by `setup` is out of scope. `shutdown()` frees them (William Emerison Six
+  <billsix@gmail.com>, 2026-11-12).
