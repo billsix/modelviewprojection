@@ -7,7 +7,7 @@ convention (not a blocker; the headless render is real evidence here because the
 usually makes a headless sweep untrustworthy does not apply).
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
 **Completed:** 2026-11-03 (William Emerison Six <billsix@gmail.com>, with Claude Opus 4.8)
-**Follow-on (still open):** `tasks/graphing-calculator-3d-lit-mesh.md` — the triangle-mesh,
+**Follow-on (still open):** github.com/billsix/geometricalgebra `tasks/grapher3d-lit-mesh.md` (moved from mvp 2026-11-13) — the triangle-mesh,
 Blinn-Phong-lit (half-angle specular) version of the 3D surface, modelled on the v4 port.
 
 ## What was built
