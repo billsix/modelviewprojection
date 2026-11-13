@@ -77,13 +77,14 @@ experiment ("Try removing one of the inner glPopMatrix calls…").
   switch to fixed-function GL / `matrix_stack`. That import boundary *is* the
   "matrices finally exist" line in the arc.
 - **`matrix_stack` is imported by demo21, 22, 22a, 23, 24** (the 3.3-Core
-  era).
-- **demo21, demo22, and demo24 import
-  `modelviewprojection.mvpvisualization._pipeline`** — a *private* module of
-  the visualization package. The teaching demos depend on the viz engine, not
-  the reverse; this is the live constraint that keeps the parked
-  demos-out-of-package move parked (the engine must stay importable —
-  `design-decisions.md` › "Moving the runnable demos out …").
+  era), as `gacalc.gl.matrix_stack` since gacalc 0.1.1.
+- **demo21, 22, 22a, 22b and 24 import `GLenum` from `gacalc.gl._pipeline`** —
+  a *private* module of gacalc's GL toolkit (in mvp's
+  `mvpvisualization` until gacalc 0.1.1). The teaching demos depend on the GL
+  toolkit, not the reverse. While the toolkit lived in mvp's package this tied
+  the demos to it; now that it is in gacalc it no longer does, and the
+  demos-out-of-package move stays declined on its own grounds
+  (`design-decisions.md` › "Moving the runnable demos out …").
 
 ## 4. Shared-helper ledger (`util/`)
 

@@ -20,7 +20,6 @@ is drawn with its *view volume* -- a ±10 rectangular prism (flat, in 2D) that
 the squash scales by 1/10 down onto the ±1 NDC square."""
 
 import math
-import os
 import sys
 import types
 import typing
@@ -29,18 +28,19 @@ from enum import Enum, auto
 import glfw
 import numpy as np
 import OpenGL.GL as GL
-from gacalc.g3 import Vector
-from gacalc.transforms import translate
-
-from modelviewprojection import matrix_stack as ms
-from modelviewprojection.cayley import (
+from gacalc.cayley import (
     cayleygraph,
     cayleyscene,
 )
-from modelviewprojection.mathutils import rotate_y, rotate_z
-from modelviewprojection.mvpvisualization import (
+from gacalc.g3 import Vector
+from gacalc.gl import (
+    SHADER_DIR,
     cayley_gl,
 )
+from gacalc.gl import matrix_stack as ms
+from gacalc.transforms import translate
+
+from modelviewprojection.mathutils import rotate_y, rotate_z
 
 if typing.TYPE_CHECKING:
     # glfw types every window parameter as `_GLFWwindowPointerT`; it is private
@@ -161,9 +161,8 @@ window, impl, imguiio = cayley_gl.setup("Model View 2D (Cayley)")
 # NDC checkbox, not orbited.
 # project_modelview2d squashes x/y by 1/10; the camera's view volume is a flat
 # ±10 rectangular prism (near==far -> a square in 2D) that scales onto ±1 NDC.
-pwd: str = os.path.dirname(os.path.abspath(__file__))
 standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
-    shader_dir=pwd,
+    shader_dir=SHADER_DIR,
     animated=True,
     project="project_modelview2d.glsl",
     rect_prism=cayley_gl.RectangularPrism(

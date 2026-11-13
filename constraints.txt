@@ -81,11 +81,12 @@ fqdn==1.6.0
     # via jsonschema
 furo==2025.12.19
     # via -r /tmp/requirements.txt
-gacalc==0.0.20
+gacalc==0.1.1
     # via -r /tmp/requirements.txt
 glfw==2.11.0
     # via
     #   -r /tmp/requirements.txt
+    #   gacalc
     #   imgui-bundle
 h11==0.16.0
     # via httpcore
@@ -106,7 +107,9 @@ imageio-ffmpeg==0.8.1
 imagesize==2.0.1
     # via sphinx
 imgui-bundle==1.93.0
-    # via -r /tmp/requirements.txt
+    # via
+    #   -r /tmp/requirements.txt
+    #   gacalc
 importlib-metadata==10.2.0
     # via
     #   jupyter-cache
@@ -315,6 +318,7 @@ pexpect==4.9.0
 pillow==13.0.0
     # via
     #   -r /tmp/requirements.txt
+    #   gacalc
     #   imageio
     #   matplotlib
 platformdirs==4.14.5
@@ -358,7 +362,9 @@ pygments==2.21.0
     #   pytest
     #   sphinx
 pyopengl==3.1.10
-    # via -r /tmp/requirements.txt
+    # via
+    #   -r /tmp/requirements.txt
+    #   gacalc
 pyopengl-accelerate==3.1.10
     # via -r /tmp/requirements.txt
 pyparsing==3.3.3

@@ -4,7 +4,7 @@
 # dependencies" in CLAUDE.md.
 autoflake==2.4.0
 furo==2025.12.19
-gacalc==0.0.20
+gacalc[gl]==0.1.1
 glfw==2.11.0
 ImageIO==2.38.1
 # ffmpeg backend for imageio's mp4 writer -- notebooksrc/ndc.py builds an

@@ -21,6 +21,8 @@ import os
 import sys
 import typing
 
+import gacalc.gl.matrix_stack as ms
+
 # When using a pure python backend, prefer to import glfw before
 # imgui_bundle (so that you end up using the standard glfw, not the
 # one provided by imgui_bundle)
@@ -30,13 +32,12 @@ import OpenGL.GL as GL  # pip install PyOpenGL
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
+from gacalc.gl._pipeline import GLenum
 from imgui_bundle import imgui, imgui_md
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 from numpy.typing import NDArray
 
-import modelviewprojection.matrix_stack as ms
 import modelviewprojection.util.colorutils as colorutils
-from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.windowing import on_key
 

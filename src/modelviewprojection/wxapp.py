@@ -29,7 +29,7 @@ from OpenGL.constant import Constant
 
 #: A value OpenGL accepts where it wants an enum -- PyOpenGL constants resolve
 #: to `OpenGL.constant.Constant`, not `int`, so a plain `int` annotation rejects
-#: them.  Duplicated from mvpvisualization/_pipeline.py on purpose: importing
+#: them.  Duplicated from gacalc.gl._pipeline on purpose: importing
 #: that module here would drag glfw + imgui into a wx app.
 GLenum: typing.TypeAlias = int | Constant
 

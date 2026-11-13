@@ -28,10 +28,9 @@ straight into GL, these upload the stack's current matrices by hand, so this
 is where the stack meets the shader.
 """
 
+import gacalc.gl.matrix_stack as ms
 import numpy as np
 import OpenGL.GL as GL
-
-import modelviewprojection.matrix_stack as ms
 
 
 def set_mvp_uniforms(u_mvp: int, u_model: int) -> None:

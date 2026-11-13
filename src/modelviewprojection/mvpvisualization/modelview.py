@@ -13,7 +13,6 @@ as an object, and the world->camera ``InverseOperations`` (the original's
 "unwind").  Static perspective -- no GPU squash, no frustum."""
 
 import math
-import os
 import sys
 import types
 import typing
@@ -21,18 +20,19 @@ from enum import Enum, auto
 
 import glfw
 import numpy as np
-from gacalc.g3 import Vector
-from gacalc.transforms import translate
-
-from modelviewprojection import matrix_stack as ms
-from modelviewprojection.cayley import (
+from gacalc.cayley import (
     cayleygraph,
     cayleyscene,
 )
-from modelviewprojection.mathutils import rotate_x, rotate_y, rotate_z
-from modelviewprojection.mvpvisualization import (
+from gacalc.g3 import Vector
+from gacalc.gl import (
+    SHADER_DIR,
     cayley_gl,
 )
+from gacalc.gl import matrix_stack as ms
+from gacalc.transforms import translate
+
+from modelviewprojection.mathutils import rotate_x, rotate_y, rotate_z
 
 if typing.TYPE_CHECKING:
     # glfw types every window parameter as `_GLFWwindowPointerT`; it is private
@@ -150,9 +150,8 @@ window, impl, imguiio = cayley_gl.setup("Model View (Cayley)")
 camera: cayley_gl._p.Camera = cayley_gl.make_camera(r=30.0)
 cayley_gl.install_scroll(window, imguiio, camera)
 # static perspective: no squash shader, no frustum
-pwd: str = os.path.dirname(os.path.abspath(__file__))
 standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
-    shader_dir=pwd, animated=False
+    shader_dir=SHADER_DIR, animated=False
 )
 
 state: dict[str, typing.Any] = {

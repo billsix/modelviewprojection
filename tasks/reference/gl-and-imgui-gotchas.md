@@ -213,7 +213,7 @@ mvp-specific rules a general Python standard would miss. (Failure modes are §§
 - **Import order is semantically load-bearing, not cosmetic.** `glfw` and `OpenGL.GL`
   **must** import before `imgui_bundle` or PyOpenGL's context tracking fails at window
   setup; demos get imgui via `cayley_gl.imgui`, not their own import. See
-  `cayley_gl.py:30-35`. isort must not reorder these.
+  the import block at the top of gacalc's `src/gacalc/gl/cayley_gl.py`. isort must not reorder these.
 - **GL constants are not `int`.** PyOpenGL constants are `IntConstant`, so annotating a
   GL enum parameter as `int` needs a checker suppression. Decide it **once** rather than
   copy-pasting `# ty: ignore` a fourth time — currently duplicated in `_pipeline.py`,
@@ -236,6 +236,8 @@ mvp-specific rules a general Python standard would miss. (Failure modes are §§
   `_pipeline.py:113-121` is deliberate, and `glBindVertexArray(0)` is never called.
 
 ## 8. A flat 2D plot on the shared (3D) GL setup — the graphing calculators
+
+The graphers, `_pipeline`, `cayley_gl` and `labels` now live in gacalc (`gacalc.gl`, since 0.1.1); the current reference is github.com/billsix/geometricalgebra `tasks/reference/gl-toolkit.md`. §§8–9 keep the history of how these traps were found in mvp.
 
 Both traps come from drawing a flat `z=0` plot through `_pipeline.setup_window`,
 whose defaults are tuned for the 3D viz engine. Source: the base graphers,
@@ -270,7 +272,7 @@ whose defaults are tuned for the 3D viz engine. Source: the base graphers,
 
 ## 9. TeX billboard labels (texExpToPng) — the pipeline and its traps
 
-The graphers caption with real typeset math via `mvpvisualization/labels.py`
+The graphers caption with real typeset math via `gacalc.gl.labels`
 (`LabelRenderer`) + `billboard.vert`/`billboard.frag`: texExpToPng renders a LaTeX
 string to a PNG, uploaded as an RGBA texture, drawn as a camera-facing billboard.
 Reintroduced from the multivariate-math copy of the removed mvp

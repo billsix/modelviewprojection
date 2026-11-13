@@ -40,7 +40,7 @@ import OpenGL.GL as GL
 from .renderer import _rgba  # shared colour normaliser
 
 if TYPE_CHECKING:
-    from modelviewprojection.mvpvisualization._pipeline import GLenum
+    from gacalc.gl._pipeline import GLenum
 
     from ._types import Drawable, PointLike
 

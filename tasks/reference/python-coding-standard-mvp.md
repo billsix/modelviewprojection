@@ -58,14 +58,14 @@ function and stays positional.
 `f @ g` only when the chain fits on one line; `compose([f, g, ...])` the moment it would
 wrap — same order (`f` after `g`, last listed applied first), one function per line, instead
 of the formatter's dangling `@` with exploded arguments (maintainer, 2026-09-06). numpy's
-matrix `@` (the `mvpvisualization` demos, `test_cayley_scene`) is not composition and keeps `@`.
+matrix `@` (the `mvpvisualization` demos) is not composition and keeps `@`.
 
 ## Worked example — the `match` + `case _` that was actually bitten
 
-`matrix_stack.get_current_matrix` was five `if`s with no `else`, annotated `-> np.ndarray`,
+`matrix_stack.get_current_matrix` (now `gacalc.gl.matrix_stack`) was five `if`s with no `else`, annotated `-> np.ndarray`,
 and fell off the end returning `None` for any unhandled `MatrixStack` member — while every
 caller indexed the result. It is now a `match` with `case _: raise`. See also `_route` in
-`cayley/cayleygraph.py`, whose tail is a three-case `match`, and `cayleygraph._DfsColor` (an
+`gacalc.cayley.cayleygraph`, whose tail is a three-case `match`, and `cayleygraph._DfsColor` (an
 `enum.IntEnum` that replaced a bare `WHITE, GRAY, BLACK = 0, 1, 2`).
 
 ## Inner-function-first — mvp's own verified precedents
@@ -74,9 +74,10 @@ The shared "What earns an extraction" rule uses gacalc's `base.reject` as its wo
 `base.reject` does not exist in mvp. mvp's own instances of the shape — inner function(s) up
 top closing over the enclosing parameters and naming a phase, dispatch/guards below calling
 in — both live in the Cayley-graph engine and were re-read to confirm they illustrate the
-rule, not its opposite (William Emerison Six <billsix@gmail.com>, 2026-10-12):
+rule, not its opposite (William Emerison Six <billsix@gmail.com>, 2026-10-12). The engine moved to gacalc in
+0.1.1, so the code is now in github.com/billsix/geometricalgebra:
 
-- **`CayleyGraph._route` (`src/modelviewprojection/cayley/cayleygraph.py`).** Two inner fns,
+- **`CayleyGraph._route` (gacalc `src/gacalc/cayley/cayleygraph.py`).** Two inner fns,
   `breadth_first_parents` and `walk_back`, close over `a`/`b`; a `match (a, b)` below handles
   the empty and unknown-endpoint cases, then calls them. It also shows the corollary —
   *raise the error from the code that discovers it*: `breadth_first_parents` raises
