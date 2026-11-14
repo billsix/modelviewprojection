@@ -12,6 +12,7 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of fbodrawbuffers.cpp by Benjamin Lipchak
 
+import dataclasses
 import os
 import sys
 import typing
@@ -31,17 +32,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = (
-    None  # glfw window handle; set in main(), used by Quit control button
-)
-window_width: int = 512
-window_height: int = 512
-fbo_width: int = 512
-fbo_height: int = 512
-
-use_draw_buffers: bool = True
-do_processing: bool = True
-
 TOTAL_SHADERS: int = 6
 shader_names: list[str] = [
     "multirender",
@@ -51,24 +41,60 @@ shader_names: list[str] = [
     "grayscale",
     "colorinvert",
 ]
-f_shader: list[int] = [0] * TOTAL_SHADERS
-prog_obj: list[int] = [0] * TOTAL_SHADERS
-
-wall_texture_id: list[int] = [0, 0, 0, 0]
-render_texture_id: list[int] = [0, 0, 0, 0, 0]
-framebuffer_id: list[int] = [0, 0]
-renderbuffer_id: int = 0
-max_tex_size: int = 0
-max_draw_buffers: int = 4
-tex_coord_offsets: np.ndarray = np.zeros(18, dtype=np.float32)
-
 ambient_light: list[float] = [0.4, 0.4, 0.4, 1.0]
 diffuse_light: list[float] = [0.6, 0.6, 0.6, 1.0]
 specular_light: list[float] = [1.0, 1.0, 1.0, 1.0]
 light_pos: list[float] = [0.0, 125.0, 0.0, 1.0]
-camera_pos: list[float] = [50.0, 50.0, 100.0, 1.0]
+
+
 camera_zoom: float = 1.5
-animation_angle: float = 0.0
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = (
+        None  # glfw window handle; set in main(), used by Quit control button
+    )
+    window_width: int = 512
+    window_height: int = 512
+    fbo_width: int = 512
+    fbo_height: int = 512
+
+    use_draw_buffers: bool = True
+    do_processing: bool = True
+
+    f_shader: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADERS
+    )
+    prog_obj: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADERS
+    )
+
+    wall_texture_id: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0, 0, 0]
+    )
+    render_texture_id: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0, 0, 0, 0]
+    )
+    framebuffer_id: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0]
+    )
+    renderbuffer_id: int = 0
+    max_tex_size: int = 0
+    max_draw_buffers: int = 4
+    tex_coord_offsets: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.zeros(18, dtype=np.float32)
+    )
+
+    camera_pos: list[float] = dataclasses.field(
+        default_factory=lambda: [50.0, 50.0, 100.0, 1.0]
+    )
+    animation_angle: float = 0.0
+
+
+state: AppState = AppState()
 
 
 SPHERE_CENTER: _primitives.Mesh = _primitives.build_sphere(20.0, 32, 32)
@@ -97,8 +123,13 @@ def draw_solid_octahedron() -> None:
         (1, 2, 5),
     ]
     GL.glBegin(GL.GL_TRIANGLES)
+    i: int
+    j: int
+    k: int
     for i, j, k in faces:
-        a, b, c = verts[i], verts[j], verts[k]
+        a: tuple[int, int, int] = verts[i]
+        b: tuple[int, int, int] = verts[j]
+        c: tuple[int, int, int] = verts[k]
         nx: int = (b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1])
         ny: int = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
         nz: int = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
@@ -122,7 +153,7 @@ def draw_models(_draw_teapot: bool) -> None:
     GL.glEnable(GL.GL_TEXTURE_2D)
     walls: list[tuple[Any, ...]] = [
         (
-            wall_texture_id[0],
+            state.wall_texture_id[0],
             (1.0, 0.0, 0.0),
             [
                 (-100, -25, 100),
@@ -132,7 +163,7 @@ def draw_models(_draw_teapot: bool) -> None:
             ],
         ),
         (
-            wall_texture_id[2],
+            state.wall_texture_id[2],
             (-1.0, 0.0, 0.0),
             [
                 (100, -25, -100),
@@ -142,7 +173,7 @@ def draw_models(_draw_teapot: bool) -> None:
             ],
         ),
         (
-            wall_texture_id[1],
+            state.wall_texture_id[1],
             (0.0, 0.0, 1.0),
             [
                 (-100, -25, -100),
@@ -152,7 +183,7 @@ def draw_models(_draw_teapot: bool) -> None:
             ],
         ),
         (
-            wall_texture_id[3],
+            state.wall_texture_id[3],
             (0.0, 0.0, -1.0),
             [
                 (100, -25, 100),
@@ -169,10 +200,17 @@ def draw_models(_draw_teapot: bool) -> None:
         (1.0, 1.0),
         (1.0, 0.0),
     ]
+    tex: int
+    nx: float
+    ny: float
+    nz: float
+    verts: list[tuple[int, int, int]]
     for tex, (nx, ny, nz), verts in walls:
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
         GL.glNormal3f(nx, ny, nz)
         GL.glBegin(GL.GL_QUADS)
+        k: int
+        v: tuple[int, int, int]
         for k, v in enumerate(verts):
             GL.glTexCoord2f(*uvs[k])
             GL.glVertex3f(*v)
@@ -196,26 +234,26 @@ def draw_models(_draw_teapot: bool) -> None:
 
     GL.glColor3f(0.0, 1.0, 0.0)
     GL.glPushMatrix()
-    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.animation_angle, 0.0, 1.0, 0.0)
     GL.glTranslatef(-60.0, 0.0, 0.0)
     _primitives.draw_mesh(SPHERE)
     GL.glPopMatrix()
     GL.glColor3f(1.0, 1.0, 0.0)
     GL.glPushMatrix()
-    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.animation_angle, 0.0, 1.0, 0.0)
     GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
     GL.glTranslatef(60.0, 0.0, -24.0)
     _primitives.draw_mesh(CONE, flat=True)
     GL.glPopMatrix()
     GL.glColor3f(1.0, 0.0, 1.0)
     GL.glPushMatrix()
-    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.animation_angle, 0.0, 1.0, 0.0)
     GL.glTranslatef(0.0, 0.0, 60.0)
     _primitives.draw_mesh(TORUS)
     GL.glPopMatrix()
     GL.glColor3f(0.0, 1.0, 1.0)
     GL.glPushMatrix()
-    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.animation_angle, 0.0, 1.0, 0.0)
     GL.glTranslatef(0.0, 0.0, -60.0)
     GL.glScalef(25.0, 25.0, 25.0)
     draw_solid_octahedron()
@@ -224,37 +262,39 @@ def draw_models(_draw_teapot: bool) -> None:
 
 def prepare_shader(n: int) -> None:
     fname: str = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
+    f: typing.TextIO
     with open(fname) as f:
         fs_src: str = f.read()
-    f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
-    prog_obj[n] = GL.glCreateProgram()
-    GL.glAttachShader(prog_obj[n], f_shader[n])
-    GL.glLinkProgram(prog_obj[n])
-    if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
+    state.f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
+    state.prog_obj[n] = GL.glCreateProgram()
+    GL.glAttachShader(state.prog_obj[n], state.f_shader[n])
+    GL.glLinkProgram(state.prog_obj[n])
+    if not GL.glGetProgramiv(state.prog_obj[n], GL.GL_LINK_STATUS):
+        info: bytes = GL.glGetProgramInfoLog(state.prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
 
 def setup_textures() -> None:
-    global wall_texture_id, render_texture_id
     files: list[str] = ["WRHS.tga", "MAMS.tga", "WPI.tga", "Babson.tga"]
-    wall_texture_id = list(GL.glGenTextures(4))
+    state.wall_texture_id = list(GL.glGenTextures(4))
+    i: int
+    name: str
     for i, name in enumerate(files):
         img: np.ndarray = iio.imread(os.path.join(PWD, name))
         img = np.flipud(img)
         if img.ndim == 3 and img.shape[2] == 4:
             img = img[:, :, :3]
         img = np.ascontiguousarray(img, dtype=np.uint8)
-        h, w = img.shape[:2]
-        GL.glBindTexture(GL.GL_TEXTURE_2D, wall_texture_id[i])
+        img_shape: tuple[int, ...] = img.shape[:2]
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.wall_texture_id[i])
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, 1)
         GL.glTexImage2D(
             GL.GL_TEXTURE_2D,
             0,
             GL.GL_RGB8,
-            w,
-            h,
+            img_shape[1],
+            img_shape[0],
             0,
             GL.GL_RGB,
             GL.GL_UNSIGNED_BYTE,
@@ -275,11 +315,11 @@ def setup_textures() -> None:
             GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
         )
 
-    render_texture_id = list(GL.glGenTextures(5))
-    for i in range(max_draw_buffers + 1):
+    state.render_texture_id = list(GL.glGenTextures(5))
+    for i in range(state.max_draw_buffers + 1):
         if i > 0:
             GL.glActiveTexture(GL.GL_TEXTURE0 + i - 1)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, render_texture_id[i])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.render_texture_id[i])
         GL.glTexParameteri(
             GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
         )
@@ -302,8 +342,8 @@ def setup_textures() -> None:
             GL.GL_TEXTURE_2D,
             0,
             GL.GL_RGBA8,
-            fbo_width,
-            fbo_height,
+            state.fbo_width,
+            state.fbo_height,
             0,
             GL.GL_RGBA,
             GL.GL_UNSIGNED_BYTE,
@@ -313,13 +353,12 @@ def setup_textures() -> None:
 
 
 def render_scene() -> None:
-    global animation_angle
-    animation_angle = (animation_angle + 1.0) % 360.0
+    state.animation_angle = (state.animation_angle + 1.0) % 360.0
 
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    if window_width > window_height:
-        ar: float = float(window_width) / float(window_height)
+    if state.window_width > state.window_height:
+        ar: float = float(state.window_width) / float(state.window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -329,7 +368,7 @@ def render_scene() -> None:
             1000.0,
         )
     else:
-        ar = float(window_height) / float(window_width)
+        ar = float(state.window_height) / float(state.window_width)
         GL.glFrustum(
             -camera_zoom,
             camera_zoom,
@@ -338,15 +377,15 @@ def render_scene() -> None:
             2.0,
             1000.0,
         )
-    camera_pos[0] = max(-99.0, min(99.0, camera_pos[0]))
-    camera_pos[1] = max(-20.0, min(120.0, camera_pos[1]))
-    camera_pos[2] = max(-99.0, min(99.0, camera_pos[2]))
+    state.camera_pos[0] = max(-99.0, min(99.0, state.camera_pos[0]))
+    state.camera_pos[1] = max(-20.0, min(120.0, state.camera_pos[1]))
+    state.camera_pos[2] = max(-99.0, min(99.0, state.camera_pos[2]))
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
     GLU.gluLookAt(
-        camera_pos[0],
-        camera_pos[1],
-        camera_pos[2],
+        state.camera_pos[0],
+        state.camera_pos[1],
+        state.camera_pos[2],
         0.0,
         0.0,
         0.0,
@@ -355,46 +394,52 @@ def render_scene() -> None:
         0.0,
     )
 
-    if do_processing:
-        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[0])
-        GL.glViewport(0, 0, fbo_width, fbo_height)
+    if state.do_processing:
+        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[0])
+        GL.glViewport(0, 0, state.fbo_width, state.fbo_height)
     else:
-        GL.glViewport(0, 0, window_width, window_height)
+        GL.glViewport(0, 0, state.window_width, state.window_height)
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     draw_models(True)
 
-    if not do_processing:
+    if not state.do_processing:
         return
 
     # Pass 2: post-process the rendered scene into 4 textures
-    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[1])
-    GL.glBindTexture(GL.GL_TEXTURE_2D, render_texture_id[0])
+    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[1])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.render_texture_id[0])
     GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
 
-    if use_draw_buffers:
+    if state.use_draw_buffers:
         GL.glDrawBuffers(
-            max_draw_buffers,
-            [GL.GL_COLOR_ATTACHMENT0 + i for i in range(max_draw_buffers)],
+            state.max_draw_buffers,
+            [
+                GL.GL_COLOR_ATTACHMENT0 + i
+                for i in range(state.max_draw_buffers)
+            ],
         )
         loops: list[int] = [0]
     else:
-        loops = list(range(max_draw_buffers))
+        loops = list(range(state.max_draw_buffers))
 
+    loop: int
     for loop in loops:
-        if use_draw_buffers:
+        if state.use_draw_buffers:
             shader_num: int = 0
         else:
             shader_num = loop + 2
             GL.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0 + loop)
 
-        GL.glUseProgram(prog_obj[shader_num])
-        loc: int = GL.glGetUniformLocation(prog_obj[shader_num], "sampler0")
+        GL.glUseProgram(state.prog_obj[shader_num])
+        loc: int = GL.glGetUniformLocation(
+            state.prog_obj[shader_num], "sampler0"
+        )
         if loc != -1:
             GL.glUniform1i(loc, 0)
-        loc = GL.glGetUniformLocation(prog_obj[shader_num], "tc_offset")
+        loc = GL.glGetUniformLocation(state.prog_obj[shader_num], "tc_offset")
         if loc != -1:
-            GL.glUniform2fv(loc, 9, tex_coord_offsets)
+            GL.glUniform2fv(loc, 9, state.tex_coord_offsets)
 
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glMatrixMode(GL.GL_PROJECTION)
@@ -414,13 +459,14 @@ def render_scene() -> None:
 
     # Pass 3: combine 4 textures back into a tiled image on screen
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
-    GL.glViewport(0, 0, window_width, window_height)
-    GL.glUseProgram(prog_obj[1])
+    GL.glViewport(0, 0, state.window_width, state.window_height)
+    GL.glUseProgram(state.prog_obj[1])
+    i: int
     for i in range(4):
-        loc = GL.glGetUniformLocation(prog_obj[1], f"sampler{i}")
+        loc = GL.glGetUniformLocation(state.prog_obj[1], f"sampler{i}")
         if loc != -1:
             GL.glUniform1i(loc, i)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, render_texture_id[1])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.render_texture_id[1])
     GL.glBegin(GL.GL_QUADS)
     GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 0.0)
     GL.glVertex2f(-1.0, -1.0)
@@ -436,7 +482,6 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    global max_tex_size, max_draw_buffers, renderbuffer_id
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glDepthFunc(GL.GL_LEQUAL)
@@ -453,103 +498,117 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_NORMALIZE)
     GL.glEnable(GL.GL_LIGHT0)
 
-    max_draw_buffers = min(
+    state.max_draw_buffers = min(
         GL.glGetIntegerv(GL.GL_MAX_DRAW_BUFFERS),
         GL.glGetIntegerv(GL.GL_MAX_COLOR_ATTACHMENTS),
         GL.glGetIntegerv(GL.GL_MAX_TEXTURE_IMAGE_UNITS) - 1,
         4,
     )
-    max_tex_size = min(
+    state.max_tex_size = min(
         GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE),
         GL.glGetIntegerv(GL.GL_MAX_RENDERBUFFER_SIZE),
     )
     setup_textures()
+    i: int
     for i in range(TOTAL_SHADERS):
         prepare_shader(i)
-    renderbuffer_id = GL.glGenRenderbuffers(1)
-    GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbuffer_id)
+    state.renderbuffer_id = GL.glGenRenderbuffers(1)
+    GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, state.renderbuffer_id)
     GL.glRenderbufferStorage(
-        GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, fbo_width, fbo_height
+        GL.GL_RENDERBUFFER,
+        GL.GL_DEPTH_COMPONENT32,
+        state.fbo_width,
+        state.fbo_height,
     )
     fbs: list[int] = list(GL.glGenFramebuffers(2))
-    framebuffer_id[0], framebuffer_id[1] = fbs
-    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[0])
+    state.framebuffer_id[0] = fbs[0]
+    state.framebuffer_id[1] = fbs[1]
+    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[0])
     GL.glFramebufferRenderbuffer(
         GL.GL_FRAMEBUFFER,
         GL.GL_DEPTH_ATTACHMENT,
         GL.GL_RENDERBUFFER,
-        renderbuffer_id,
+        state.renderbuffer_id,
     )
     GL.glFramebufferTexture2D(
         GL.GL_FRAMEBUFFER,
         GL.GL_COLOR_ATTACHMENT0,
         GL.GL_TEXTURE_2D,
-        render_texture_id[0],
+        state.render_texture_id[0],
         0,
     )
-    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[1])
-    for i in range(max_draw_buffers):
+    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[1])
+    for i in range(state.max_draw_buffers):
         GL.glFramebufferTexture2D(
             GL.GL_FRAMEBUFFER,
             GL.GL_COLOR_ATTACHMENT0 + i,
             GL.GL_TEXTURE_2D,
-            render_texture_id[i + 1],
+            state.render_texture_id[i + 1],
             0,
         )
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height, fbo_width, fbo_height
-    orig: tuple[int, int] = (fbo_width, fbo_height)
-    window_width = fbo_width = w
-    window_height = fbo_height = h
-    if fbo_width > max_tex_size:
-        fbo_width = max_tex_size
-    if fbo_height > max_tex_size:
-        fbo_height = max_tex_size
-    if (fbo_width, fbo_height) != orig and renderbuffer_id != 0:
-        GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbuffer_id)
+    orig: tuple[int, int] = (state.fbo_width, state.fbo_height)
+    state.window_width = state.fbo_width = w
+    state.window_height = state.fbo_height = h
+    if state.fbo_width > state.max_tex_size:
+        state.fbo_width = state.max_tex_size
+    if state.fbo_height > state.max_tex_size:
+        state.fbo_height = state.max_tex_size
+    if (
+        state.fbo_width,
+        state.fbo_height,
+    ) != orig and state.renderbuffer_id != 0:
+        GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, state.renderbuffer_id)
         GL.glRenderbufferStorage(
-            GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, fbo_width, fbo_height
+            GL.GL_RENDERBUFFER,
+            GL.GL_DEPTH_COMPONENT32,
+            state.fbo_width,
+            state.fbo_height,
         )
-        for i in range(max_draw_buffers + 1):
-            GL.glBindTexture(GL.GL_TEXTURE_2D, render_texture_id[i])
+        i: int
+        for i in range(state.max_draw_buffers + 1):
+            GL.glBindTexture(GL.GL_TEXTURE_2D, state.render_texture_id[i])
             GL.glTexImage2D(
                 GL.GL_TEXTURE_2D,
                 0,
                 GL.GL_RGBA8,
-                fbo_width,
-                fbo_height,
+                state.fbo_width,
+                state.fbo_height,
                 0,
                 GL.GL_RGBA,
                 GL.GL_UNSIGNED_BYTE,
                 None,
             )
-        x_inc: float = 1.0 / fbo_width
-        y_inc: float = 1.0 / fbo_height
+        x_inc: float = 1.0 / state.fbo_width
+        y_inc: float = 1.0 / state.fbo_height
+        j: int
         for i in range(3):
             for j in range(3):
-                tex_coord_offsets[(((i * 3) + j) * 2) + 0] = -x_inc + i * x_inc
-                tex_coord_offsets[(((i * 3) + j) * 2) + 1] = -y_inc + j * y_inc
+                state.tex_coord_offsets[(((i * 3) + j) * 2) + 0] = (
+                    -x_inc + i * x_inc
+                )
+                state.tex_coord_offsets[(((i * 3) + j) * 2) + 1] = (
+                    -y_inc + j * y_inc
+                )
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 def _nudge_cam(axis: int, d: float) -> None:
-    camera_pos[axis] += d
+    state.camera_pos[axis] += d
 
 
 def _set_use_draw_buffers(v: bool) -> None:
-    global use_draw_buffers
-    use_draw_buffers = v
+    state.use_draw_buffers = v
 
 
 def _set_do_processing(v: bool) -> None:
-    global do_processing
-    do_processing = v
+    state.do_processing = v
 
 
 def imgui_menubar() -> None:
@@ -560,19 +619,23 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Options", True):
-        clicked, v = imgui.menu_item(
-            "Use draw buffers (MRT)", "", use_draw_buffers, True
+        draw_buffers_item: tuple[bool, bool] = imgui.menu_item(
+            "Use draw buffers (MRT)", "", state.use_draw_buffers, True
         )
-        if clicked:
-            _set_use_draw_buffers(v)
-        clicked, v = imgui.menu_item("Post-processing", "", do_processing, True)
-        if clicked:
-            _set_do_processing(v)
+        if draw_buffers_item[0]:
+            _set_use_draw_buffers(draw_buffers_item[1])
+        processing_item: tuple[bool, bool] = imgui.menu_item(
+            "Post-processing", "", state.do_processing, True
+        )
+        if processing_item[0]:
+            _set_do_processing(processing_item[1])
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 1.0))
@@ -590,7 +653,9 @@ def imgui_menubar() -> None:
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, mods: int
+) -> None:
     # Render-option toggles moved to the imgui panel; keys are navigation only.
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
@@ -599,34 +664,37 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
         return
     delta: float = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
     if key == glfw.KEY_X:
-        camera_pos[0] += delta
+        state.camera_pos[0] += delta
     elif key == glfw.KEY_Y:
-        camera_pos[1] += delta
+        state.camera_pos[1] += delta
     elif key == glfw.KEY_Z:
-        camera_pos[2] += delta
+        state.camera_pos[2] += delta
     elif key == glfw.KEY_LEFT:
-        camera_pos[0] -= 1.0
+        state.camera_pos[0] -= 1.0
     elif key == glfw.KEY_RIGHT:
-        camera_pos[0] += 1.0
+        state.camera_pos[0] += 1.0
     elif key == glfw.KEY_UP:
-        camera_pos[2] -= 1.0
+        state.camera_pos[2] -= 1.0
     elif key == glfw.KEY_DOWN:
-        camera_pos[2] += 1.0
+        state.camera_pos[2] += 1.0
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window: typing.Any = glfw.create_window(  # glfw window handle
-        window_width, window_height, "FBO Draw Buffers Demo", None, None
+        state.window_width,
+        state.window_height,
+        "FBO Draw Buffers Demo",
+        None,
+        None,
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -640,8 +708,8 @@ def main() -> None:
     print("  X/Y/Z + shift, arrows: move camera   Esc: quit")
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()

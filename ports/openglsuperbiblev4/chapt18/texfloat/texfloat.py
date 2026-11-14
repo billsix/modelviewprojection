@@ -12,6 +12,7 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of texfloat.cpp by Benjamin Lipchak
 
+import dataclasses
 import os
 import sys
 import typing
@@ -28,16 +29,12 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main(), used by Quit
-window_width: int = 1024
-window_height: int = 768
-
-CLAMPED, TRIVIAL, IRIS, WHITEBALANCE = 0, 1, 2, 3
+CLAMPED: int = 0
+TRIVIAL: int = 1
+IRIS: int = 2
+WHITEBALANCE: int = 3
 TOTAL_SHADERS: int = 4
 shader_names: list[str] = ["clamped", "trivial", "iris", "whitebalance"]
-f_shader: list[int] = [0] * TOTAL_SHADERS
-prog_obj: list[int] = [0] * TOTAL_SHADERS
-current_shader: int = TRIVIAL
 
 exr_files: list[str] = [
     "Blobbies.exr",
@@ -50,23 +47,44 @@ exr_files: list[str] = [
     "Tree.exr",
 ]
 image_names: list[str] = [os.path.splitext(f)[0] for f in exr_files]
-current_image: int = 0
 
-f_texels: np.ndarray | None = None
-npot_w: int = 0
-npot_h: int = 0
-pot_w: int = 0
-pot_h: int = 0
-x_aspect: float = 1.0
-y_aspect: float = 1.0
 
-f_cursor_x: float = 0.0
-f_cursor_y: float = 0.0
-i_cursor_x: int = 0
-i_cursor_y: int = 0
-max_r: float = 0.0
-max_g: float = 0.0
-max_b: float = 0.0
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main(), used by Quit
+    window_width: int = 1024
+    window_height: int = 768
+
+    f_shader: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADERS
+    )
+    prog_obj: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADERS
+    )
+    current_shader: int = TRIVIAL
+
+    current_image: int = 0
+
+    f_texels: np.ndarray | None = None
+    npot_w: int = 0
+    npot_h: int = 0
+    pot_w: int = 0
+    pot_h: int = 0
+    x_aspect: float = 1.0
+    y_aspect: float = 1.0
+
+    f_cursor_x: float = 0.0
+    f_cursor_y: float = 0.0
+    i_cursor_x: int = 0
+    i_cursor_y: int = 0
+    max_r: float = 0.0
+    max_g: float = 0.0
+    max_b: float = 0.0
+
+
+state: AppState = AppState()
 
 
 def _trace(msg: str) -> None:
@@ -79,39 +97,41 @@ def _trace(msg: str) -> None:
 
 def prepare_shader(n: int) -> None:
     fname: str = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
+    f: typing.TextIO
     with open(fname) as f:
         fs_src: str = f.read()
-    f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
-    prog_obj[n] = GL.glCreateProgram()
-    GL.glAttachShader(prog_obj[n], f_shader[n])
-    GL.glLinkProgram(prog_obj[n])
-    if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
+    state.f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
+    state.prog_obj[n] = GL.glCreateProgram()
+    GL.glAttachShader(state.prog_obj[n], state.f_shader[n])
+    GL.glLinkProgram(state.prog_obj[n])
+    if not GL.glGetProgramiv(state.prog_obj[n], GL.GL_LINK_STATUS):
+        info: bytes = GL.glGetProgramInfoLog(state.prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
-    GL.glUseProgram(prog_obj[n])
-    loc: int = GL.glGetUniformLocation(prog_obj[n], "sampler0")
+    GL.glUseProgram(state.prog_obj[n])
+    loc: int = GL.glGetUniformLocation(state.prog_obj[n], "sampler0")
     if loc != -1:
         GL.glUniform1i(loc, 0)
     GL.glUseProgram(0)
 
 
 def alter_aspect() -> None:
-    global x_aspect, y_aspect
-    if window_height == 0:
-        x_aspect, y_aspect = 0.00001, 1.0
+    if state.window_height == 0:
+        state.x_aspect = 0.00001
+        state.y_aspect = 1.0
         return
-    ta: float = float(npot_w) / float(npot_h)
-    wa: float = float(window_width) / float(window_height)
+    ta: float = float(state.npot_w) / float(state.npot_h)
+    wa: float = float(state.window_width) / float(state.window_height)
     if ta > wa:
-        x_aspect, y_aspect = 1.0, wa / ta
+        state.x_aspect = 1.0
+        state.y_aspect = wa / ta
     else:
-        x_aspect, y_aspect = ta / wa, 1.0
+        state.x_aspect = ta / wa
+        state.y_aspect = 1.0
 
 
 def setup_textures(which: int) -> None:
-    global f_texels, npot_w, npot_h, pot_w, pot_h, current_image
-    current_image = which
+    state.current_image = which
     _trace(f"setup_textures({which}): imread {exr_files[which]}")
     img: np.ndarray = iio.imread(
         os.path.join(PWD, "openexr-images", exr_files[which])
@@ -119,27 +139,33 @@ def setup_textures(which: int) -> None:
     img = np.flipud(img).astype(np.float32)
     if img.ndim == 3 and img.shape[2] >= 3:
         img = img[:, :, :3]
-    npot_h, npot_w = img.shape[:2]
-    pot_w, pot_h = npot_w, npot_h
-    f_texels = np.ascontiguousarray(img, dtype=np.float32)
+    img_shape: tuple[int, ...] = img.shape[:2]
+    state.npot_h = img_shape[0]
+    state.npot_w = img_shape[1]
+    state.pot_w = state.npot_w
+    state.pot_h = state.npot_h
+    state.f_texels = np.ascontiguousarray(img, dtype=np.float32)
     _trace(
-        f"  image {npot_w}x{npot_h} shape={f_texels.shape} "
+        f"  image {state.npot_w}x{state.npot_h} shape={state.f_texels.shape} "
         f"MAX_TEXTURE_SIZE={GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)}"
     )
     alter_aspect()
     _trace("  glTexParameteri(GL_GENERATE_MIPMAP, 1)")
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, 1)
-    _trace(f"  glTexImage2D(RGB16F, {pot_w}, {pot_h}, GL_RGB, GL_FLOAT)")
+    _trace(
+        f"  glTexImage2D(RGB16F, {state.pot_w}, {state.pot_h}, "
+        f"GL_RGB, GL_FLOAT)"
+    )
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
         0,
         GL.GL_RGB16F,
-        pot_w,
-        pot_h,
+        state.pot_w,
+        state.pot_h,
         0,
         GL.GL_RGB,
         GL.GL_FLOAT,
-        f_texels,
+        state.f_texels,
     )
     _trace("  glTexImage2D returned OK")
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
@@ -152,53 +178,61 @@ def setup_textures(which: int) -> None:
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
     )
-    print(f"Loaded {exr_files[which]} ({npot_w}x{npot_h})")
+    print(f"Loaded {exr_files[which]} ({state.npot_w}x{state.npot_h})")
 
 
 def render_scene() -> None:
-    global max_r, max_g, max_b
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    GL.glUseProgram(prog_obj[current_shader])
+    GL.glUseProgram(state.prog_obj[state.current_shader])
 
-    if current_shader in (IRIS, WHITEBALANCE) and f_texels is not None:
-        center_u: int = int(((f_cursor_x / x_aspect) + 1.0) * 0.5 * npot_w)
-        center_v: int = int(((f_cursor_y / y_aspect) + 1.0) * 0.5 * npot_h)
+    if (
+        state.current_shader in (IRIS, WHITEBALANCE)
+        and state.f_texels is not None
+    ):
+        center_u: int = int(
+            ((state.f_cursor_x / state.x_aspect) + 1.0) * 0.5 * state.npot_w
+        )
+        center_v: int = int(
+            ((state.f_cursor_y / state.y_aspect) + 1.0) * 0.5 * state.npot_h
+        )
         u0: int = max(0, center_u - 25)
-        u1: int = min(npot_w, center_u + 26)
+        u1: int = min(state.npot_w, center_u + 26)
         v0: int = max(0, center_v - 25)
-        v1: int = min(npot_h, center_v + 26)
+        v1: int = min(state.npot_h, center_v + 26)
         if u1 > u0 and v1 > v0:
-            patch: np.ndarray = f_texels[v0:v1, u0:u1]
+            patch: np.ndarray = state.f_texels[v0:v1, u0:u1]
             new_max: np.ndarray = patch.reshape(-1, 3).max(axis=0)
-            max_r += (new_max[0] - max_r) * 0.01
-            max_g += (new_max[1] - max_g) * 0.01
-            max_b += (new_max[2] - max_b) * 0.01
-        loc: int = GL.glGetUniformLocation(prog_obj[current_shader], "max")
+            state.max_r += (new_max[0] - state.max_r) * 0.01
+            state.max_g += (new_max[1] - state.max_g) * 0.01
+            state.max_b += (new_max[2] - state.max_b) * 0.01
+        loc: int = GL.glGetUniformLocation(
+            state.prog_obj[state.current_shader], "max"
+        )
         if loc != -1:
-            GL.glUniform3f(loc, max_r, max_g, max_b)
+            GL.glUniform3f(loc, state.max_r, state.max_g, state.max_b)
 
     GL.glBegin(GL.GL_QUADS)
     GL.glTexCoord2f(0.0, 0.0)
-    GL.glVertex2f(-x_aspect, -y_aspect)
-    GL.glTexCoord2f(0.0, npot_h / pot_h)
-    GL.glVertex2f(-x_aspect, y_aspect)
-    GL.glTexCoord2f(npot_w / pot_w, npot_h / pot_h)
-    GL.glVertex2f(x_aspect, y_aspect)
-    GL.glTexCoord2f(npot_w / pot_w, 0.0)
-    GL.glVertex2f(x_aspect, -y_aspect)
+    GL.glVertex2f(-state.x_aspect, -state.y_aspect)
+    GL.glTexCoord2f(0.0, state.npot_h / state.pot_h)
+    GL.glVertex2f(-state.x_aspect, state.y_aspect)
+    GL.glTexCoord2f(state.npot_w / state.pot_w, state.npot_h / state.pot_h)
+    GL.glVertex2f(state.x_aspect, state.y_aspect)
+    GL.glTexCoord2f(state.npot_w / state.pot_w, 0.0)
+    GL.glVertex2f(state.x_aspect, -state.y_aspect)
     GL.glEnd()
 
     GL.glUseProgram(0)
 
-    if current_shader in (IRIS, WHITEBALANCE):
-        hw: float = 51.0 * x_aspect / npot_w
-        hh: float = 51.0 * y_aspect / npot_h
+    if state.current_shader in (IRIS, WHITEBALANCE):
+        hw: float = 51.0 * state.x_aspect / state.npot_w
+        hh: float = 51.0 * state.y_aspect / state.npot_h
         GL.glColor4f(1.0, 0.0, 0.0, 1.0)
         GL.glBegin(GL.GL_LINE_LOOP)
-        GL.glVertex2f(f_cursor_x - hw, f_cursor_y - hh)
-        GL.glVertex2f(f_cursor_x - hw, f_cursor_y + hh)
-        GL.glVertex2f(f_cursor_x + hw, f_cursor_y + hh)
-        GL.glVertex2f(f_cursor_x + hw, f_cursor_y - hh)
+        GL.glVertex2f(state.f_cursor_x - hw, state.f_cursor_y - hh)
+        GL.glVertex2f(state.f_cursor_x - hw, state.f_cursor_y + hh)
+        GL.glVertex2f(state.f_cursor_x + hw, state.f_cursor_y + hh)
+        GL.glVertex2f(state.f_cursor_x + hw, state.f_cursor_y - hh)
         GL.glEnd()
 
 
@@ -206,6 +240,7 @@ def setup_rc() -> None:
     _trace("setup_rc: start")
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     setup_textures(0)
+    i: int
     for i in range(TOTAL_SHADERS):
         _trace(f"setup_rc: prepare_shader({i}) [{shader_names[i]}]")
         prepare_shader(i)
@@ -213,48 +248,55 @@ def setup_rc() -> None:
 
 
 def cursor_update(x: float, y: float) -> None:
-    global f_cursor_x, f_cursor_y
-    f_cursor_x = max(-x_aspect, min(x_aspect, 2.0 * (x - 0.5)))
-    f_cursor_y = max(-y_aspect, min(y_aspect, 2.0 * (y - 0.5)))
-    f_cursor_y *= -1.0
+    state.f_cursor_x = max(
+        -state.x_aspect, min(state.x_aspect, 2.0 * (x - 0.5))
+    )
+    state.f_cursor_y = max(
+        -state.y_aspect, min(state.y_aspect, 2.0 * (y - 0.5))
+    )
+    state.f_cursor_y *= -1.0
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height
-    window_width, window_height = w, h
+    state.window_width = w
+    state.window_height = h
     GL.glViewport(0, 0, w, h)
     alter_aspect()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_mouse_pos(_window, x: float, y: float) -> None:
-    global i_cursor_x, i_cursor_y
-    i_cursor_x = int(x)
-    i_cursor_y = int(y)
-    if window_width > 1 and window_height > 1:
-        cursor_update(x / (window_width - 1), y / (window_height - 1))
+def on_mouse_pos(_window: typing.Any, x: float, y: float) -> None:
+    state.i_cursor_x = int(x)
+    state.i_cursor_y = int(y)
+    if state.window_width > 1 and state.window_height > 1:
+        cursor_update(
+            x / (state.window_width - 1), y / (state.window_height - 1)
+        )
 
 
 def _nudge_cursor(axis: int, delta: int) -> None:
     # Move the pixel-probe cursor one pixel (mirrors the arrow keys); this
     # is NOT a camera -- it positions the 51x51 readback window.
-    global i_cursor_x, i_cursor_y
     if axis == 0:
-        i_cursor_x = max(0, min(window_width - 1, i_cursor_x + delta))
+        state.i_cursor_x = max(
+            0, min(state.window_width - 1, state.i_cursor_x + delta)
+        )
     else:
-        i_cursor_y = max(0, min(window_height - 1, i_cursor_y + delta))
-    if window_width > 1 and window_height > 1:
+        state.i_cursor_y = max(
+            0, min(state.window_height - 1, state.i_cursor_y + delta)
+        )
+    if state.window_width > 1 and state.window_height > 1:
         cursor_update(
-            i_cursor_x / (window_width - 1), i_cursor_y / (window_height - 1)
+            state.i_cursor_x / (state.window_width - 1),
+            state.i_cursor_y / (state.window_height - 1),
         )
 
 
 def _select_shader(i: int) -> None:
-    global current_shader
-    current_shader = i
+    state.current_shader = i
 
 
 def imgui_menubar() -> None:
@@ -266,18 +308,22 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Render options", True):
+        i: int
+        name: str
         if imgui.begin_menu("Tone-map shader", True):
             for i, name in enumerate(shader_names):
                 _common.menu_action(
                     name,
                     f"F{i + 1}",
                     lambda i=i: _select_shader(i),
-                    selected=(current_shader == i),
+                    selected=(state.current_shader == i),
                 )
             imgui.end_menu()
         if imgui.begin_menu("Test image", True):
@@ -286,7 +332,7 @@ def imgui_menubar() -> None:
                     name,
                     str(i + 1),
                     lambda i=i: setup_textures(i),
-                    selected=(current_image == i),
+                    selected=(state.current_image == i),
                 )
             imgui.end_menu()
         imgui.end_menu()
@@ -301,44 +347,49 @@ def imgui_menubar() -> None:
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     # Shader and image selection moved to the imgui panel; the arrow
     # keys still drive the pixel-probe cursor (a debug interaction).
-    global i_cursor_x, i_cursor_y
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
         return
     if key == glfw.KEY_LEFT:
-        i_cursor_x = max(0, i_cursor_x - 1)
+        state.i_cursor_x = max(0, state.i_cursor_x - 1)
     elif key == glfw.KEY_RIGHT:
-        i_cursor_x = min(window_width - 1, i_cursor_x + 1)
+        state.i_cursor_x = min(state.window_width - 1, state.i_cursor_x + 1)
     elif key == glfw.KEY_UP:
-        i_cursor_y = max(0, i_cursor_y - 1)
+        state.i_cursor_y = max(0, state.i_cursor_y - 1)
     elif key == glfw.KEY_DOWN:
-        i_cursor_y = min(window_height - 1, i_cursor_y + 1)
+        state.i_cursor_y = min(state.window_height - 1, state.i_cursor_y + 1)
     else:
         return
-    if window_width > 1 and window_height > 1:
+    if state.window_width > 1 and state.window_height > 1:
         cursor_update(
-            i_cursor_x / (window_width - 1), i_cursor_y / (window_height - 1)
+            state.i_cursor_x / (state.window_width - 1),
+            state.i_cursor_y / (state.window_height - 1),
         )
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window: typing.Any = glfw.create_window(  # glfw window handle
-        window_width, window_height, "Floating-Point Texture Demo", None, None
+        state.window_width,
+        state.window_height,
+        "Floating-Point Texture Demo",
+        None,
+        None,
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -353,8 +404,8 @@ def main() -> None:
     print("  arrows or mouse: move cursor   Esc: quit")
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()
