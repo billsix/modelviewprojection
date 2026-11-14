@@ -143,9 +143,28 @@ Mechanical, uniform — new ports match these so students can read across demos.
 - **Per-demo skeleton:** header comment (name, one-liner, "OpenGL SuperBible,
   Chapter NN", "Python port of <X>.cpp by Richard S. Wright Jr."), the
   Wayland guard (`PYOPENGL_PLATFORM=x11` when unset under a Wayland session),
-  typed module-level state, `render_scene`/`setup_rc`/`change_size`, polling
-  `handle_special_keys`, `main()` with the GLFW boilerplate, `__main__`
-  guard. Procedural, no classes.
+  an `AppState` dataclass for the mutable state (below),
+  `render_scene`/`setup_rc`/`change_size`, polling `handle_special_keys`,
+  `main()` with the GLFW boilerplate, `__main__` guard. Procedural: functions,
+  no other classes.
+- **Mutable state lives in one `AppState` dataclass per app** (William Emerison
+  Six <billsix@gmail.com>, 2026-11-14): `@dataclasses.dataclass class
+  AppState` with annotated, defaulted fields (mutable defaults through
+  `dataclasses.field(default_factory=...)`), one module-level
+  `state: AppState = AppState()`, and every function reads and writes
+  `state.<field>` — no `global`/`nonlocal`. GLFW callbacks keep their fixed
+  signatures and reach `state` directly; the window handle is `state.window`.
+  State = anything rebound or mutated in place at run time (GL ids from setup,
+  lists filled in `setup_rc`, nudged camera positions); values never changed
+  after import stay module-level annotated constants under their own names.
+  Model: `chapt02/bounce/bounce.py`. This applies to `ports/openglsuperbiblev4/`
+  only, not to the course demos (`CLAUDE.md`: they keep procedural globals).
+- **Annotate every binding, including unpacks and loop targets:** a tuple
+  result goes through an annotated intermediate read by index
+  (`size: tuple[int, int] = glfw.get_framebuffer_size(window)`, then `size[0]`;
+  imgui's `(changed, value)` the same way), and a `for`/`with` target gets a bare
+  declaration on the line above. Exempt: `_`, comprehension and `except ... as`
+  targets. (`tasks/archive/2026/11/14/superbible-v4-globals-singleton-and-types.md`)
 
 ### Helper-replacement exemplars (copy from these files)
 
