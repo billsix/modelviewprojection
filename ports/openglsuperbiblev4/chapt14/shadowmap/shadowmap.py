@@ -15,6 +15,7 @@
 # OpenGL SuperBible, Chapter 14
 # Python port of shadowmap.cpp by Benjamin Lipchak
 
+import dataclasses
 import math
 import os
 import sys
@@ -32,30 +33,50 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-control_camera: bool = True
-no_shadows: bool = False
-show_shadow_map: bool = False
-factor: float = 4.0
-
-window_width: int = 1024
-window_height: int = 512
 shadow_width: int = 1024
 shadow_height: int = 512
-shadow_texture_id: int = 0
 
 ambient_light: tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1.0)
 diffuse_light: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
 
-light_pos: list[float] = [100.0, 300.0, 100.0, 1.0]
-camera_pos: list[float] = [100.0, 150.0, 200.0, 1.0]
 camera_zoom: float = 0.3
-texture_matrix: np.ndarray = np.eye(4, dtype=np.float32).flatten()
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+    control_camera: bool = True
+    no_shadows: bool = False
+    show_shadow_map: bool = False
+    factor: float = 4.0
+
+    window_width: int = 1024
+    window_height: int = 512
+    shadow_texture_id: int = 0
+
+    light_pos: list[float] = dataclasses.field(
+        default_factory=lambda: [100.0, 300.0, 100.0, 1.0]
+    )
+    camera_pos: list[float] = dataclasses.field(
+        default_factory=lambda: [100.0, 150.0, 200.0, 1.0]
+    )
+    texture_matrix: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.eye(4, dtype=np.float32).flatten()
+    )
+
+
+state: AppState = AppState()
 
 
 def draw_solid_cube(size: float) -> None:
     s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
+    nx: int
+    ny: int
+    nz: int
+    vs: list[tuple[float, float, float]]
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
         (0, 0, -1, [(s, -s, -s), (-s, -s, -s), (-s, s, -s), (s, s, -s)]),
@@ -65,6 +86,7 @@ def draw_solid_cube(size: float) -> None:
         (0, -1, 0, [(-s, -s, -s), (s, -s, -s), (s, -s, s), (-s, -s, s)]),
     ]:
         GL.glNormal3f(nx, ny, nz)
+        v: tuple[float, float, float]
         for v in vs:
             GL.glVertex3f(*v)
     GL.glEnd()
@@ -96,7 +118,9 @@ def draw_solid_octahedron() -> None:
         (0, 3, 5),
     ]
     GL.glBegin(GL.GL_TRIANGLES)
+    f: tuple[int, int, int]
     for f in faces:
+        i: int
         for i in f:
             v: tuple[float, float, float] = verts[i]
             GL.glNormal3f(*v)
@@ -146,11 +170,12 @@ def draw_models(draw_base_plane: bool) -> None:
 
 
 def regenerate_shadow_map() -> None:
-    global texture_matrix
 
     scene_bounding_radius: float = 95.0
     light_to_scene: float = math.sqrt(
-        light_pos[0] ** 2 + light_pos[1] ** 2 + light_pos[2] ** 2
+        state.light_pos[0] ** 2
+        + state.light_pos[1] ** 2
+        + state.light_pos[2] ** 2
     )
     near: float = light_to_scene - scene_bounding_radius
     fov: float = math.degrees(
@@ -167,7 +192,15 @@ def regenerate_shadow_map() -> None:
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
     GLU.gluLookAt(
-        light_pos[0], light_pos[1], light_pos[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0
+        state.light_pos[0],
+        state.light_pos[1],
+        state.light_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
     )
     light_modelview: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
@@ -227,14 +260,14 @@ def regenerate_shadow_map() -> None:
     mv: np.ndarray = light_modelview.reshape(4, 4)
     # Column-major matmul: (bias * proj * mv) -- transposed for GL plane eqs
     m: np.ndarray = (bias_matrix @ proj @ mv).T
-    texture_matrix = m.flatten().astype(np.float32)
+    state.texture_matrix = m.flatten().astype(np.float32)
 
 
 def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    if window_width > window_height:
-        ar: float = float(window_width) / float(window_height)
+    if state.window_width > state.window_height:
+        ar: float = float(state.window_width) / float(state.window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -244,7 +277,7 @@ def render_scene() -> None:
             1000.0,
         )
     else:
-        ar = float(window_height) / float(window_width)
+        ar = float(state.window_height) / float(state.window_width)
         GL.glFrustum(
             -camera_zoom,
             camera_zoom,
@@ -256,9 +289,9 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
     GLU.gluLookAt(
-        camera_pos[0],
-        camera_pos[1],
-        camera_pos[2],
+        state.camera_pos[0],
+        state.camera_pos[1],
+        state.camera_pos[2],
         0.0,
         0.0,
         0.0,
@@ -266,11 +299,11 @@ def render_scene() -> None:
         1.0,
         0.0,
     )
-    GL.glViewport(0, 0, window_width, window_height)
-    GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
+    GL.glViewport(0, 0, state.window_width, state.window_height)
+    GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, state.light_pos)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-    if show_shadow_map:
+    if state.show_shadow_map:
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
         GL.glMatrixMode(GL.GL_MODELVIEW)
@@ -304,7 +337,7 @@ def render_scene() -> None:
         GL.glEnable(GL.GL_LIGHTING)
         GL.glPopMatrix()
         GL.glMatrixMode(GL.GL_MODELVIEW)
-    elif no_shadows:
+    elif state.no_shadows:
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, ambient_light)
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, diffuse_light)
         draw_models(True)
@@ -332,10 +365,10 @@ def render_scene() -> None:
         GL.glEnable(GL.GL_TEXTURE_GEN_T)
         GL.glEnable(GL.GL_TEXTURE_GEN_R)
         GL.glEnable(GL.GL_TEXTURE_GEN_Q)
-        GL.glTexGenfv(GL.GL_S, GL.GL_EYE_PLANE, texture_matrix[0:4])
-        GL.glTexGenfv(GL.GL_T, GL.GL_EYE_PLANE, texture_matrix[4:8])
-        GL.glTexGenfv(GL.GL_R, GL.GL_EYE_PLANE, texture_matrix[8:12])
-        GL.glTexGenfv(GL.GL_Q, GL.GL_EYE_PLANE, texture_matrix[12:16])
+        GL.glTexGenfv(GL.GL_S, GL.GL_EYE_PLANE, state.texture_matrix[0:4])
+        GL.glTexGenfv(GL.GL_T, GL.GL_EYE_PLANE, state.texture_matrix[4:8])
+        GL.glTexGenfv(GL.GL_R, GL.GL_EYE_PLANE, state.texture_matrix[8:12])
+        GL.glTexGenfv(GL.GL_Q, GL.GL_EYE_PLANE, state.texture_matrix[12:16])
 
         draw_models(True)
 
@@ -351,67 +384,72 @@ def _nudge(axis: int, d: float) -> None:
     # X/Y/Z move the camera or the light, mirroring on_key (the panel's
     # control radio selects which); regenerate the shadow map after a
     # light move so the shadow follows.
-    pos: list[float] = camera_pos if control_camera else light_pos
+    pos: list[float] = (
+        state.camera_pos if state.control_camera else state.light_pos
+    )
     pos[axis] += d
-    if not control_camera:
+    if not state.control_camera:
         regenerate_shadow_map()
 
 
 def _set_shadows(on: bool) -> None:
-    global no_shadows
-    no_shadows = not on
+    state.no_shadows = not on
 
 
 def _set_show_shadow_map(v: bool) -> None:
-    global show_shadow_map
-    show_shadow_map = v
+    state.show_shadow_map = v
 
 
 def _set_control_camera(v: bool) -> None:
-    global control_camera
-    control_camera = v
+    state.control_camera = v
 
 
 def imgui_menubar() -> None:
     # All controls live in the top menubar. Movement items run once per click
     # and show their key in the shortcut column; hold the key for continuous
     # motion. X/Y/Z move the camera or the light depending on the Control mode.
-    global factor
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Options", True):
-        clicked, v = imgui.menu_item("Shadows", "", not no_shadows, True)
-        if clicked:
-            _set_shadows(v)
-        clicked, v = imgui.menu_item(
-            "Show shadow map", "", show_shadow_map, True
+        shadows_item: tuple[bool, bool] = imgui.menu_item(
+            "Shadows", "", not state.no_shadows, True
         )
-        if clicked:
-            _set_show_shadow_map(v)
+        if shadows_item[0]:
+            _set_shadows(shadows_item[1])
+        show_map_item: tuple[bool, bool] = imgui.menu_item(
+            "Show shadow map", "", state.show_shadow_map, True
+        )
+        if show_map_item[0]:
+            _set_show_shadow_map(show_map_item[1])
         imgui.separator()
         _common.menu_action(
             "Move camera",
             "",
             lambda: _set_control_camera(True),
-            selected=control_camera,
+            selected=state.control_camera,
         )
         _common.menu_action(
             "Move light",
             "",
             lambda: _set_control_camera(False),
-            selected=not control_camera,
+            selected=not state.control_camera,
         )
         imgui.separator()
         if imgui.begin_menu("Polygon offset", True):
-            changed, factor = imgui.slider_float("Factor", factor, 0.0, 10.0)
-            if changed:
-                GL.glPolygonOffset(factor, 0.0)
+            factor_slider: tuple[bool, float] = imgui.slider_float(
+                "Factor", state.factor, 0.0, 10.0
+            )
+            state.factor = factor_slider[1]
+            if factor_slider[0]:
+                GL.glPolygonOffset(state.factor, 0.0)
                 regenerate_shadow_map()
             imgui.end_menu()
         imgui.end_menu()
@@ -428,19 +466,18 @@ def imgui_menubar() -> None:
 
 
 def setup_rc() -> None:
-    global shadow_texture_id
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glDepthFunc(GL.GL_LEQUAL)
-    GL.glPolygonOffset(factor, 0.0)
+    GL.glPolygonOffset(state.factor, 0.0)
     GL.glShadeModel(GL.GL_SMOOTH)
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_COLOR_MATERIAL)
     GL.glEnable(GL.GL_NORMALIZE)
     GL.glEnable(GL.GL_LIGHT0)
 
-    shadow_texture_id = GL.glGenTextures(1)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, shadow_texture_id)
+    state.shadow_texture_id = GL.glGenTextures(1)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.shadow_texture_id)
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
     )
@@ -461,15 +498,17 @@ def setup_rc() -> None:
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height
-    window_width, window_height = w, h
+    state.window_width = w
+    state.window_height = h
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, mods: int
+) -> None:
     # Render options (shadows toggle, shadow-map view, control mode,
     # polygon-offset factor) moved to the imgui panel; keys here move the
     # camera or the light (selected via the panel's control radio).
@@ -479,7 +518,9 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
         glfw.set_window_should_close(window, True)
         return
 
-    pos: list[float] = camera_pos if control_camera else light_pos
+    pos: list[float] = (
+        state.camera_pos if state.control_camera else state.light_pos
+    )
     delta: float = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
 
     if key == glfw.KEY_X:
@@ -489,23 +530,26 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     elif key == glfw.KEY_Z:
         pos[2] += delta
 
-    if not control_camera:
+    if not state.control_camera:
         regenerate_shadow_map()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     window: typing.Any = glfw.create_window(
-        window_width, window_height, "Shadow Mapping Demo", None, None
+        state.window_width,
+        state.window_height,
+        "Shadow Mapping Demo",
+        None,
+        None,
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -516,8 +560,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
