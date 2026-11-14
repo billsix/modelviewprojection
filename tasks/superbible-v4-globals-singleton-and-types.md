@@ -1,6 +1,6 @@
 # SuperBible v4 ports: wrap module globals in a per-app singleton dataclass + fully type them
 
-**Status:** proposed — needs go-ahead (ready to execute; large, so batch per chapter).
+**Status:** approved — go-ahead given, decisions recorded (William Emerison Six <billsix@gmail.com>, 2026-11-14)
 **Priority:** 6 **Difficulty:** 6
 **Created:** 2026-10-23 (William Emerison Six <billsix@gmail.com>). Requested: wrap each port app's
 globals in one singleton dataclass, update every reference, and add types to everything per the
@@ -93,21 +93,15 @@ Per-chapter checklist (fill in as done):
   are, move the markers with the code and run `make check-regions`.
 - **Display / audio / gamepad** — Bill verifies on host GL (the agent cannot).
 
-## Decisions / open questions
+## Decisions (William Emerison Six <billsix@gmail.com>, 2026-11-14)
 
-1. **Singleton wiring:** module-level instance the functions reference (removes `global`; works with
-   fixed-signature glfw callbacks), vs passing the dataclass through non-callback functions as a param.
-   Recommend the **module-level instance**. Which do you want, and one consistent name across all apps
-   (e.g. class `AppState`, instance `state`)?
-2. **Constants:** leave truly-constant module values (`TICK_INTERVAL`) as annotated module consts, or
-   fold them into the dataclass as defaults? Recommend **keep genuine constants module-level**; only
+1. **Singleton wiring:** one module-level instance, class `AppState`, instance `state`, in every app.
+2. **Constants:** genuine constants (`TICK_INTERVAL`) stay annotated module-level constants; only
    mutable state goes in the dataclass.
-3. **How to annotate the exempt unpack sites:** `size: tuple[int, int] = glfw.get_framebuffer_size(window)`
-   + indexed reads, vs keeping `w, h = …` and accepting the checker's exemption. The request is to
-   type them, so recommend the annotated-intermediate form. Confirm the spelling you want.
-4. **ty scope:** leave `ports/openglsuperbiblev4` out of the `ty` step (status quo; annotation checker
-   still covers it), or also bring it into `ty` as part of this work? That overlaps
-   `tasks/openglsuperbible-ty-diagnostics.md` — recommend keeping it out here and tracking ty there.
+3. **Unpack sites:** the annotated-intermediate form,
+   `size: tuple[int, int] = glfw.get_framebuffer_size(window)` plus indexed reads.
+4. **ty scope:** out of scope here; `tasks/openglsuperbible-ty-diagnostics.md` decided to keep the
+   tree out of the `ty` step.
 
 ## Pointers
 

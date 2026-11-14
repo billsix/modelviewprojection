@@ -1,6 +1,6 @@
 # Decide what to do with openglsuperbible's pre-existing ty diagnostics
 
-**Status:** proposed — needs go-ahead (a decision only the maintainer can make)
+**Status:** approved — go-ahead given, decisions recorded (William Emerison Six <billsix@gmail.com>, 2026-11-14)
 **Priority:** 7
 **Difficulty:** 4
 **Started:** 2026-09-17 (William Emerison Six <billsix@gmail.com>) — split from
@@ -42,10 +42,11 @@ leave the tree permanently out of the `ty` step. Only after that can openglsuper
    non-None before glfw calls). Highest effort and risks touching port behaviour / fidelity —
    least aligned with "faithful port".
 
-## Open questions
+## Decision (William Emerison Six <billsix@gmail.com>, 2026-11-14)
 
-1. Which option? (Recommendation: option 1 — leave out of the `ty` step; the tree is faithful port
-   code and the diagnostics are stub friction, and it's already annotation-enforced.)
+Option 1: `ports/openglsuperbiblev4` stays out of the `ty` step of `make type-check`. The tree is
+faithful port code, the diagnostics are glfw/imgui stub friction, and the annotation checker already
+covers it.
 
 ## See also
 

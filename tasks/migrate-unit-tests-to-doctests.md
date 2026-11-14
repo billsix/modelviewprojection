@@ -1,6 +1,6 @@
 # Migrate unit tests into doctests where they read well
 
-**Status:** proposed — needs go-ahead (criteria/inventory can start now; the migration is the bulk).
+**Status:** approved — go-ahead given, decisions recorded (William Emerison Six <billsix@gmail.com>, 2026-11-14)
 **Priority:** 5
 **Difficulty:** 4
 **Created:** 2026-10-27 (William Emerison Six <billsix@gmail.com>)

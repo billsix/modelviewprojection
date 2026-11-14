@@ -1,6 +1,6 @@
 # Dockerfile: order layers so an edited script or a toggled flag doesn't rebuild TeX and ePiX
 
-**Status:** proposed — needs go-ahead
+**Status:** approved — go-ahead given, decisions recorded (William Emerison Six <billsix@gmail.com>, 2026-11-14)
 **Priority:** 4
 **Difficulty:** 3
 **Started:** 2026-11-05 (William Emerison Six <billsix@gmail.com>)

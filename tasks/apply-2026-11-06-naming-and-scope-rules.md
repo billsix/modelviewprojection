@@ -3,6 +3,7 @@
 **Status:** proposed — needs go-ahead (open questions below)
 **Priority:** 5
 **Difficulty:** 7
+**Deferred** (William Emerison Six <billsix@gmail.com>, 2026-11-14): left out of the unattended batch run that day; the maintainer wants to be present to calibrate the triage. The open questions below are still open.
 **Created:** 2026-11-06 (William Emerison Six <billsix@gmail.com>): asked for the geometricalgebra survey
 task ("search through all of geometricalgebra and see if there is programming advice that we added that
 should be applied to the codebase, to refactor it"), then "add a similar task to every other python
