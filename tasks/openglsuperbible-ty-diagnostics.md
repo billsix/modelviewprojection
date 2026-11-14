@@ -1,55 +1,34 @@
-# Decide what to do with openglsuperbible's pre-existing ty diagnostics
+# openglsuperbible's pre-existing ty diagnostics: kept out of the `ty` step
 
-**Status:** approved — go-ahead given, decisions recorded (William Emerison Six <billsix@gmail.com>, 2026-11-14)
-**Priority:** 7
-**Difficulty:** 4
-**Started:** 2026-09-17 (William Emerison Six <billsix@gmail.com>) — split from
-`tasks/archive/2026/09/17/type-all-ports.md` on its completion, so the recommendation isn't
-stranded.
+**Started:** 2026-09-17 (William Emerison Six <billsix@gmail.com>), split from
+`tasks/archive/2026/09/17/type-all-ports.md`. **Done:** 2026-11-14.
 
-## BLUF
+## Outcome
 
-`ports/openglsuperbiblev4` is fully type-annotated (locals + module-level) and enforced by the
-annotation checker, but it is **not** in the `ty` step of `make type-check` because it carries
-**~101 pre-existing `ty` diagnostics** that are NOT annotation problems — they are glfw/imgui stub
-mismatches in faithful port code. Decide whether to fix them, blanket-`# ty: ignore` them, or
-leave the tree permanently out of the `ty` step. Only after that can openglsuperbible join the
-`ty` step.
+`ports/openglsuperbiblev4` stays out of the `ty` steps of `make type-check`; the annotation checker
+(`tools/check_local_annotations.py --include-module`) keeps covering it. The decision is now recorded
+where a reader of the gate meets it: `tasks/reference/tests-and-gates.md` §5 (the decision, the
+diagnostics, and the rejected options), the `CLAUDE.md` "Coding standard" parenthetical (points there),
+and a comment above the `type-check` target in the `Makefile`.
 
-## Context
+## Background
 
-- The type-all-ports work (archived `2026/09/17/type-all-ports.md`) annotated every local and
-  module-level variable in openglsuperbible. Those annotations *reduced* the ty diagnostic count
-  from **194 → 101** (they resolved 93 and added zero), which is why we know the remaining 101 are
-  pre-existing, not annotation-caused.
-- The 101 are things like `glfw.set_window_should_close(_window, True)` where the stub wants a
-  non-`None` `_GLFWwindow` pointer but the value is `_GLFWwindow | None`, and
-  `imgui.set_window_font_scale` / other members the imgui-bundle stubs don't declare. See
-  `ports/openglsuperbiblev4/chapt21/fonts/font.py` for representative examples.
-- `make type-check` currently runs `ty` over src, tests, and `ports/codetheclassics` only;
-  openglsuperbible is annotated + annotation-checked (`--include-module`) but excluded from the
-  `ty` step.
-
-## Options
-
-1. **Leave it out of the `ty` step (lowest effort).** Faithful ports; the diagnostics are upstream
-   stub friction, not real bugs. Keep the annotation enforcement (already on) and accept ty doesn't
-   cover this tree. Recommended unless the maintainer wants full ty coverage.
-2. **Blanket-suppress.** Add narrow `# ty: ignore[<rule>]` at each of the ~101 sites (or per-file
-   where a whole file is affected), then add openglsuperbible to the `ty` step. Medium effort;
-   clutters faithful port code with ignores.
-3. **Fix them.** Adjust the calls/None-guards so the stubs are satisfied (e.g. assert the window is
-   non-None before glfw calls). Highest effort and risks touching port behaviour / fidelity —
-   least aligned with "faithful port".
+The type-all-ports work annotated every local and module-level variable in the tree. That cut the
+`ty` diagnostic count from 194 to 101 (93 resolved, none added), which showed the remaining 101 were
+not annotation problems. They are glfw/imgui stub mismatches in faithful port code: for example
+`glfw.set_window_should_close(_window, True)`, where the stub wants a non-`None` window but the value
+is typed `_GLFWwindow | None`, and imgui-bundle members the stubs do not declare
+(`imgui.set_window_font_scale`, see `ports/openglsuperbiblev4/chapt21/fonts/font.py`).
 
 ## Decision (William Emerison Six <billsix@gmail.com>, 2026-11-14)
 
-Option 1: `ports/openglsuperbiblev4` stays out of the `ty` step of `make type-check`. The tree is
-faithful port code, the diagnostics are glfw/imgui stub friction, and the annotation checker already
-covers it.
+Option 1 of three: leave the tree out of the `ty` step. Rationale: the code is a faithful port, the
+diagnostics are upstream stub friction rather than bugs, and annotation completeness is already
+enforced. Rejected:
 
-## See also
+- **Blanket-suppress** (~101 narrow `# ty: ignore[<rule>]` sites, then add the tree to `ty`):
+  clutters faithful port code with ignores.
+- **Fix them** (None-guards and call changes that satisfy the stubs): the most work, and it touches
+  port behaviour and fidelity.
 
-- `tasks/archive/2026/09/17/type-all-ports.md` — the annotation work that surfaced this.
-- `CLAUDE.md` › "Coding standard" — notes openglsuperbible is annotated but kept out of the `ty`
-  step.
+Revisit only if the glfw or imgui-bundle stubs improve.

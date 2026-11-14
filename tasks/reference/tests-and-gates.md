@@ -200,6 +200,17 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   (invalid-assignment) but says nothing about `v.x += …` — pair it with a grep
   for `\.(x|y|z)\s*[-+*/]?=` (see
   `tasks/reference/code-the-classics-tightening.md` §8, frozen vectors).
+- **`ports/openglsuperbiblev4` is annotation-checked but not ty-checked, by
+  decision** (William Emerison Six <billsix@gmail.com>, 2026-11-14). `make
+  type-check` runs `tools/check_local_annotations.py --include-module` over the
+  tree but leaves it out of the `ty` steps. Its ~101 ty diagnostics (as of
+  2026-09-17) are glfw/imgui stub friction in faithful port code, not bugs:
+  `glfw.set_window_should_close(_window, True)` where the stub wants a
+  non-`None` window but the value is `_GLFWwindow | None`, and imgui-bundle
+  members the stubs don't declare (`imgui.set_window_font_scale`). The two
+  rejected options were ~101 narrow `# ty: ignore[...]` sites (clutter in port
+  code) and None-guards to satisfy the stubs (touches port behaviour). Revisit
+  only if the stubs improve. (`tasks/archive/2026/11/14/openglsuperbible-ty-diagnostics.md`)
 - **Never check mvp against an installed gacalc with `ty --python <prefix>`**
   — it gives false readings (e.g. `Vector − Vector → G3`). The container's
   gate works because `ty` and every Python package are installed in the one
