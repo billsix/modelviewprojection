@@ -12,6 +12,7 @@
 # OpenGL SuperBible, Chapter 13
 # Python port of occquery.cpp by Benjamin Lipchak
 
+import dataclasses
 import math
 import os
 import sys
@@ -31,27 +32,44 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-window_width: int = 1024
-window_height: int = 768
 
-show_menu: bool = True
-occlusion_detection: bool = True
-show_bounding_volume: bool = False
-query_ids: np.ndarray = np.zeros(27, dtype=np.uint32)
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+    window_width: int = 1024
+    window_height: int = 768
+
+    show_menu: bool = True
+    occlusion_detection: bool = True
+    show_bounding_volume: bool = False
+    query_ids: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.zeros(27, dtype=np.uint32)
+    )
+
+    camera_pos: list[float] = dataclasses.field(
+        default_factory=lambda: [200.0, 300.0, 400.0, 1.0]
+    )
+    texture_id: int = 0
+
+
+state: AppState = AppState()
 
 ambient_light: tuple[float, float, float, float] = (0.4, 0.4, 0.4, 1.0)
 diffuse_light: tuple[float, float, float, float] = (0.9, 0.9, 0.9, 1.0)
 light_pos: tuple[float, float, float, float] = (100.0, 300.0, 100.0, 1.0)
 
-camera_pos: list[float] = [200.0, 300.0, 400.0, 1.0]
 camera_zoom: float = 0.6
-texture_id: int = 0
 
 
 def draw_solid_cube(size: float) -> None:
     s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
+    nx: int
+    ny: int
+    nz: int
+    vs: list[tuple[float, float, float]]
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
         (0, 0, -1, [(s, -s, -s), (-s, -s, -s), (-s, s, -s), (s, s, -s)]),
@@ -61,21 +79,27 @@ def draw_solid_cube(size: float) -> None:
         (0, -1, 0, [(-s, -s, -s), (s, -s, -s), (s, -s, s), (-s, -s, s)]),
     ]:
         GL.glNormal3f(nx, ny, nz)
+        v: tuple[float, float, float]
         for v in vs:
             GL.glVertex3f(*v)
     GL.glEnd()
 
 
 def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
+    i: int
     for i in range(stacks):
         lat0: float = math.pi * (-0.5 + float(i) / stacks)
         lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
+        s0: float = math.sin(lat0)
+        c0: float = math.cos(lat0)
+        s1: float = math.sin(lat1)
+        c1: float = math.cos(lat1)
         GL.glBegin(GL.GL_QUAD_STRIP)
+        j: int
         for j in range(slices + 1):
             lng: float = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
+            cl: float = math.cos(lng)
+            sl: float = math.sin(lng)
             GL.glNormal3f(cl * c0, sl * c0, s0)
             GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
             GL.glNormal3f(cl * c1, sl * c1, s1)
@@ -85,6 +109,8 @@ def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
 
 def draw_occluder() -> None:
     GL.glColor3f(0.5, 0.25, 0.0)
+    axis: int
+    d: float
     for axis in range(3):
         GL.glPushMatrix()
         if axis == 0:
@@ -113,8 +139,10 @@ def draw_occluder() -> None:
 
 def draw_sphere_at(idx: int) -> None:
     occluded: bool = False
-    if occlusion_detection:
-        passing: int = GL.glGetQueryObjectiv(query_ids[idx], GL.GL_QUERY_RESULT)
+    if state.occlusion_detection:
+        passing: int = GL.glGetQueryObjectiv(
+            state.query_ids[idx], GL.GL_QUERY_RESULT
+        )
         if passing == 0:
             occluded = True
     if not occluded:
@@ -124,25 +152,29 @@ def draw_sphere_at(idx: int) -> None:
 def draw_models() -> None:
     draw_occluder()
 
-    if occlusion_detection or show_bounding_volume:
+    if state.occlusion_detection or state.show_bounding_volume:
         GL.glShadeModel(GL.GL_FLAT)
-        if not show_bounding_volume:
+        if not state.show_bounding_volume:
             GL.glDisable(GL.GL_LIGHTING)
             GL.glDisable(GL.GL_COLOR_MATERIAL)
             GL.glDisable(GL.GL_NORMALIZE)
             GL.glDepthMask(GL.GL_FALSE)
             GL.glColorMask(False, False, False, False)
+        r: int
+        g: int
+        b: int
         for r in range(3):
             for g in range(3):
                 for b in range(3):
-                    if show_bounding_volume:
+                    if state.show_bounding_volume:
                         GL.glColor3f(r * 0.5, g * 0.5, b * 0.5)
                     GL.glPushMatrix()
                     GL.glTranslatef(
                         100.0 * r - 100.0, 100.0 * g - 100.0, 100.0 * b - 100.0
                     )
                     GL.glBeginQuery(
-                        GL.GL_SAMPLES_PASSED, int(query_ids[r * 9 + g * 3 + b])
+                        GL.GL_SAMPLES_PASSED,
+                        int(state.query_ids[r * 9 + g * 3 + b]),
                     )
                     draw_solid_cube(100.0)
                     GL.glEndQuery(GL.GL_SAMPLES_PASSED)
@@ -177,8 +209,8 @@ def draw_models() -> None:
 def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    if window_width > window_height:
-        ar: float = float(window_width) / float(window_height)
+    if state.window_width > state.window_height:
+        ar: float = float(state.window_width) / float(state.window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -188,7 +220,7 @@ def render_scene() -> None:
             1000.0,
         )
     else:
-        ar = float(window_height) / float(window_width)
+        ar = float(state.window_height) / float(state.window_width)
         GL.glFrustum(
             -camera_zoom,
             camera_zoom,
@@ -201,9 +233,9 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
     GLU.gluLookAt(
-        camera_pos[0],
-        camera_pos[1],
-        camera_pos[2],
+        state.camera_pos[0],
+        state.camera_pos[1],
+        state.camera_pos[2],
         0.0,
         0.0,
         0.0,
@@ -211,42 +243,45 @@ def render_scene() -> None:
         1.0,
         0.0,
     )
-    GL.glViewport(0, 0, window_width, window_height)
+    GL.glViewport(0, 0, state.window_width, state.window_height)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     draw_models()
 
 
 def _nudge_cam(axis: int, d: float) -> None:
-    camera_pos[axis] += d
+    state.camera_pos[axis] += d
 
 
 def imgui_menubar() -> None:
     # All controls live in the top menubar. Movement items run once per click
     # and show their key in the shortcut column (discovery); hold the key for
     # continuous motion.
-    global occlusion_detection, show_bounding_volume, show_menu
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Render options", True):
-        clicked, v = imgui.menu_item(
-            "Occlusion detection", "", occlusion_detection, True
+        occlusion_item: tuple[bool, bool] = imgui.menu_item(
+            "Occlusion detection", "", state.occlusion_detection, True
         )
-        if clicked:
-            occlusion_detection = v
-        clicked, v = imgui.menu_item(
-            "Show bounding volumes", "", show_bounding_volume, True
+        if occlusion_item[0]:
+            state.occlusion_detection = occlusion_item[1]
+        bounding_item: tuple[bool, bool] = imgui.menu_item(
+            "Show bounding volumes", "", state.show_bounding_volume, True
         )
-        if clicked:
-            show_bounding_volume = v
-        clicked, v = imgui.menu_item("Show help overlay", "", show_menu, True)
-        if clicked:
-            show_menu = v
+        if bounding_item[0]:
+            state.show_bounding_volume = bounding_item[1]
+        help_item: tuple[bool, bool] = imgui.menu_item(
+            "Show help overlay", "", state.show_menu, True
+        )
+        if help_item[0]:
+            state.show_menu = help_item[1]
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Camera +X", "Left", lambda: _nudge_cam(0, 5.0))
@@ -260,9 +295,7 @@ def imgui_menubar() -> None:
 
 
 def setup_rc() -> None:
-    global texture_id, query_ids
-
-    query_ids = np.array(GL.glGenQueries(27), dtype=np.uint32)
+    state.query_ids = np.array(GL.glGenQueries(27), dtype=np.uint32)
 
     GL.glClearColor(0.3, 0.3, 0.3, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
@@ -270,6 +303,7 @@ def setup_rc() -> None:
 
     # Screen-door stipple pattern
     mask: np.ndarray = np.zeros(32, dtype=np.uint32)
+    i: int
     for i in range(0, 32, 2):
         mask[i] = 0xAAAAAAAA
         mask[i + 1] = 0x55555555
@@ -289,13 +323,13 @@ def setup_rc() -> None:
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
     img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, "logo.tga")))
-    h, w = img.shape[:2]
+    shape: tuple[int, ...] = img.shape[:2]
     fmt: Constant = (
         GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     )
     img = np.ascontiguousarray(img, dtype=np.uint8)
-    texture_id = GL.glGenTextures(1)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id)
+    state.texture_id = GL.glGenTextures(1)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id)
     # Bind FIRST, then set the params on this texture.  The C++ wrote
     # to texture 0 (no glGenTextures, no glBindTexture) so its param
     # order didn't matter; we have a real texture name now and the
@@ -305,7 +339,15 @@ def setup_rc() -> None:
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        GL.GL_TEXTURE_2D,
+        0,
+        fmt,
+        shape[1],
+        shape[0],
+        0,
+        fmt,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
 
     GL.glTexGenfv(
@@ -321,19 +363,19 @@ def setup_rc() -> None:
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height
-    window_width, window_height = w, h
+    state.window_width = w
+    state.window_height = h
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, mods: int
+) -> None:
     # Render-option toggles (O/S/M) moved to the imgui panel; keys here
     # are navigation only.
-    global camera_pos
-
     # Movement keys fire on PRESS or REPEAT so holding the key keeps
     # moving, matching GLUT glutSpecialFunc's auto-repeat behavior.
     is_movement: bool = key in (
@@ -357,36 +399,39 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     # Arrow keys -- matches C++ SpecialKeys.  LEFT/RIGHT moves X (note
     # the C++ inverts: LEFT increases, RIGHT decreases); UP/DOWN moves Y.
     elif key == glfw.KEY_LEFT:
-        camera_pos[0] += 5.0
+        state.camera_pos[0] += 5.0
     elif key == glfw.KEY_RIGHT:
-        camera_pos[0] -= 5.0
+        state.camera_pos[0] -= 5.0
     elif key == glfw.KEY_UP:
-        camera_pos[1] += 5.0
+        state.camera_pos[1] += 5.0
     elif key == glfw.KEY_DOWN:
-        camera_pos[1] -= 5.0
+        state.camera_pos[1] -= 5.0
     # x/y/z letter keys -- shift inverts direction.  Matches the
     # ProcessMenu callbacks in the C++ original.
     elif key == glfw.KEY_X:
-        camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
-        camera_pos[1] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[1] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Z:
-        camera_pos[2] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[2] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 5)
     window: typing.Any = glfw.create_window(
-        window_width, window_height, "Occlusion Query Demo", None, None
+        state.window_width,
+        state.window_height,
+        "Occlusion Query Demo",
+        None,
+        None,
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -397,8 +442,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     # FPS reporter.  C++ updates every 100 frames, but at Python
     # immediate-mode rates (a handful of fps with 540k triangles), 100
@@ -421,7 +466,7 @@ def main() -> None:
         now: float = time.monotonic()
         if now - frame_timer >= 1.0:
             fps: float = frames / (now - frame_timer)
-            label: str = "with" if occlusion_detection else "without"
+            label: str = "with" if state.occlusion_detection else "without"
             glfw.set_window_title(
                 window,
                 f"Draw scene {label} occlusion detection {fps:.1f} fps",
