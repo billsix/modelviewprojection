@@ -18,12 +18,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Tests for the graphics-specific math that lives in mvp's ``mathutils`` on top
-of gacalc.  The vector algebra and the core transform layer (add/sub/scale/
-translate/compose/inverse and the at/steps animation layer) are gacalc's and are
-tested there; here we exercise only what mvp builds: the angle/axis rotations,
-the ortho/perspective projections, the plane-geometry helpers, the 2D
-orientation predicates, and the function stack.
+"""Plain tests for the graphics-specific math that lives in mvp's
+``mathutils`` on top of gacalc.  The vector algebra and the core transform
+layer are gacalc's and are tested there.
+
+Most of mvp's own math is tested by the doctests in its docstrings
+(``mathutils`` and ``framebuffer.softwarerendering``), which ``make test``
+collects.  What stays here has no doctest home or needs pytest machinery:
+
+- ``rotate`` and ``rotate_x``/``_y``/``_z`` are module-level
+  ``plane_rotation`` closures documented by book-region comments, not
+  docstrings, and their checks are tolerance-based;
+- the function-stack test is the source of a book ``literalinclude``;
+- the ``to_matrix`` tests use ``numpy.allclose`` and ``pytest.raises``.
 """
 
 import math
@@ -42,26 +49,13 @@ from gacalc.transforms import (
     uniform_scale,
 )
 
-from modelviewprojection.framebuffer.softwarerendering import (
-    is_clockwise,
-    is_counter_clockwise,
-    is_parallel_and_same_orientation,
-)
 from modelviewprojection.mathutils import (
-    abs_sin,
-    cosine,
-    distance_to_plane,
-    find_normal,
     fn_stack,
-    ortho,
     perspective,
-    plane_equation,
     rotate,
-    rotate_around,
     rotate_x,
     rotate_y,
     rotate_z,
-    sine,
 )
 
 
@@ -115,19 +109,6 @@ def test_rotate_is_linear_and_animatable() -> None:
     )
 
 
-def test_rotate_around_a_point() -> None:
-    # rotating the point itself about itself is a no-op
-    center: g2.Vector = v2(2, 0)
-    fn: InvertibleFunction[g2.Vector] = rotate_around(
-        math.radians(90.0), center
-    )
-    assert fn(center).isclose(center, rel_tol=1e-5, abs_tol=1e-5)
-    # a point one unit +x of center swings to one unit +y of center
-    assert fn(center + g2.Vector.e_1).isclose(
-        center + g2.Vector.e_2, rel_tol=1e-5, abs_tol=1e-5
-    )
-
-
 # --------------------------------------------------------------------------- #
 # 3D axis rotation                                                            #
 # --------------------------------------------------------------------------- #
@@ -177,132 +158,6 @@ def test_rotate_z() -> None:
     for inp, out in pairs:
         assert fn(inp).isclose(out, rel_tol=1e-5, abs_tol=1e-5)
         assert inverse(fn)(out).isclose(inp, rel_tol=1e-5, abs_tol=1e-5)
-
-
-# --------------------------------------------------------------------------- #
-# Orientation predicates                                                      #
-# --------------------------------------------------------------------------- #
-
-
-def test_cosine_and_sine() -> None:
-    assert math.isclose(cosine(g2.Vector.e_1, g2.Vector.e_1), 1.0)
-    assert math.isclose(cosine(g2.Vector.e_1, g2.Vector.e_2), 0.0, abs_tol=1e-9)
-    assert math.isclose(sine(g2.Vector.e_1, g2.Vector.e_2), 1.0)
-    assert math.isclose(sine(g2.Vector.e_1, g2.Vector.e_1), 0.0, abs_tol=1e-9)
-
-
-def test_is_parallel_and_same_orientation() -> None:
-    cases: list[tuple[tuple[float, float], tuple[float, float], bool]] = [
-        ((1, 0), (2, 0), True),
-        ((0, 5), (0, 1), True),
-        ((1, 5), (0, 1), False),
-        ((0, 5), (0.2, 1), False),
-    ]
-    a: tuple[float, float]
-    b: tuple[float, float]
-    expected: bool
-    for a, b, expected in cases:
-        assert is_parallel_and_same_orientation(v2(*a), v2(*b)) is expected
-
-
-def test_is_counter_clockwise_and_clockwise() -> None:
-    # e_2 is CCW from e_1
-    assert is_counter_clockwise(g2.Vector.e_1, g2.Vector.e_2)
-    assert not is_clockwise(g2.Vector.e_1, g2.Vector.e_2)
-    # the reverse pair is clockwise
-    assert is_clockwise(g2.Vector.e_2, g2.Vector.e_1)
-    assert not is_counter_clockwise(g2.Vector.e_2, g2.Vector.e_1)
-
-
-def test_abs_sin() -> None:
-    # perpendicular unit vectors -> |sin| = 1; parallel -> 0
-    assert math.isclose(abs_sin(g3.Vector.e_1, g3.Vector.e_2), 1.0)
-    assert math.isclose(abs_sin(g3.Vector.e_1, v3(2, 0, 0)), 0.0, abs_tol=1e-9)
-
-
-# --------------------------------------------------------------------------- #
-# Plane geometry (cross = wedge then dual)                                     #
-# --------------------------------------------------------------------------- #
-
-
-def test_find_normal_ccw_is_plus_z() -> None:
-    n: g3.Vector = find_normal(v3(0, 0, 0), v3(1, 0, 0), v3(0, 1, 0))
-    assert n.isclose(g3.Vector.e_3, rel_tol=1e-5, abs_tol=1e-5)
-
-
-def test_find_normal_cw_flips_sign() -> None:
-    p1, p2, p3 = v3(0, 0, 0), v3(1, 0, 0), v3(0, 1, 0)
-    n_ccw: g3.Vector = find_normal(p1, p2, p3)
-    n_cw: g3.Vector = find_normal(p1, p3, p2)
-    assert n_ccw.isclose(-1 * n_cw, rel_tol=1e-5, abs_tol=1e-5)
-
-
-def test_find_normal_unnormalized_magnitude() -> None:
-    # |cross| == 2 * triangle area; a 1x1 right triangle has area 0.5
-    n1: g3.Vector = find_normal(v3(0, 0, 0), v3(1, 0, 0), v3(0, 1, 0))
-    assert math.isclose(float(abs(n1)), 1.0)
-    # a 2x2 right triangle has area 2 -> |normal| = 4
-    n2: g3.Vector = find_normal(v3(0, 0, 0), v3(2, 0, 0), v3(0, 2, 0))
-    assert math.isclose(float(abs(n2)), 4.0)
-
-
-def test_plane_equation_points_satisfy_it() -> None:
-    # plane x + y + z = 1 through (1,0,0),(0,1,0),(0,0,1)
-    p1, p2, p3 = v3(1, 0, 0), v3(0, 1, 0), v3(0, 0, 1)
-    normal, d = plane_equation(p1, p2, p3)
-    p: g3.Vector
-    for p in (p1, p2, p3):
-        assert math.isclose(
-            float(normal.dot(p).scalar_part()) + d, 0.0, abs_tol=1e-6
-        )
-    # unit normal
-    assert math.isclose(float(abs(normal)), 1.0, abs_tol=1e-6)
-
-
-def test_distance_to_plane_signed() -> None:
-    plane: tuple[g3.Vector, float] = plane_equation(
-        v3(0, 0, 0), v3(1, 0, 0), v3(0, 1, 0)
-    )  # XY, +Z
-    assert math.isclose(distance_to_plane(v3(0, 0, 5), plane), 5.0)
-    assert math.isclose(distance_to_plane(v3(0, 0, -3), plane), -3.0)
-    # tangential motion doesn't change the distance
-    assert math.isclose(distance_to_plane(v3(7, -2, 4), plane), 4.0)
-
-
-# --------------------------------------------------------------------------- #
-# Projections                                                                 #
-# --------------------------------------------------------------------------- #
-
-
-def test_ortho_maps_box_to_ndc() -> None:
-    fn: InvertibleFunction[g3.Vector] = ortho(
-        left=-2, right=2, bottom=-4, top=4, near=-1, far=-9
-    )
-    # the box centre maps to the NDC origin
-    assert fn(v3(0, 0, -5)).isclose(
-        g3.Vector.zero(), rel_tol=1e-5, abs_tol=1e-5
-    )
-    # +x face -> +1 in x; +y face -> +1 in y
-    assert math.isclose(float(fn(v3(2, 0, -5)).coeff_e_1), 1.0)
-    assert math.isclose(float(fn(v3(0, 4, -5)).coeff_e_2), 1.0)
-    assert fn.linearity is Linearity.AFFINE
-
-
-def test_ortho_is_invertible() -> None:
-    fn: InvertibleFunction[g3.Vector] = ortho(
-        left=-2, right=2, bottom=-4, top=4, near=-1, far=-9
-    )
-    p: g3.Vector = v3(1.5, -3.0, -7.0)
-    assert inverse(fn)(fn(p)).isclose(p, rel_tol=1e-5, abs_tol=1e-5)
-
-
-def test_perspective_is_nonlinear_and_invertible() -> None:
-    fn: InvertibleFunction[g3.Vector] = perspective(
-        field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
-    )
-    assert fn.linearity is Linearity.NONLINEAR
-    p: g3.Vector = v3(1.0, 2.0, -5.0)
-    assert inverse(fn)(fn(p)).isclose(p, rel_tol=1e-5, abs_tol=1e-5)
 
 
 # --------------------------------------------------------------------------- #

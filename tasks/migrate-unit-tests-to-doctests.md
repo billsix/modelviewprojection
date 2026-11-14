@@ -1,61 +1,70 @@
 # Migrate unit tests into doctests where they read well
 
-**Status:** approved — go-ahead given, decisions recorded (William Emerison Six <billsix@gmail.com>, 2026-11-14)
-**Priority:** 5
-**Difficulty:** 4
-**Created:** 2026-10-27 (William Emerison Six <billsix@gmail.com>)
-**Updated:** 2026-10-27 (William Emerison Six <billsix@gmail.com>)
+**Created:** 2026-10-27 (William Emerison Six <billsix@gmail.com>). **Done:** 2026-11-14.
 
-## BLUF
+## Outcome
 
-Push as many of the `tests/` unit tests as reasonable **into doctests** in the library source
-(`src/modelviewprojection/`), so a docstring example — which also shows up in the book — doubles as
-the test. "Done" = the cases that read naturally as `>>> expr` → result live in the relevant
-docstrings; the ones that must stay pytest are listed with a one-line reason each; `make test` is
-green and still covers every migrated case.
+The migration was mostly consolidation: the library docstrings already carried doctests for most
+of what `tests/test_mathutils.py` asserted. Thirteen of its 22 tests were deleted after four
+doctests were extended to cover what they checked, and `pytest.ini` now collects every importable
+module under `src/` instead of an allowlist. `make test` went from 70 to 57 items (doctest items
+are counted per docstring, so the number of checked examples went up, not down).
 
-**The collection mechanism already exists — this is migration plus one cleanup.** `pytest.ini`
-already sets `addopts = -m "not slow" --doctest-modules`, so doctests in the collected library
-modules already run under `make test`. The predecessor task that wired it is archived at
-`tasks/archive/2026/07/19/doctests-everywhere.md` (and `demo-main-guards-and-dedent.md` the same day).
+## What changed
 
-## Context (cold start)
+- **`pytest.ini`: exclusion list instead of allowlist.** `testpaths = tests src` plus
+  `--ignore`/`--ignore-glob` in `addopts` for `demos/`, `notebooksrc/`, `mvpvisualization/` and
+  `wxapp*.py`. The planned full collapse to plain `testpaths = src tests` was tried and does not
+  work: the 47 demos end their imports with `if __name__ != "__main__": sys.exit(...)` on purpose
+  (so a chapter's listing reads as a flat program), and a `sys.exit` at import kills pytest with
+  `INTERNALERROR ... SystemExit`. With the exclusion list, `pgzero_gl/` and `graphingcalculator/`
+  are now collected too (they import cleanly headless and hold no doctests yet), so a doctest added
+  to any library module runs with no config edit. The stale pointer to
+  `tasks/doctests-everywhere.md` went away with the old comment.
+- **Doctests extended** (each now asserts what the deleted test asserted):
+  `find_normal` (a 2x2 triangle's normal has length 4), `plane_equation` (a point on the plane
+  satisfies `normal . P + d == 0`), `ortho` (the prism centre maps to the NDC origin; the transform
+  is `Linearity.AFFINE`), `perspective` (`Linearity.NONLINEAR`), and
+  `framebuffer.softwarerendering.is_parallel_and_same_orientation` (a nearly parallel pair is
+  `False`).
+- **Deleted from `tests/test_mathutils.py`**, as covered by the doctests: `rotate_around_a_point`,
+  `cosine_and_sine`, `abs_sin`, `is_parallel_and_same_orientation`,
+  `is_counter_clockwise_and_clockwise`, the three `find_normal` tests, `plane_equation_points_satisfy_it`,
+  `distance_to_plane_signed`, the two `ortho` tests, `perspective_is_nonlinear_and_invertible`.
+- **Doctest bindings annotated** (house rule: a doctest models the house style) in `mathutils.py`,
+  `framebuffer/softwarerendering.py`, `util/colorutils.py` and `util/shading.py`.
+- **Inbound pointers fixed:** `tasks/framebuffer-software-rasterizer-clockwise.md` and
+  `tasks/mathutils-helpers-via-gacalc.md` cited deleted tests.
 
-- Repo: github.com/billsix/modelviewprojection (mvp). Python port + Sphinx book; a docstring
-  example that no longer runs is a broken example *in the book* — doctests matter here.
-- Test gate: `make test` → container → `pytest` (`Makefile:222`). Config in `pytest.ini`.
-- **The `--doctest-modules` workaround to resolve first.** `pytest.ini` cannot use a blanket
-  `testpaths = src tests` because `--doctest-modules` *imports* what it collects, and the
-  `demos/`, `notebooksrc/`, `mvpvisualization/`, `wxapp*.py` scripts execute (or open windows /
-  call `sys.exit()`) at import. So `testpaths` is an explicit allowlist of importable library
-  modules (`cayley`, `framebuffer`, `util`, `mathutils.py`, `matrix_stack.py`). The pytest.ini
-  comment says once every script has an `if __name__ == "__main__":` guard this collapses to
-  `testpaths = src tests` and doctests anywhere get picked up automatically — and the main-guard
-  task was archived 2026-07-19, so **step 1 is to verify whether the allowlist can now collapse.**
+## What stays a plain test, and why
 
-## Criteria — doctest vs stays pytest
+- `tests/test_mathutils.py` rotate tests (`rotate`, `rotate_x/_y/_z`): those are module-level
+  `plane_rotation(...)` closures documented by book-region `#` comments; a closure's `__module__`
+  is gacalc, so `DocTestFinder` never visits it, and the checks are tolerance-based. Their module
+  docstring says so.
+- `test_function_stack_push_pop`: the source of a `literalinclude` in `book/docs/ch16.rst`.
+- The two `to_matrix` tests: `numpy.allclose` and `pytest.raises`.
+- `tests/test_firstclassfunctions.py`: both tests are `literalinclude` sources (book doc-regions).
+- `tests/test_gl_vector_unpacking.py`: a regression guard on gacalc's iteration contract that
+  `CLAUDE.md` cites; an internal invariant, not book material.
+- `tests/test_check_doc_regions.py` (parametrized, tests a `tools/` script),
+  `test_ctc_actor_field_collisions.py` (an invariant over the CtC ports),
+  `test_demo22b_gltf_roundtrip.py` (`tmp_path` fixture, parametrized).
 
-Default to **doctest** for a short, deterministic `input → expected output` that documents the
-function. **Keep pytest** when the test needs a debugger to understand the code, uses
-fixtures/parametrization/`pytest.raises`, is a `slow`/symbolic case (mvp already marks these with
-the `slow` marker), opens a window, or guards an internal invariant not meant for the book.
+## Judgment calls
 
-## Plan
+- The shared rule keeps tolerance-based tests plain. Here the doctests already print rounded
+  values (`round(float(c), 6)`), which is an exact check of the same assertion, so the duplicated
+  `isclose` tests were deleted; tolerance-based tests with no doctest home stayed.
 
-1. Verify whether `testpaths` can collapse to `src tests` now that the demo main-guards landed;
-   if so, do it (every module's doctests then run automatically).
-2. Inventory `tests/` (≈10 files): classify migrate / keep (reason each keep).
-3. Migrate the "migrate" set into the function/module docstrings; remove the redundant pytest case.
-4. `make test` green (both the `not slow` default and `pytest -m ""`); doctest count up, pytest down.
+## Verification
 
-## Notes
+`pytest` in the project image: 57 passed under the default `-m "not slow"` and under `-m ""`;
+`make test`, `make format` and `make type-check` green (see the work commit).
 
-- Fix the stale pointer while here: `pytest.ini` references `tasks/doctests-everywhere.md`, which is
-  now under `tasks/archive/2026/07/19/`.
-- Part of a cross-repo "doctests by default" initiative. The shared convention + lessons now live in
-  **`~/.claude/reference/doctests-by-default.md`** (canonical: github.com/billsix/runClaudeInContainer;
-  read its `## Python` section first — it covers the `--doctest-modules` wiring, the
-  import-time-execution trap, the consolidation hazards, and the keep-as-pytest exceptions).
-- **Required on completion:** append anything new this migration taught to
-  `doctests-by-default.md` (its `## Python` section, or the language-agnostic core if general) and
-  re-sync the byte-identical runCrush mirror (`runCrushInContainer tasks/reference/doctests-by-default.md`).
+## Cross-repo
+
+The lessons (the inverse `__main__` guard and the exclusion-list `testpaths`, factory-built
+attributes having no doctest home, a rounded doctest retiring a tolerance test) were appended to
+`tasks/reference/doctests-by-default.md` in github.com/billsix/runClaudeInContainer and copied to
+the byte-identical runCrushInContainer mirror; staged there, not committed.

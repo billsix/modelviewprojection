@@ -25,8 +25,8 @@ task).
 - Software rasterizer: `src/modelviewprojection/framebuffer/softwarerendering.py`; its driving
   notebook is `src/modelviewprojection/notebooksrc/framebuffer.py` (a book toctree page between
   ch02–03).
-- Winding predicates `is_clockwise` / `is_counter_clockwise` live in the rasterizer path; unit
-  tests exist at `tests/test_mathutils.py:208-214`, and a clockwise regression was fixed in
+- Winding predicates `is_clockwise` / `is_counter_clockwise` live in the rasterizer path; they are
+  tested by the doctests in `src/modelviewprojection/framebuffer/softwarerendering.py`, and a clockwise regression was fixed in
   archived `2026/05/26/fix-is-clockwise-recursion.md`.
 - Reference: `tasks/reference/notable-subsystems.md §1` (rasterizer design),
   `tasks/reference/book-figures-and-images.md §3` (notebook pipeline).

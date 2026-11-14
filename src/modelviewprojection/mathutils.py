@@ -120,7 +120,9 @@ def rotate_around(
 
     >>> import math
     >>> import gacalc.g2 as g2
-    >>> quarter_turn = rotate_around(math.pi / 2, 1.0 * g2.Vector.e_1)
+    >>> quarter_turn: InvertibleFunction[g2.Vector] = rotate_around(
+    ...     math.pi / 2, 1.0 * g2.Vector.e_1
+    ... )
     >>> [round(float(c), 6) for c in quarter_turn(2.0 * g2.Vector.e_1)]
     [1.0, 1.0]
 
@@ -292,7 +294,7 @@ def find_normal(p1: g3.Vector, p2: g3.Vector, p3: g3.Vector) -> g3.Vector:
     along +z:
 
     >>> import gacalc.g3 as g3
-    >>> origin = 0.0 * g3.Vector.e_1
+    >>> origin: g3.Vector = 0.0 * g3.Vector.e_1
     >>> find_normal(origin, 1.0 * g3.Vector.e_1, 1.0 * g3.Vector.e_2)
     g3.Vector(coeff_e_1=0.0, coeff_e_2=0.0, coeff_e_3=1.0)
 
@@ -305,9 +307,19 @@ def find_normal(p1: g3.Vector, p2: g3.Vector, p3: g3.Vector) -> g3.Vector:
     The length is twice the triangle's area, not 1 -- this triangle has area
     ``0.5``:
 
-    >>> n = find_normal(origin, 1.0 * g3.Vector.e_1, 1.0 * g3.Vector.e_2)
+    >>> n: g3.Vector = find_normal(
+    ...     origin, 1.0 * g3.Vector.e_1, 1.0 * g3.Vector.e_2
+    ... )
     >>> float(abs(n))
     1.0
+
+    Doubling both legs quadruples the area (to ``2``), so the length is ``4``:
+
+    >>> big: g3.Vector = find_normal(
+    ...     origin, 2.0 * g3.Vector.e_1, 2.0 * g3.Vector.e_2
+    ... )
+    >>> float(abs(big))
+    4.0
     """
     # the cross product of the two edge vectors, under its GA definition: gacalc
     # 0.0.18's g3.Vector.cross is exactly (edge1 ^ edge2).dual() -- the dual of
@@ -346,7 +358,13 @@ def plane_equation(
     Read ``d`` as "how far the plane sits from the origin, along the normal,
     negated": the plane is 3 units up, so ``d`` is ``-3.0``.  That is what makes
     the plane equation come out to zero on the plane itself -- for any point
-    ``P`` there, ``normal . P + d == 0``.
+    ``P`` there, ``normal . P + d == 0``:
+
+    >>> p: g3.Vector = (
+    ...     5.0 * g3.Vector.e_1 - 2.0 * g3.Vector.e_2 + 3.0 * g3.Vector.e_3
+    ... )
+    >>> float(normal.dot(p).scalar_part()) + d
+    0.0
     """
     n: g3.Vector = find_normal(p1, p2, p3)
     inv_len: float = 1.0 / float(abs(n))
@@ -370,7 +388,7 @@ def distance_to_plane(
     up:
 
     >>> import gacalc.g3 as g3
-    >>> plane = plane_equation(
+    >>> plane: tuple[g3.Vector, float] = plane_equation(
     ...     3.0 * g3.Vector.e_3,
     ...     1.0 * g3.Vector.e_1 + 3.0 * g3.Vector.e_3,
     ...     1.0 * g3.Vector.e_2 + 3.0 * g3.Vector.e_3,
@@ -383,7 +401,7 @@ def distance_to_plane(
     Zero exactly on the plane -- and note it is the *perpendicular* distance,
     so sliding the point sideways within the plane does not change it:
 
-    >>> corner = (
+    >>> corner: g3.Vector = (
     ...     2.0 * g3.Vector.e_1 + 2.0 * g3.Vector.e_2 + 3.0 * g3.Vector.e_3
     ... )
     >>> distance_to_plane(corner, plane)
@@ -412,18 +430,27 @@ def ortho(
     length.  The corner of the viewable region lands on the corner of the cube:
 
     >>> import gacalc.g3 as g3
-    >>> to_ndc = ortho(
+    >>> to_ndc: InvertibleFunction[g3.Vector] = ortho(
     ...     left=-10.0, right=10.0, bottom=-10.0, top=10.0,
     ...     near=-1.0, far=-100.0,
     ... )
-    >>> def xyz(v):
+    >>> def xyz(v: g3.Vector) -> list[float]:
     ...     return [round(float(c), 6) for c in v]
     >>> xyz(to_ndc(10.0 * g3.Vector.e_1 + 10.0 * g3.Vector.e_2))
     [1.0, 1.0, 1.020202]
 
+    The center of the prism lands on the center of the cube:
+
+    >>> xyz(to_ndc(-50.5 * g3.Vector.e_3))
+    [0.0, 0.0, 0.0]
+
     The transform is affine and invertible, so it round-trips:
 
-    >>> point = 3.0 * g3.Vector.e_1 + 4.0 * g3.Vector.e_2 - 5.0 * g3.Vector.e_3
+    >>> to_ndc.linearity is Linearity.AFFINE
+    True
+    >>> point: g3.Vector = (
+    ...     3.0 * g3.Vector.e_1 + 4.0 * g3.Vector.e_2 - 5.0 * g3.Vector.e_3
+    ... )
     >>> xyz(inverse(to_ndc)(to_ndc(point)))
     [3.0, 4.0, -5.0]
     """
@@ -476,10 +503,10 @@ def perspective(
     and the squished result is then handed to :func:`ortho`.
 
     >>> import gacalc.g3 as g3
-    >>> to_ndc = perspective(
+    >>> to_ndc: InvertibleFunction[g3.Vector] = perspective(
     ...     field_of_view=90.0, aspect_ratio=1.0, near_z=-1.0, far_z=-100.0
     ... )
-    >>> def xyz(v):
+    >>> def xyz(v: g3.Vector) -> list[float]:
     ...     return [round(float(c), 6) for c in v]
 
     This is the whole idea of perspective in one pair of examples.  A point 1
@@ -503,7 +530,11 @@ def perspective(
     The perspective divide is non-linear, but it is still invertible -- the
     inverse un-scales by the recovered camera-space depth, so it round-trips:
 
-    >>> point = 3.0 * g3.Vector.e_1 + 4.0 * g3.Vector.e_2 - 5.0 * g3.Vector.e_3
+    >>> to_ndc.linearity is Linearity.NONLINEAR
+    True
+    >>> point: g3.Vector = (
+    ...     3.0 * g3.Vector.e_1 + 4.0 * g3.Vector.e_2 - 5.0 * g3.Vector.e_3
+    ... )
     >>> xyz(inverse(to_ndc)(to_ndc(point)))
     [3.0, 4.0, -5.0]
     """
@@ -564,7 +595,9 @@ def cs_to_ndc_space_fn(vector: g3.Vector) -> InvertibleFunction[g3.Vector]:
     can say what it means without repeating the four numbers:
 
     >>> import gacalc.g3 as g3
-    >>> to_ndc = cs_to_ndc_space_fn(0.0 * g3.Vector.e_1)
+    >>> to_ndc: InvertibleFunction[g3.Vector] = cs_to_ndc_space_fn(
+    ...     0.0 * g3.Vector.e_1
+    ... )
     >>> [round(float(c), 6) for c in to_ndc(-10.0 * g3.Vector.e_3)]
     [0.0, 0.0, 0.980198]
     """
@@ -589,7 +622,7 @@ class FunctionStack(typing.Generic[V]):
 
     >>> import gacalc.g3 as g3
     >>> from gacalc.transforms import translate
-    >>> stack = FunctionStack()
+    >>> stack: FunctionStack[g3.Vector] = FunctionStack()
     >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
     >>> len(stack.stack)
     1
@@ -608,7 +641,7 @@ class FunctionStack(typing.Generic[V]):
         # doc-region-end function stack push signature
         """Add a transformation to the top of the stack.
 
-        >>> stack = FunctionStack()
+        >>> stack: FunctionStack[g3.Vector] = FunctionStack()
         >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
         >>> len(stack.stack)
         1
@@ -620,9 +653,9 @@ class FunctionStack(typing.Generic[V]):
         # doc-region-end function stack pop signature
         """Remove the top transformation and return it.
 
-        >>> stack = FunctionStack()
+        >>> stack: FunctionStack[g3.Vector] = FunctionStack()
         >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
-        >>> popped = stack.pop()
+        >>> popped: InvertibleFunction[g3.Vector] = stack.pop()
         >>> len(stack.stack)
         0
         """
@@ -633,7 +666,7 @@ class FunctionStack(typing.Generic[V]):
         # doc-region-end function stack clear signature
         """Empty the stack.
 
-        >>> stack = FunctionStack()
+        >>> stack: FunctionStack[g3.Vector] = FunctionStack()
         >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
         >>> stack.push(translate(b=2.0 * g3.Vector.e_2))
         >>> stack.clear()
@@ -651,8 +684,10 @@ class FunctionStack(typing.Generic[V]):
 
         >>> import gacalc.g3 as g3
         >>> from gacalc.transforms import translate, uniform_scale
-        >>> stack = FunctionStack()
-        >>> composed = stack.modelspace_to_ndc_fn()
+        >>> stack: FunctionStack[g3.Vector] = FunctionStack()
+        >>> composed: InvertibleFunction[g3.Vector] = (
+        ...     stack.modelspace_to_ndc_fn()
+        ... )
         >>> [round(float(c), 6) for c in composed(3.0 * g3.Vector.e_1)]
         [3.0, 0.0, 0.0]
 
@@ -661,7 +696,9 @@ class FunctionStack(typing.Generic[V]):
 
         >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
         >>> stack.push(uniform_scale(m=2.0))
-        >>> composed = stack.modelspace_to_ndc_fn()
+        >>> composed: InvertibleFunction[g3.Vector] = (
+        ...     stack.modelspace_to_ndc_fn()
+        ... )
         >>> [round(float(c), 6) for c in composed(1.0 * g3.Vector.e_1)]
         [3.0, 0.0, 0.0]
         """

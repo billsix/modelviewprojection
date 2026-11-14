@@ -24,7 +24,7 @@ import typing
 class Color3:
     """An RGB color, iterable so it unpacks straight into a GL call.
 
-    >>> red = Color3(r=1.0, g=0.0, b=0.0)
+    >>> red: Color3 = Color3(r=1.0, g=0.0, b=0.0)
     >>> red.g
     0.0
 
@@ -52,7 +52,7 @@ class Color4:
 
     >>> list(Color4(r=1.0, g=0.5, b=0.25, a=1.0))
     [1.0, 0.5, 0.25, 1.0]
-    >>> opaque = Color4(r=0.0, g=0.0, b=0.0, a=1.0)
+    >>> opaque: Color4 = Color4(r=0.0, g=0.0, b=0.0, a=1.0)
     >>> opaque.a
     1.0
     """

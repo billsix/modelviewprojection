@@ -55,7 +55,7 @@ measure and the trick can both be on the page.
 
 Today: `float(abs(v1 ^ v2)) / (|v1| |v2|)`; the numerator **is** `gacalc.measure.area(v1, v2)`.
 
-But `abs_sin` has **no production caller** — only `tests/test_mathutils.py::test_abs_sin` and the
+But `abs_sin` has **no production caller** — only its own docstring doctests and the
 autodoc API page reference it. So this is two decisions in one: rewrite-and-keep, or remove.
 *Recommend: rewrite via `area` and keep* — it is public, book-documented API, and the 3D unsigned
 counterpart to `sine` is worth having named.
