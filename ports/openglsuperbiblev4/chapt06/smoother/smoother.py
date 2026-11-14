@@ -6,6 +6,7 @@
 # OpenGL SuperBible, Chapter 6
 # Python port of Smoother.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import random
@@ -22,18 +23,34 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main() for Quit button
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main() for Quit button
+    window: typing.Any = None
+
+    small_stars: list[tuple[float, float]] = dataclasses.field(
+        default_factory=list
+    )
+    medium_stars: list[tuple[float, float]] = dataclasses.field(
+        default_factory=list
+    )
+    large_stars: list[tuple[float, float]] = dataclasses.field(
+        default_factory=list
+    )
+
+    antialiased: bool = True
+
+
+state: AppState = AppState()
+
 SCREEN_X: int = 800
 SCREEN_Y: int = 600
 SMALL_STARS: int = 100
 MEDIUM_STARS: int = 40
 LARGE_STARS: int = 15
-
-small_stars: list[tuple[float, float]] = []
-medium_stars: list[tuple[float, float]] = []
-large_stars: list[tuple[float, float]] = []
-
-antialiased: bool = True
 
 
 def render_scene() -> None:
@@ -43,25 +60,29 @@ def render_scene() -> None:
     # Small stars
     GL.glPointSize(1.0)
     GL.glBegin(GL.GL_POINTS)
-    for sx, sy in small_stars:
+    sx: float
+    sy: float
+    for sx, sy in state.small_stars:
         GL.glVertex2f(sx, sy)
     GL.glEnd()
 
     GL.glPointSize(3.05)
     GL.glBegin(GL.GL_POINTS)
-    for sx, sy in medium_stars:
+    for sx, sy in state.medium_stars:
         GL.glVertex2f(sx, sy)
     GL.glEnd()
 
     GL.glPointSize(5.5)
     GL.glBegin(GL.GL_POINTS)
-    for sx, sy in large_stars:
+    for sx, sy in state.large_stars:
         GL.glVertex2f(sx, sy)
     GL.glEnd()
 
     # The "moon"
     GL.glBegin(GL.GL_TRIANGLE_FAN)
-    x, y, r = 700.0, 500.0, 50.0
+    x: float = 700.0
+    y: float = 500.0
+    r: float = 50.0
     GL.glVertex2f(x, y)
     angle: float = 0.0
     while angle < 2.0 * 3.141592:
@@ -73,6 +94,8 @@ def render_scene() -> None:
     # Distant horizon
     GL.glLineWidth(3.5)
     GL.glBegin(GL.GL_LINE_STRIP)
+    px: float
+    py: float
     for px, py in [
         (0.0, 25.0),
         (50.0, 100.0),
@@ -113,15 +136,15 @@ def setup_rc() -> None:
     for _ in range(SMALL_STARS):
         sx: float = float(random.randint(0, SCREEN_X - 1))
         sy: float = float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0
-        small_stars.append((sx, sy))
+        state.small_stars.append((sx, sy))
     for _ in range(MEDIUM_STARS):
         sx = float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0
         sy = float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0
-        medium_stars.append((sx, sy))
+        state.medium_stars.append((sx, sy))
     for _ in range(LARGE_STARS):
         sx = float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0
         sy = float(random.randint(0, (SCREEN_Y - 100) * 10 - 1)) / 10.0 + 100.0
-        large_stars.append((sx, sy))
+        state.large_stars.append((sx, sy))
 
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
 
@@ -137,37 +160,40 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def imgui_menubar() -> None:
-    global antialiased
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Render", True):
-        changed, antialiased = imgui.menu_item(
-            "Antialiased rendering", "", antialiased, True
+        antialiased_item: tuple[bool, bool] = imgui.menu_item(
+            "Antialiased rendering", "", state.antialiased, True
         )
-        if changed:
-            apply_antialiasing(antialiased)
+        state.antialiased = antialiased_item[1]
+        if antialiased_item[0]:
+            apply_antialiasing(state.antialiased)
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -180,7 +206,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -191,9 +217,9 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    apply_antialiasing(antialiased)
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    apply_antialiasing(state.antialiased)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()

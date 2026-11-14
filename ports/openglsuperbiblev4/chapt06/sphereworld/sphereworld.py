@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 6
 # Python port of SphereWorld.c by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import random
@@ -26,24 +27,35 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main() for Quit item
 
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main() for Quit item
+    window: typing.Any = None
+
+    sphere_positions: list[tuple[float, float, float]] = dataclasses.field(
+        default_factory=list
+    )
+
+    camera_x: float = 0.0
+    camera_z: float = 0.0
+    camera_yaw: float = 0.0
+
+    shadow_mat: np.ndarray | None = None
+    y_rot: float = 0.0
+
+
+state: AppState = AppState()
 
 NUM_SPHERES: int = 30
-sphere_positions: list[tuple[float, float, float]] = []
-
-camera_x: float = 0.0
 camera_y: float = 0.0
-camera_z: float = 0.0
-camera_yaw: float = 0.0
 
 f_light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 50.0, 1.0)
 f_no_light: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
 f_low_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
 f_bright_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
-
-shadow_mat: np.ndarray | None = None
-y_rot: float = 0.0
 
 
 def make_planar_shadow_matrix(
@@ -51,13 +63,13 @@ def make_planar_shadow_matrix(
     plane_d: float,
     light_pos_4: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
-    a, b, c = (
-        plane_normal.coeff_e_1,
-        plane_normal.coeff_e_2,
-        plane_normal.coeff_e_3,
-    )
+    a: float = plane_normal.coeff_e_1
+    b: float = plane_normal.coeff_e_2
+    c: float = plane_normal.coeff_e_3
     d: float = plane_d
-    dx, dy, dz = -light_pos_4[0], -light_pos_4[1], -light_pos_4[2]
+    dx: float = -light_pos_4[0]
+    dy: float = -light_pos_4[1]
+    dz: float = -light_pos_4[2]
     # CCW plane_equation can land w<0; OpenGL clips before perspective
     # divide and the shadow disappears. Negate to keep w positive.
     # See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md.
@@ -96,8 +108,8 @@ GROUND: _primitives.Mesh = _primitives.build_ground(20.0, 1.0, -0.4)
 
 
 def apply_camera_transform() -> None:
-    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
-    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
+    GL.glRotatef(-math.degrees(state.camera_yaw), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-state.camera_x, -camera_y, -state.camera_z)
 
 
 def draw_inhabitants(n_shadow: int) -> None:
@@ -108,7 +120,10 @@ def draw_inhabitants(n_shadow: int) -> None:
     if n_shadow == 0:
         GL.glColor3f(0.0, 1.0, 0.0)
 
-    for sx, sy, sz in sphere_positions:
+    sx: float
+    sy: float
+    sz: float
+    for sx, sy, sz in state.sphere_positions:
         GL.glPushMatrix()
         GL.glTranslatef(sx, sy, sz)
         _primitives.draw_mesh(SPHERE_BIG)
@@ -121,7 +136,7 @@ def draw_inhabitants(n_shadow: int) -> None:
         GL.glColor3f(0.0, 0.0, 1.0)
 
     GL.glPushMatrix()
-    GL.glRotatef(-y_rot * 2.0, 0.0, 1.0, 0.0)
+    GL.glRotatef(-state.y_rot * 2.0, 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
     _primitives.draw_mesh(SPHERE_SMALL)
     GL.glPopMatrix()
@@ -130,7 +145,7 @@ def draw_inhabitants(n_shadow: int) -> None:
         GL.glColor3f(1.0, 0.0, 0.0)
         GL.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, f_bright_light)
 
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     _primitives.draw_mesh(TORUS)
     GL.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, f_no_light)
     GL.glPopMatrix()
@@ -158,7 +173,7 @@ def render_scene() -> None:
     GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
     GL.glEnable(GL.GL_STENCIL_TEST)
     GL.glPushMatrix()
-    GL.glMultMatrixf(shadow_mat)
+    GL.glMultMatrixf(state.shadow_mat)
     draw_inhabitants(1)
     GL.glPopMatrix()
     GL.glDisable(GL.GL_STENCIL_TEST)
@@ -172,7 +187,6 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    global shadow_mat
 
     GL.glEnable(GL.GL_MULTISAMPLE)
     GL.glClearColor(*f_low_light)
@@ -205,8 +219,10 @@ def setup_rc() -> None:
     p1: Vector = Vector(0.0, -0.4, 0.0)
     p2: Vector = Vector(10.0, -0.4, 0.0)
     p3: Vector = Vector(5.0, -0.4, -5.0)
-    plane_normal, plane_d = plane_equation(p1, p2, p3)
-    shadow_mat = make_planar_shadow_matrix(plane_normal, plane_d, f_light_pos)
+    plane: tuple[Vector, float] = plane_equation(p1, p2, p3)
+    state.shadow_mat = make_planar_shadow_matrix(
+        plane[0], plane[1], f_light_pos
+    )
 
     GL.glEnable(GL.GL_COLOR_MATERIAL)
     GL.glColorMaterial(GL.GL_FRONT, GL.GL_AMBIENT_AND_DIFFUSE)
@@ -216,7 +232,7 @@ def setup_rc() -> None:
     for _ in range(NUM_SPHERES):
         sx: float = (random.randint(0, 399) - 200) * 0.1
         sz: float = (random.randint(0, 399) - 200) * 0.1
-        sphere_positions.append((sx, 0.0, sz))
+        state.sphere_positions.append((sx, 0.0, sz))
 
 
 def change_size(w: int, h: int) -> None:
@@ -231,7 +247,7 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -240,23 +256,24 @@ YAW_RAD_PER_SEC: float = 1.5
 TORUS_DEG_PER_SEC: float = 30.0
 
 
-def handle_camera_keys(window, dt: float) -> None:
-    global camera_x, camera_z, camera_yaw
+def handle_camera_keys(window: typing.Any, dt: float) -> None:
     move: float = MOVE_UNITS_PER_SEC * dt
     yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera_x += -move * math.sin(camera_yaw)
-        camera_z += -move * math.cos(camera_yaw)
+        state.camera_x += -move * math.sin(state.camera_yaw)
+        state.camera_z += -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= -move * math.sin(camera_yaw)
-        camera_z -= -move * math.cos(camera_yaw)
+        state.camera_x -= -move * math.sin(state.camera_yaw)
+        state.camera_z -= -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += yaw
+        state.camera_yaw += yaw
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= yaw
+        state.camera_yaw -= yaw
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -268,15 +285,13 @@ BTN_YAW_STEP: float = 0.1
 
 
 def _walk(direction: int) -> None:
-    global camera_x, camera_z
     m: float = BTN_MOVE_STEP * direction
-    camera_x += -m * math.sin(camera_yaw)
-    camera_z += -m * math.cos(camera_yaw)
+    state.camera_x += -m * math.sin(state.camera_yaw)
+    state.camera_z += -m * math.cos(state.camera_yaw)
 
 
 def _turn(d: float) -> None:
-    global camera_yaw
-    camera_yaw += d
+    state.camera_yaw += d
 
 
 def imgui_menubar() -> None:
@@ -286,10 +301,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))
         _common.menu_action("Back", "Down", lambda: _walk(-1))
@@ -300,7 +317,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global y_rot, _window
 
     if not glfw.init():
         sys.exit(1)
@@ -315,7 +331,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
@@ -328,8 +344,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 
@@ -341,7 +357,7 @@ def main() -> None:
         glfw.poll_events()
         impl.process_inputs()
         handle_camera_keys(window, dt)
-        y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
+        state.y_rot = (state.y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
         imgui.new_frame()
         imgui_menubar()
