@@ -7,6 +7,7 @@
 # OpenGL SuperBible, Chapter 19
 # Python port of FScreen.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -21,55 +22,64 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-
-x1: float = 100.0
-y1: float = 150.0
 rsize: int = 50
-xstep: float = 1.0
-ystep: float = 1.0
-window_width: float = 250.0
-window_height: float = 250.0
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+
+    x1: float = 100.0
+    y1: float = 150.0
+    xstep: float = 1.0
+    ystep: float = 1.0
+    window_width: float = 250.0
+    window_height: float = 250.0
+
+
+state: AppState = AppState()
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
     GL.glLoadIdentity()
     if w <= h:
-        window_height = 250.0 * h / w
-        window_width = 250.0
+        state.window_height = 250.0 * h / w
+        state.window_width = 250.0
     else:
-        window_width = 250.0 * w / h
-        window_height = 250.0
-    GLU.gluOrtho2D(0.0, window_width, 0.0, window_height)
+        state.window_width = 250.0 * w / h
+        state.window_height = 250.0
+    GLU.gluOrtho2D(0.0, state.window_width, 0.0, state.window_height)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 def render_scene() -> None:
-    global x1, y1, xstep, ystep
-    if x1 > window_width - rsize or x1 < 0:
-        xstep = -xstep
-    if y1 > window_height - rsize or y1 < 0:
-        ystep = -ystep
-    if x1 > window_width - rsize:
-        x1 = window_width - rsize - 1
-    if y1 > window_height - rsize:
-        y1 = window_height - rsize - 1
-    x1 += xstep
-    y1 += ystep
+    if state.x1 > state.window_width - rsize or state.x1 < 0:
+        state.xstep = -state.xstep
+    if state.y1 > state.window_height - rsize or state.y1 < 0:
+        state.ystep = -state.ystep
+    if state.x1 > state.window_width - rsize:
+        state.x1 = state.window_width - rsize - 1
+    if state.y1 > state.window_height - rsize:
+        state.y1 = state.window_height - rsize - 1
+    state.x1 += state.xstep
+    state.y1 += state.ystep
     GL.glClearColor(0.0, 0.0, 1.0, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glColor3f(1.0, 0.0, 0.0)
-    GL.glRectf(x1, y1, x1 + rsize, y1 + rsize)
+    GL.glRectf(state.x1, state.y1, state.x1 + rsize, state.y1 + rsize)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -81,15 +91,16 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     monitor: typing.Any = glfw.get_primary_monitor()  # glfw monitor handle
@@ -100,7 +111,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -110,8 +121,8 @@ def main() -> None:
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
 
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()
