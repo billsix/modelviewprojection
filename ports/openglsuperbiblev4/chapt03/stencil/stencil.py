@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 3
 # Python port of Stencil.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -19,8 +20,25 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# set in main(); used by the Quit menu item
-_window: typing.Any = None  # glfw window handle
+rsize: float = 25.0
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # set in main(); used by the Quit menu item
+    window: typing.Any = None  # glfw window handle
+
+    x: float = 0.0
+    y: float = 0.0
+    xstep: float = 1.0
+    ystep: float = 1.0
+    window_width: float = 100.0
+    window_height: float = 100.0
+
+
+state: AppState = AppState()
 
 
 def imgui_menubar() -> None:
@@ -29,20 +47,13 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
-
-
-x: float = 0.0
-y: float = 0.0
-rsize: float = 25.0
-xstep: float = 1.0
-ystep: float = 1.0
-window_width: float = 100.0
-window_height: float = 100.0
 
 
 def render_scene() -> None:
@@ -72,7 +83,7 @@ def render_scene() -> None:
     GL.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP)
 
     GL.glColor3f(1.0, 0.0, 0.0)
-    GL.glRectf(x, y, x + rsize, y - rsize)
+    GL.glRectf(state.x, state.y, state.x + rsize, state.y - rsize)
 
     # Disable so the imgui menubar isn't clipped by the etched spiral
     # (re-enabled at the top of render_scene each frame).
@@ -80,21 +91,19 @@ def render_scene() -> None:
 
 
 def tick() -> None:
-    global x, y, xstep, ystep
-    if x > window_width - rsize or x < -window_width:
-        xstep = -xstep
-    if y > window_height or y < -window_height + rsize:
-        ystep = -ystep
-    if x > window_width - rsize:
-        x = window_width - rsize - 1
-    if y > window_height:
-        y = window_height - 1
-    x += xstep
-    y += ystep
+    if state.x > state.window_width - rsize or state.x < -state.window_width:
+        state.xstep = -state.xstep
+    if state.y > state.window_height or state.y < -state.window_height + rsize:
+        state.ystep = -state.ystep
+    if state.x > state.window_width - rsize:
+        state.x = state.window_width - rsize - 1
+    if state.y > state.window_height:
+        state.y = state.window_height - 1
+    state.x += state.xstep
+    state.y += state.ystep
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
@@ -102,22 +111,28 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
     aspect: float = float(w) / float(h)
     if w <= h:
-        window_width = 100.0
-        window_height = 100.0 / aspect
-        GL.glOrtho(-100.0, 100.0, -window_height, window_height, 1.0, -1.0)
+        state.window_width = 100.0
+        state.window_height = 100.0 / aspect
+        GL.glOrtho(
+            -100.0, 100.0, -state.window_height, state.window_height, 1.0, -1.0
+        )
     else:
-        window_width = 100.0 * aspect
-        window_height = 100.0
-        GL.glOrtho(-window_width, window_width, -100.0, 100.0, 1.0, -1.0)
+        state.window_width = 100.0 * aspect
+        state.window_height = 100.0
+        GL.glOrtho(
+            -state.window_width, state.window_width, -100.0, 100.0, 1.0, -1.0
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -126,8 +141,6 @@ TICK_INTERVAL: float = 33.0 / 1000.0
 
 
 def main() -> None:
-    global _window
-
     if not glfw.init():
         sys.exit(1)
 
@@ -142,7 +155,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -153,8 +166,8 @@ def main() -> None:
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
 
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_tick: float = time.monotonic()
 

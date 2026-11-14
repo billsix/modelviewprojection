@@ -5,6 +5,7 @@
 # OpenGL SuperBible, Chapter 3
 # Python port of Single.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -21,8 +22,19 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# set in main(); used by the Quit menu item
-_window: typing.Any = None  # glfw window handle
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # set in main(); used by the Quit menu item
+    window: typing.Any = None  # glfw window handle
+
+    d_radius: float = 0.1
+    d_angle: float = 0.0
+
+
+state: AppState = AppState()
 
 
 def imgui_menubar() -> None:
@@ -31,15 +43,13 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
-
-
-d_radius: float = 0.1
-d_angle: float = 0.0
 
 
 def render_scene() -> None:
@@ -48,21 +58,22 @@ def render_scene() -> None:
     buffering we draw to the back buffer and swap, but to keep the
     growing-spiral effect we don't clear between frames within a pass.
     Instead we accumulate by re-drawing every prior point."""
-    global d_radius, d_angle
-
-    if d_angle == 0.0:
+    if state.d_angle == 0.0:
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
     GL.glBegin(GL.GL_POINTS)
-    GL.glVertex2d(d_radius * math.cos(d_angle), d_radius * math.sin(d_angle))
+    GL.glVertex2d(
+        state.d_radius * math.cos(state.d_angle),
+        state.d_radius * math.sin(state.d_angle),
+    )
     GL.glEnd()
 
-    d_radius *= 1.01
-    d_angle += 0.1
+    state.d_radius *= 1.01
+    state.d_angle += 0.1
 
-    if d_angle > 30.0:
-        d_radius = 0.1
-        d_angle = 0.0
+    if state.d_angle > 30.0:
+        state.d_radius = 0.1
+        state.d_angle = 0.0
 
 
 def change_size(w: int, h: int) -> None:
@@ -76,11 +87,13 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -90,8 +103,6 @@ TICK_INTERVAL: float = 50.0 / 1000.0
 
 
 def main() -> None:
-    global _window
-
     if not glfw.init():
         sys.exit(1)
 
@@ -106,7 +117,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -118,8 +129,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     GL.glClearColor(0.0, 0.0, 1.0, 0.0)
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_tick: float = time.monotonic()
 
