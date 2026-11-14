@@ -5,6 +5,7 @@
 # OpenGL SuperBible, Chapter 7
 # Python port of Operations.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -22,27 +23,37 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-image_data: np.ndarray | None = None
-image_w: int = 0
-image_h: int = 0
-image_fmt: Constant = GL.GL_RGB
 
-i_render_mode: int = 1
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main()
+    window: typing.Any = None
+    image_data: np.ndarray | None = None
+    image_w: int = 0
+    image_h: int = 0
+    image_fmt: Constant = GL.GL_RGB
+
+    i_render_mode: int = 1
+
+
+state: AppState = AppState()
 
 
 def load_image() -> None:
-    global image_data, image_w, image_h, image_fmt
     img: np.ndarray = iio.imread(os.path.join(PWD, "horse.tga"))
     img = np.flipud(img)
-    image_h, image_w = img.shape[:2]
+    img_size: tuple[int, ...] = img.shape[:2]
+    state.image_h = img_size[0]
+    state.image_w = img_size[1]
     if img.ndim == 3 and img.shape[2] == 4:
-        image_fmt = GL.GL_RGBA
+        state.image_fmt = GL.GL_RGBA
     elif img.ndim == 3 and img.shape[2] == 3:
-        image_fmt = GL.GL_RGB
+        state.image_fmt = GL.GL_RGB
     else:
-        image_fmt = GL.GL_LUMINANCE
-    image_data = np.ascontiguousarray(img, dtype=np.uint8)
+        state.image_fmt = GL.GL_LUMINANCE
+    state.image_data = np.ascontiguousarray(img, dtype=np.uint8)
 
 
 def render_scene() -> None:
@@ -50,50 +61,60 @@ def render_scene() -> None:
     GL.glRasterPos2i(0, 0)
 
     modified: np.ndarray | None = None
-    modified_fmt: Constant = image_fmt
+    modified_fmt: Constant = state.image_fmt
 
-    if i_render_mode == 2:
+    if state.i_render_mode == 2:
         # Flip
         GL.glPixelZoom(-1.0, -1.0)
-        GL.glRasterPos2i(image_w, image_h)
-    elif i_render_mode == 3:
+        GL.glRasterPos2i(state.image_w, state.image_h)
+    elif state.i_render_mode == 3:
         # Zoom
         viewport: np.ndarray = GL.glGetIntegerv(GL.GL_VIEWPORT)
-        GL.glPixelZoom(viewport[2] / image_w, viewport[3] / image_h)
-    elif i_render_mode == 4:
+        GL.glPixelZoom(viewport[2] / state.image_w, viewport[3] / state.image_h)
+    elif state.i_render_mode == 4:
         GL.glPixelTransferf(GL.GL_RED_SCALE, 1.0)
         GL.glPixelTransferf(GL.GL_GREEN_SCALE, 0.0)
         GL.glPixelTransferf(GL.GL_BLUE_SCALE, 0.0)
-    elif i_render_mode == 5:
+    elif state.i_render_mode == 5:
         GL.glPixelTransferf(GL.GL_RED_SCALE, 0.0)
         GL.glPixelTransferf(GL.GL_GREEN_SCALE, 1.0)
         GL.glPixelTransferf(GL.GL_BLUE_SCALE, 0.0)
-    elif i_render_mode == 6:
+    elif state.i_render_mode == 6:
         GL.glPixelTransferf(GL.GL_RED_SCALE, 0.0)
         GL.glPixelTransferf(GL.GL_GREEN_SCALE, 0.0)
         GL.glPixelTransferf(GL.GL_BLUE_SCALE, 1.0)
-    elif i_render_mode == 7:
+    elif state.i_render_mode == 7:
         # Black & white. C++ did this via glPixelTransfer scale + a
         # GL_LUMINANCE readback round-trip; same math (Rec. 601 weights)
         # in numpy, no driver dependency.
         weights: np.ndarray = np.array([0.30, 0.59, 0.11], dtype=np.float32)
-        lum: np.ndarray = image_data[:, :, :3].astype(np.float32) @ weights
+        lum: np.ndarray = (
+            state.image_data[:, :, :3].astype(np.float32) @ weights
+        )
         modified = np.ascontiguousarray(np.clip(lum, 0, 255).astype(np.uint8))
         modified_fmt = GL.GL_LUMINANCE
-    elif i_render_mode == 8:
+    elif state.i_render_mode == 8:
         # C++ used glPixelMapfv with 255 entries to invert via lookup.
         # Mesa segfaults on the non-power-of-2 size, and the array was
         # one short for a full 0..255 mapping anyway. Plain numpy.
-        modified = np.ascontiguousarray(255 - image_data[:, :, :3])
+        modified = np.ascontiguousarray(255 - state.image_data[:, :, :3])
         modified_fmt = GL.GL_RGB
 
     if modified is None:
         GL.glDrawPixels(
-            image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE, image_data
+            state.image_w,
+            state.image_h,
+            state.image_fmt,
+            GL.GL_UNSIGNED_BYTE,
+            state.image_data,
         )
     else:
         GL.glDrawPixels(
-            image_w, image_h, modified_fmt, GL.GL_UNSIGNED_BYTE, modified
+            state.image_w,
+            state.image_h,
+            modified_fmt,
+            GL.GL_UNSIGNED_BYTE,
+            modified,
         )
 
     # Reset
@@ -120,18 +141,19 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def _set_mode(value: int) -> None:
-    global i_render_mode
-    i_render_mode = value
+    state.i_render_mode = value
 
 
 def imgui_menubar() -> None:
@@ -141,11 +163,15 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Operations", True):
+        label: str
+        value: int
         for label, value in [
             ("Draw Pixels", 1),
             ("Flip Pixels", 2),
@@ -160,14 +186,13 @@ def imgui_menubar() -> None:
                 label,
                 "",
                 lambda v=value: _set_mode(v),
-                selected=(i_render_mode == value),
+                selected=(state.i_render_mode == value),
             )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -180,7 +205,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -191,8 +216,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
