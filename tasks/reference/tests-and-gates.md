@@ -96,7 +96,7 @@ imports work solely via `pythonpath = src` in `pytest.ini`.
   base-class property picks up the *property object* as its default — and it
   only exploded for some field orders ("bunner survived by luck while cavern
   and avenger crashed", 2026-07-09). This is why those fields are `spawn_pos`.
-- **`tests/test_focus_to_matrix.py`** — pins `cayleyscene.to_matrix`'s
+- **`to_matrix`'s float coercion** (its test moved to gacalc with the module, github.com/billsix/geometricalgebra) — pins `cayleyscene.to_matrix`'s
   `dtype=float` coercion: gacalc `magnitude()` routes through `sympy.sqrt`, and
   without the cast `np.linalg.inv` fails on `dtype=object`
   (`tasks/archive/2026/06/13/mvpviz-focus-failure.md`).
@@ -176,7 +176,7 @@ Built for past migrations; reach for these shapes instead of reinventing them.
 - **GL constants:** the working alias is `GLenum = int | Constant`
   (PyOpenGL's `OpenGL.constant.Constant`) — plain `GLenum = int` does *not*
   work, because ty resolves PyOpenGL constants to base `Constant` even though
-  `IntConstant` subclasses `int` at runtime. Copies live in `_pipeline.py`,
+  `IntConstant` subclasses `int` at runtime. Copies live in `gacalc.gl._pipeline`,
   `wxapp.py` (deliberate local copy — importing `_pipeline` would drag
   glfw+imgui into a wx app), `demo21.py`, `demo24.py`.
 - **Suppressions can leak into the book.** `demo21.py` is included by

@@ -47,7 +47,7 @@ Read `ports/codetheclassics/vol1/boing/boing.py` top to bottom; it is the smalle
    visualizations were brought in line on 2026-09-09**, with the same one-line guard placed above
    each file's first resource acquisition — `glfw.init()` for a demo, `cayley_gl.setup(...)` for a
    visualization — so importing any runnable file in this repo now stops before a window opens.
-   Excluded on purpose: `mvpvisualization/_pipeline.py` and `cayley_gl.py`, which are the engine
+   Excluded on purpose: `_pipeline.py` and `cayley_gl.py` (now in gacalc's `gacalc.gl`), the engine
    those files import, and `wxapp*.py`, which are framework-style.
    (`tasks/archive/2026/09/09/demos-exit-if-not-main.md`)
 4. **Only what this game uses.** boing dropped: `Context` (dissolved into `ASSET_ROOT` from
@@ -403,7 +403,7 @@ Code-the-Classics; kept verbatim here so nothing points at a cut section.
   first), one function per line, instead of the formatter's dangling `@` with exploded arguments.
   Applied to the ten engines' `MODEL`/`ortho_pixels` and demo07's paddle transforms. numpy's
   matrix `@` (the `mvpvisualization` demos, `test_cayley_scene`) is not composition and keeps `@`.
-- **gacalc vectors are FROZEN** (since 0.0.14; pin now 0.0.20): a coordinate is changed by
+- **gacalc vectors are FROZEN** (since 0.0.14): a coordinate is changed by
   rebinding, never in place — `self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`. A field
   write raises `FrozenInstanceError`; a property write (`v.x = …`) raises a confusing
   `TypeError: super(type, obj)…` (a Python 3.14 frozen+slots+property quirk gacalc keeps). **`ty`

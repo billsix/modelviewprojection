@@ -78,18 +78,18 @@ import sys
 import typing
 from typing import Any
 
+import gacalc.gl.matrix_stack as ms
 import glfw
 import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders
 from gacalc.g3 import Vector
+from gacalc.gl._pipeline import GLenum
 from gacalc.vectorcalc import cross
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-import modelviewprojection.matrix_stack as ms
-from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.shading import light_dir_ws
 from modelviewprojection.util.windowing import on_key

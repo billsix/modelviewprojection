@@ -33,7 +33,7 @@ runner, no base class. Nothing calls the demo.
   (`rotate(...) @ translate(...)`), `demo10.py:175-181` (`inverse(translate(b=camera.position_ws))`),
   `demo21.py:571-577` (`ms.rotate_x(...)`, `with ms.push_matrix(...)`).
 - The library modules own **zero** loops: `grep -c "while not glfw"` is `0` for `mathutils.py`,
-  `matrix_stack.py`, and every `util/*.py`. They are pure functions/classes the demo invokes.
+  `matrix_stack.py` (now `gacalc.gl.matrix_stack`), and every `util/*.py`. They are pure functions/classes the demo invokes.
 - Even input is **pulled**, not pushed: gameplay keys are polled inside the demo's own `handle_inputs`
   (`demo05.py:99` `glfw.get_key(window, glfw.KEY_S) == glfw.PRESS`), and `util/windowing.py:23-24` documents the
   split ("Per-frame, per-demo key handling lives in each demo's own `handle_inputs`, which is intentionally not
@@ -170,7 +170,7 @@ script that owns its own loop, and nothing is indented under a `if __name__ == "
 The guard only refuses the *import* path, which was never a supported way to use these files. It sits
 outside every `doc-region`, so no chapter prints it; demo01 is the one file where that forced the guard
 above a region's opening marker rather than directly above `glfw.init()`. The engine modules
-`mvpvisualization/_pipeline.py` and `cayley_gl.py` are deliberately unguarded — the demos import them.
+`_pipeline.py` and `cayley_gl.py` (now in gacalc's `gacalc.gl`) are deliberately unguarded — the demos import them.
 (`tasks/archive/2026/09/09/demos-exit-if-not-main.md`)
 
 **Update 2026-09-05 (boing tightening pilot):** boing now creates its window and renderer at

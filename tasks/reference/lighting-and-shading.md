@@ -41,8 +41,8 @@ chapter**. The light *type* is read off the 4th component of the light position:
 > at `:1483`), which is what "demo22-style marker" refers to and what the ports would copy.
 
 ### 3. `mvpvisualization` / Cayley engine — NO lighting at all (verified)
-Grep for `glLight`/Lambert/diffuse/specular/Blinn across `src/modelviewprojection/cayley/` and
-`mvpvisualization/` returns nothing — the Cayley engine has **no lighting mechanism**. So any lighting in
+Grep for `glLight`/Lambert/diffuse/specular/Blinn across gacalc's `src/gacalc/cayley/` and `src/gacalc/gl/`
+and mvp's `mvpvisualization/` returns nothing — the Cayley engine has **no lighting mechanism**. So any lighting in
 a `mvpvisualization` demo (`tasks/lighting-types-and-visualization.md`, strand B) is a **net-new engine
 capability**, not an extension of existing code (reuse demo23's half-vector math for the shading itself).
 `tasks/axis-cylinder-cone-lighting.md` Option 2 would build the same lit-shader pipeline for the axis

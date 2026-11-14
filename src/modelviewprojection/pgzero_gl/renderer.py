@@ -34,7 +34,7 @@ import OpenGL.GL as GL
 from numpy.typing import NDArray
 
 if TYPE_CHECKING:
-    from modelviewprojection.mvpvisualization._pipeline import GLenum
+    from gacalc.gl._pipeline import GLenum
 
     from ._types import Drawable, PointLike
 

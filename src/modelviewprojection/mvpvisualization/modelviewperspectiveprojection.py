@@ -14,7 +14,6 @@ choreography + panel is OWNED HERE; ``cayley_gl`` supplies only the generic
 mechanisms."""
 
 import math
-import os
 import sys
 import typing
 from enum import Enum, auto
@@ -22,7 +21,17 @@ from enum import Enum, auto
 import glfw
 import numpy as np
 import OpenGL.GL as GL
+from gacalc.cayley import (
+    cayleygraph,
+    cayleyscene,
+)
 from gacalc.g3 import Vector
+from gacalc.gl import (
+    SHADER_DIR,
+    cayley_gl,
+)
+from gacalc.gl import _pipeline as _p
+from gacalc.gl import matrix_stack as ms
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -31,16 +40,7 @@ from gacalc.transforms import (
     translate,
 )
 
-from modelviewprojection import matrix_stack as ms
-from modelviewprojection.cayley import (
-    cayleygraph,
-    cayleyscene,
-)
 from modelviewprojection.mathutils import rotate_x, rotate_y, rotate_z
-from modelviewprojection.mvpvisualization import _pipeline as _p
-from modelviewprojection.mvpvisualization import (
-    cayley_gl,
-)
 
 if typing.TYPE_CHECKING:
     # glfw types every window parameter as `_GLFWwindowPointerT`; it is private
@@ -221,9 +221,8 @@ window, impl, imguiio = cayley_gl.setup(
 )
 camera: _p.Camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
-pwd: str = os.path.dirname(os.path.abspath(__file__))
 standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
-    shader_dir=pwd,
+    shader_dir=SHADER_DIR,
     animated=True,
     project="project_perspective.glsl",
     frustum=cayley_gl.Frustum(aspect_ratio=FB_W_DEFAULT / FB_H_DEFAULT),

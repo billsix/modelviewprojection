@@ -8,10 +8,10 @@ same module, both needed one decision, and both touch the same doctests and the 
 so they are one review. The originals are archived at `tasks/archive/2026/09/08/`.
 **Priority:** 6
 **Difficulty:** 3
-**Related:** `tasks/move-mvp-gl-toolkit-to-gacalc-step-5-mvp-switch.md`. When the Cayley modules
-move to gacalc (2026-11-13 decision), they call `gacalc.transforms.plane_rotation` directly instead
-of `rotate_x`, `rotate_y` and `rotate_z`. After that, those three helpers serve only mvp's own code
-and book.
+**Related:** `tasks/archive/2026/11/13/move-mvp-gl-toolkit-to-gacalc-step-5-mvp-switch.md`.
+The Cayley modules moved to gacalc in 0.1.1 (2026-11-13) and call
+`gacalc.transforms.plane_rotation` directly instead of `rotate_x`, `rotate_y` and `rotate_z`, so
+those three helpers now serve only mvp's own code and book.
 
 ## BLUF
 

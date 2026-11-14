@@ -133,9 +133,9 @@ So the check before editing a source file is **"is this text inside a published 
 
 mvp depends on gacalc **twice, for two different reasons**, and the two must stay in lockstep.
 
-**(a) The runtime WHEEL.** `requirements.txt:3` pins `gacalc==0.0.20` (the value moves with every bump — 0.0.11 → 0.0.14 → 0.0.15 → 0.0.16 → 0.0.18 → 0.0.19 → 0.0.20 so far; what matters is the lockstep rule below, not the number). This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
+**(a) The runtime WHEEL.** `requirements.txt` pins `gacalc[gl]==0.1.1` (the value moves with every bump — 0.0.11 → 0.0.14 → 0.0.15 → 0.0.16 → 0.0.18 → 0.0.19 → 0.0.20 → 0.1.1 so far; the `gl` extra since 0.1.1, for `gacalc.gl`; what matters is the lockstep rule below, not the number). This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
 
-**(b) The docs-only SOURCE sdist.** The book `literalinclude`s **gacalc's own source** (its `functions.py`, `transforms.py`, `g2.py`, `g3.py`) to teach GA concepts — e.g. `book/docs/ch06.rst` quotes `_gacalc_src/functions.py` for `InvertibleFunction`, ch05/ch14 quote `g2.py`/`g3.py`/`transforms.py`. To do that, gacalc's real source must be *on disk inside the book tree*. The `Dockerfile` (`ARG GACALC_VERSION=0.0.20`, must equal the requirements pin):
+**(b) The docs-only SOURCE sdist.** The book `literalinclude`s **gacalc's own source** (its `functions.py`, `transforms.py`, `g2.py`, `g3.py`) to teach GA concepts — e.g. `book/docs/ch06.rst` quotes `_gacalc_src/functions.py` for `InvertibleFunction`, ch05/ch14 quote `g2.py`/`g3.py`/`transforms.py`. To do that, gacalc's real source must be *on disk inside the book tree*. The `Dockerfile` (`ARG GACALC_VERSION=0.1.1`, must equal the requirements pin):
 
 1. Fetches the gacalc **sdist** from the PyPI JSON API for exactly `${GACALC_VERSION}`.
 2. Extracts it and copies `src/gacalc/*.py` into the image at **`/opt/gacalc-src/`**.

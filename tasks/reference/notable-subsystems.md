@@ -36,7 +36,9 @@ The through-line worth holding in your head: **mvp is a course, and gacalc (the 
 
 ---
 
-## 2. The Cayley-graph engine — `cayley/` + `mvpvisualization/cayley_gl.py`
+## 2. The Cayley-graph engine — `gacalc.cayley` + `gacalc.gl.cayley_gl`
+
+**Lives in gacalc since 0.1.1** (github.com/billsix/geometricalgebra: `src/gacalc/cayley/`, `src/gacalc/gl/`; its `tasks/reference/gl-toolkit.md` is the current reference). The file names below are the gacalc modules; mvp imports them (`from gacalc.cayley import cayleygraph, cayleyscene`, `from gacalc.gl import cayley_gl, _pipeline as _p, SHADER_DIR`). This section stays as mvp's view of how the visualizations use the engine.
 
 **What it is.** The engine behind the `mvpvisualization` demos. It models the course's central lesson — *coordinate spaces connected by transforms, and you get from any space to any other by composing the transforms along a path, inverting any you walk backward* — as an **immutable directed acyclic graph** whose **edges are sequences of gacalc `InvertibleFunction`s**. Tracing a path composes the edge functions and auto-inverts against-arrow edges. This is "the chapter-02 rule, executed instead of drawn."
 
@@ -82,7 +84,7 @@ This is the layer that turns *one declarative graph* into an animation, with **n
 - **Import-order gotcha (documented at the top):** `glfw` + `OpenGL.GL` **must** import before `imgui_bundle`, or PyOpenGL's context tracking fails at window setup. Demos must get imgui via `cayley_gl.imgui`, not by importing `imgui_bundle` first.
 - The GPU squash is injected via GLSL string concatenation, not `#include` — see `_pipeline.py` below.
 
-### 2d. Supporting layer — `mvpvisualization/_pipeline.py`
+### 2d. Supporting layer — `gacalc.gl._pipeline`
 
 Lower-level GL boilerplate that `cayley_gl` builds on (and that the standalone `modelview*.py` demos use directly): GLFW+imgui setup, shader compilation, VAO/VBO builders, standard mesh geometry, per-frame uniform upload, the `Pipeline` dataclass (cached uniform/attr locations), and `cleanup()`.
 - **The `project_*.glsl` injection trick:** GLSL 330 has no `#include`, so `compile_program(..., project=...)` **appends** a `project_*.glsl` snippet to the vertex shader source before compiling — it supplies the body of a forward-declared `vec4 project(vec4)` that the two shared vertex shaders call. That's how each demo's projection *animation* (identity / ortho squash / perspective squash) is injected into the shared shaders.
@@ -103,7 +105,7 @@ Lower-level GL boilerplate that `cayley_gl` builds on (and that the standalone `
 | `modelvieworthoprojection` | the projection tail, easy volume | hard-coded ortho box (half-size 5, near −0.5, far −15.5); 2-step GPU squash (`T-Center`, `Scale`) with a 10 s dwell; editable virtual camera |
 | `modelviewperspectiveprojection` | the full stack | camera drawn with its frustum; GPU perspective squash (`Squash X/Y`) → ortho (`T-Center`, `Scale`) → NDC; editable camera + frustum (FOV/aspect/near/far); the parity test copies THIS demo's constants verbatim |
 
-**Why `cayley/` is a top-level package** rather than living inside `mvpvisualization/`: it was promoted (Bill, 2026-06-14) so the then-existing `mathdemos/` and `mvpvisualization/` could both import it. `mathdemos/` has since been deleted (moved to multivariate-math), so the separateness looks arbitrary without this note — it isn't; the engine is deliberately GL-free and package-neutral.
+**Why the engine is its own package, GL-free:** so more than one consumer can import it. It now lives in gacalc as `gacalc.cayley`, with the GL half in `gacalc.gl`, so `pip install gacalc` stays numpy and sympy only.
 
 ---
 
@@ -123,7 +125,7 @@ Lower-level GL boilerplate that `cayley_gl` builds on (and that the standalone `
 
 **The `m`/`b` teaching-naming convention (protected).** gacalc's `translate(b=...)` and `uniform_scale(m=...)` are named for `f(x) = m*x + b` — `b` the intercept/shift, `m` the slope/stretch — so a student meets transforms through an equation they already know. **Do not "improve" these to `offset`/`factor`,** and call them by keyword in teaching code. This is enforced in gacalc; `mathutils` and the demos are downstream consumers of it.
 
-**Note:** there is a *separate* legacy `matrix_stack.py` (`ms`) that is an actual **numpy-4×4 matrix** stack (`MatrixStack.model/view/projection`, `push_matrix`, `ortho`, `perspective`, `rotate_x`, `translate`, …). The GL demos drive *that* one for uniform upload; `mathutils.FunctionStack` is the `InvertibleFunction` analogue used in the algebra-first parts. Don't confuse the two — `ms.perspective` mutates a matrix on a stack; `mathutils.perspective` returns an `InvertibleFunction`.
+**Note:** there is a *separate* `gacalc.gl.matrix_stack` (`ms`) that is an actual **numpy-4×4 matrix** stack (`MatrixStack.model/view/projection`, `push_matrix`, `ortho`, `perspective`, `rotate_x`, `translate`, …). The GL demos drive *that* one for uniform upload; `mathutils.FunctionStack` is the `InvertibleFunction` analogue used in the algebra-first parts. Don't confuse the two — `ms.perspective` mutates a matrix on a stack; `mathutils.perspective` returns an `InvertibleFunction`.
 
 ---
 
