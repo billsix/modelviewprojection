@@ -33,9 +33,10 @@ container.
   `mvpvisualization/`; `pgzero_gl/renderer.py` and `renderer_gl1.py`; `util/shaderutils.py`. The
   visualizations also dropped their `__file__`-based shader directory for
   `shader_dir=SHADER_DIR` (and the `import os` that only served it). A codemod did this:
-  `tasks/adhoc/move-mvp-gl-toolkit-to-gacalc-step-5-mvp-switch/rewrite_imports.sh`, idempotent
-  (a second run changed nothing); `make format` then sorted the gacalc imports into the
-  third-party block. `wxapp.py`'s local `GLenum` copy kept its reason, with its comment repointed.
+  `tasks/adhoc/move-mvp-gl-toolkit-to-gacalc-step-5-mvp-switch/rewrite_imports.sh` (removed when
+  this task was archived; it is in git history), idempotent (a second run changed nothing);
+  `make format` then sorted the gacalc imports into the third-party block. `wxapp.py`'s local
+  `GLenum` copy kept its reason, with its comment repointed.
 - **Graphers.** `graphingcalculator/grapher2d.py` and `grapher3d.py` went from about 600 and 530
   lines to 54 and 60: mvp's `FUNCTIONS` / `SURFACES` lists, unchanged, passed to
   `gacalc.gl.grapher2d.run` / `grapher3d.run` with the same window titles.
