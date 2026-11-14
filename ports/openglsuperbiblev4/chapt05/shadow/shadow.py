@@ -7,6 +7,7 @@
 # OpenGL SuperBible, Chapter 5
 # Python port of Shadow.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -30,24 +31,32 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-
-
-x_rot: float = 0.0
-y_rot: float = 0.0
-
 ambient_light: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 1.0)
 diffuse_light: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
 specular: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 light_pos: tuple[float, float, float, float] = (-75.0, 150.0, -50.0, 0.0)
 specref: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 
-# built in setup_rc -- 4x4 column-major np array
-shadow_mat: np.ndarray | None = None
 
 # Yellow light-source marker sphere, redrawn each frame at the light
 # position -- tessellate once at import.
 SPHERE_LIGHT: _primitives.Mesh = _primitives.build_sphere(5.0, 10, 10)
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+
+    # built in setup_rc -- 4x4 column-major np array
+    shadow_mat: np.ndarray | None = None
+
+
+state: AppState = AppState()
 
 
 def make_planar_shadow_matrix(
@@ -64,11 +73,9 @@ def make_planar_shadow_matrix(
     perspective divide -- the shadow silently disappears. Negate the
     whole matrix when needed to keep w positive. See
     tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md."""
-    a, b, c = (
-        plane_normal.coeff_e_1,
-        plane_normal.coeff_e_2,
-        plane_normal.coeff_e_3,
-    )
+    a: float = plane_normal.coeff_e_1
+    b: float = plane_normal.coeff_e_2
+    c: float = plane_normal.coeff_e_3
     d: float = plane_d
     dx: float = -light_pos_4[0]
     dy: float = -light_pos_4[1]
@@ -224,8 +231,8 @@ def render_scene() -> None:
 
     GL.glEnable(GL.GL_LIGHTING)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     draw_jet(0)
     GL.glPopMatrix()
 
@@ -233,9 +240,9 @@ def render_scene() -> None:
     GL.glDisable(GL.GL_DEPTH_TEST)
     GL.glDisable(GL.GL_LIGHTING)
     GL.glPushMatrix()
-    GL.glMultMatrixf(shadow_mat)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glMultMatrixf(state.shadow_mat)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     draw_jet(1)
     GL.glPopMatrix()
 
@@ -250,8 +257,6 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    global shadow_mat
-
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glFrontFace(GL.GL_CCW)
     GL.glEnable(GL.GL_CULL_FACE)
@@ -273,8 +278,8 @@ def setup_rc() -> None:
     p1: Vector = Vector(-30.0, -149.0, -20.0)
     p2: Vector = Vector(-30.0, -149.0, 20.0)
     p3: Vector = Vector(40.0, -149.0, 20.0)
-    plane_normal, plane_d = plane_equation(p1, p2, p3)
-    shadow_mat = make_planar_shadow_matrix(plane_normal, plane_d, light_pos)
+    plane: tuple[Vector, float] = plane_equation(p1, p2, p3)
+    state.shadow_mat = make_planar_shadow_matrix(plane[0], plane[1], light_pos)
 
     GL.glEnable(GL.GL_NORMALIZE)
 
@@ -293,7 +298,7 @@ def change_size(w: int, h: int) -> None:
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -302,20 +307,21 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -326,9 +332,8 @@ BTN_ROT_STEP: float = 5.0
 
 
 def _rotate(dx: float, dy: float) -> None:
-    global x_rot, y_rot
-    x_rot += dx
-    y_rot += dy
+    state.x_rot += dx
+    state.y_rot += dy
 
 
 def imgui_menubar() -> None:
@@ -338,10 +343,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action(
             "Rotate up", "Up", lambda: _rotate(-BTN_ROT_STEP, 0)
@@ -360,8 +367,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
-
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -373,7 +378,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
@@ -386,8 +391,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 

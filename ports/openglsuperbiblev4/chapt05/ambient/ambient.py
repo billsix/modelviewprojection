@@ -5,6 +5,7 @@
 # OpenGL SuperBible, Chapter 5
 # Python port of Ambient.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -19,10 +20,20 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-x_rot: float = 0.0
-y_rot: float = 0.0
-ambient_light: list[float] = [1.0, 1.0, 1.0]
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+    ambient_light: list[float] = dataclasses.field(
+        default_factory=lambda: [1.0, 1.0, 1.0]
+    )
+
+
+state: AppState = AppState()
 
 
 def draw_jet() -> None:
@@ -111,29 +122,38 @@ def draw_jet() -> None:
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glPushMatrix()
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     draw_jet()
     GL.glPopMatrix()
 
 
 def imgui_menubar() -> None:
-    global ambient_light
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Light", True):
         # color_edit3 has no menubar-native form, so it renders as an
         # ordinary widget inside this begin_menu/end_menu block.
-        _, ambient_light = imgui.color_edit3("ambientLight", ambient_light)
+        ambient_edit: tuple[bool, list[float]] = imgui.color_edit3(
+            "ambientLight", state.ambient_light
+        )
+        state.ambient_light = ambient_edit[1]
         GL.glLightModelfv(
             GL.GL_LIGHT_MODEL_AMBIENT,
-            [ambient_light[0], ambient_light[1], ambient_light[2], 1.0],
+            [
+                state.ambient_light[0],
+                state.ambient_light[1],
+                state.ambient_light[2],
+                1.0,
+            ],
         )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
@@ -192,7 +212,7 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -205,33 +225,32 @@ ROT_STEP: float = ROT_DEG_PER_SEC / 60.0
 
 
 def _nudge_rot(axis: str, d: float) -> None:
-    global x_rot, y_rot
     if axis == "x":
-        x_rot += d
+        state.x_rot += d
     else:
-        y_rot += d
+        state.y_rot += d
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -245,7 +264,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -257,8 +276,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 
