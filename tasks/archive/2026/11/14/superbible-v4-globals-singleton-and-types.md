@@ -34,11 +34,12 @@ source (no `doc-region` markers under the tree).
   per-window cache mutated in place, left module-level). The 101 apps were then refactored in
   seven parallel batches of chapters, each batch verified with the three checks below before it was
   accepted.
-- `tasks/adhoc/superbible-v4-globals-singleton-and-types/strict_annotations.py` (one-shot) reports
+- The two checks below were one-shot scripts, committed in aca4865d and removed when the task was
+  archived. `tasks/adhoc/superbible-v4-globals-singleton-and-types/strict_annotations.py` reported
   `global`/`nonlocal`, tuple-unpack assignments, unannotated `for`/`with` targets, and unannotated
-  params/returns; 1335 findings before, 0 after.
+  params/returns: 1335 findings before, 0 after.
 - `tasks/adhoc/superbible-v4-globals-singleton-and-types/frame_identity.sh` +
-  `capture_frames.py` (one-shot) run an app headlessly for 12 frames under Xvfb with a fake clock
+  `capture_frames.py` ran an app headlessly for 12 frames under Xvfb with a fake clock
   (`time.monotonic`/`time`/`perf_counter`/`glfw.get_time` = frames / 30) and seeded `random`, and
   compare frames 3 and 12 with the pre-refactor commit's tree (baseline captured twice as a
   determinism check). A deliberate one-value change was confirmed to show as `DIFF`.
