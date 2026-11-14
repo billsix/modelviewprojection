@@ -79,13 +79,14 @@ def resolve_default_window_size() -> tuple[int, int]:
     if monitor is None:
         return WINDOW_DEFAULT
     mode: typing.Any = glfw.get_video_mode(monitor)  # glfw video mode
-    mw, mh = mode.size.width, mode.size.height
+    mw: int = mode.size.width
+    mh: int = mode.size.height
     if mw >= WINDOW_DEFAULT[0] and mh >= WINDOW_DEFAULT[1]:
         return WINDOW_DEFAULT
     return (int(mw * 0.9), int(mh * 0.9))
 
 
-def init_imgui(window) -> GlfwRenderer:
+def init_imgui(window: typing.Any) -> GlfwRenderer:
     """Create the ImGui context and bind it to a GLFW window.
     Caller is responsible for calling ``shutdown()`` on the returned
     renderer at exit."""
@@ -113,7 +114,7 @@ class WindowState:
     f11_down: bool = False
 
 
-def toggle_fullscreen(window, state: WindowState) -> None:
+def toggle_fullscreen(window: typing.Any, state: WindowState) -> None:
     """Flip between windowed and exclusive fullscreen on the primary
     monitor. Uses ``glfw.set_window_monitor`` — same path as
     ``chapt19/fscreen``'s ``glfw.create_window(..., monitor, ...)``,
@@ -132,8 +133,12 @@ def toggle_fullscreen(window, state: WindowState) -> None:
         )
         state.fullscreen = False
     else:
-        state.saved_x, state.saved_y = glfw.get_window_pos(window)
-        state.saved_w, state.saved_h = glfw.get_window_size(window)
+        pos: tuple[int, int] = glfw.get_window_pos(window)
+        state.saved_x = pos[0]
+        state.saved_y = pos[1]
+        size: tuple[int, int] = glfw.get_window_size(window)
+        state.saved_w = size[0]
+        state.saved_h = size[1]
         monitor: typing.Any = glfw.get_primary_monitor()  # glfw monitor handle
         if monitor is None:
             return
@@ -154,7 +159,7 @@ FULLSCREEN_KEY: int = glfw.KEY_F11
 FULLSCREEN_KEY_LABEL: str = "F11"
 
 
-def poll_fullscreen_key(window, state: WindowState) -> None:
+def poll_fullscreen_key(window: typing.Any, state: WindowState) -> None:
     """Toggle fullscreen on the frame F11 goes down. Polled, not a
     callback: the demos own their GLFW key callbacks, and a callback
     installed later silently replaces an earlier one
@@ -172,14 +177,16 @@ def poll_fullscreen_key(window, state: WindowState) -> None:
 _view_states: dict[int, WindowState] = {}
 
 
-def _window_state_for(window) -> WindowState:
+def _window_state_for(window: typing.Any) -> WindowState:
     key: int = ctypes.cast(window, ctypes.c_void_p).value or 0
     if key not in _view_states:
         _view_states[key] = WindowState()
     return _view_states[key]
 
 
-def draw_view_menu(window, state: Optional[WindowState] = None) -> None:
+def draw_view_menu(
+    window: typing.Any, state: Optional[WindowState] = None
+) -> None:
     """The View menu: "Fullscreen   F11", checked while fullscreen, and
     the F11 poll. Call between ``imgui.begin_main_menu_bar()`` and
     ``imgui.end_main_menu_bar()``, after the File menu. ``state`` is
@@ -198,7 +205,7 @@ def draw_view_menu(window, state: Optional[WindowState] = None) -> None:
 
 
 def draw_menubar(
-    window,
+    window: typing.Any,
     state: WindowState,
     *,
     controls: Optional[Callable[[], None]] = None,
@@ -253,8 +260,9 @@ def menu_action(
     once -- menus can't "hold to repeat", so continuous motion stays on the
     keyboard and the menu item is a discoverable single-step. Call inside a
     ``begin_menu`` block."""
-    clicked, _ = imgui.menu_item(label, key, selected, True)
-    if clicked:
+    # (clicked, selected) -- only the click matters here
+    item: tuple[bool, bool] = imgui.menu_item(label, key, selected, True)
+    if item[0]:
         action()
 
 
@@ -319,7 +327,7 @@ class Camera:
     _scroll_accum: float = 0.0
 
 
-def bind_camera_inputs(window, camera: Camera) -> None:
+def bind_camera_inputs(window: typing.Any, camera: Camera) -> None:
     """Register a GLFW scroll callback that feeds the camera. Chains
     with any previously-registered scroll callback (so demos that have
     their own scroll handler keep it). Call once at startup, after
@@ -328,7 +336,7 @@ def bind_camera_inputs(window, camera: Camera) -> None:
         window, None
     )
 
-    def _scroll_cb(_win, x_offset: float, y_offset: float) -> None:
+    def _scroll_cb(_win: typing.Any, x_offset: float, y_offset: float) -> None:
         camera._scroll_accum += y_offset
         if prev_cb is not None:
             prev_cb(_win, x_offset, y_offset)
@@ -337,7 +345,7 @@ def bind_camera_inputs(window, camera: Camera) -> None:
 
 
 def update_camera(
-    window, camera: Camera, scene_objects: Sequence[SceneObject]
+    window: typing.Any, camera: Camera, scene_objects: Sequence[SceneObject]
 ) -> None:
     """Read input and update camera state. Call between
     ``impl.process_inputs()`` and the demo's render code each frame.
@@ -361,9 +369,12 @@ def update_camera(
     want_kbd: bool = io.want_capture_keyboard
     want_mouse: bool = io.want_capture_mouse
 
-    cy, sy = math.cos(camera.rot_y), math.sin(camera.rot_y)
-    fwd_x, fwd_z = -sy, -cy
-    right_x, right_z = cy, -sy
+    cy: float = math.cos(camera.rot_y)
+    sy: float = math.sin(camera.rot_y)
+    fwd_x: float = -sy
+    fwd_z: float = -cy
+    right_x: float = cy
+    right_z: float = -sy
 
     if camera._scroll_accum != 0.0 and not want_mouse:
         if camera.focus_index < 0:
@@ -434,11 +445,13 @@ def apply_camera(camera: Camera, scene_objects: Sequence[SceneObject]) -> None:
     matrix. Call right after ``glLoadIdentity()`` and before the demo
     draws scene geometry. Must be in ``glMatrixMode(GL_MODELVIEW)``."""
     if 0 <= camera.focus_index < len(scene_objects):
-        ox, oy, oz = scene_objects[camera.focus_index].position()
+        focus: tuple[float, float, float] = scene_objects[
+            camera.focus_index
+        ].position()
         GL.glTranslatef(0.0, 0.0, -camera.focus_radius)
         GL.glRotatef(math.degrees(camera.rot_x), 1.0, 0.0, 0.0)
         GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
-        GL.glTranslatef(-ox, -oy, -oz)
+        GL.glTranslatef(-focus[0], -focus[1], -focus[2])
     else:
         GL.glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
         GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
@@ -462,12 +475,13 @@ def draw_camera_controls(
         )
     else:
         obj: SceneObject = scene_objects[camera.focus_index]
-        ox, oy, oz = obj.position()
+        at: tuple[float, float, float] = obj.position()
         imgui.text(f"Mode: Focus on '{obj.name}'")
-        imgui.text(f"Object at ({ox:.2f}, {oy:.2f}, {oz:.2f})")
-        _, camera.focus_radius = imgui.slider_float(
+        imgui.text(f"Object at ({at[0]:.2f}, {at[1]:.2f}, {at[2]:.2f})")
+        radius_slider: tuple[bool, float] = imgui.slider_float(
             "Radius", camera.focus_radius, 0.1, 1000.0
         )
+        camera.focus_radius = radius_slider[1]
 
     imgui.text(
         f"rot_y={math.degrees(camera.rot_y):6.1f}°  "
@@ -477,6 +491,7 @@ def draw_camera_controls(
     imgui.text("Focus on:")
     if imgui.radio_button("(walk around)", camera.focus_index < 0):
         camera.focus_index = -1
+    i: int
     for i, obj in enumerate(scene_objects):
         if imgui.radio_button(obj.name, camera.focus_index == i):
             camera.focus_index = i

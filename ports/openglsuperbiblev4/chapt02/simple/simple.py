@@ -3,6 +3,7 @@
 # OpenGL SuperBible, Chapter 2
 # Python port of Simple.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -16,8 +17,16 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# set in main(); used by the Quit menu item
-_window: typing.Any = None  # glfw window handle
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # set in main(); used by the Quit menu item
+    window: typing.Any = None  # glfw window handle
+
+
+state: AppState = AppState()
 
 
 def imgui_menubar() -> None:
@@ -26,10 +35,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
@@ -42,14 +53,14 @@ def setup_rc() -> None:
     GL.glClearColor(0.0, 0.0, 1.0, 1.0)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def main() -> None:
-    global _window
-
     if not glfw.init():
         sys.exit(1)
 
@@ -65,7 +76,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
 

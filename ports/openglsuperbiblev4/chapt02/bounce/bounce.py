@@ -8,6 +8,7 @@
 # windowing and imgui_bundle (with the GLFW backend) for the overlay,
 # matching the rest of the modelviewprojection codebase.
 
+import dataclasses
 import os
 import sys
 import time
@@ -22,58 +23,66 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# set in main(); used by the Controls buttons
-_window: typing.Any = None  # glfw window handle
-
-
-# Initial square position and size (in the orthographic units set up by
-# change_size).
-x: float = 0.0
-y: float = 0.0
-rsize: float = 25.0
-
-# Step size (per-tick) in x and y -- 33 ms / tick to match the C++ timer.
-xstep: float = 1.0
-ystep: float = 1.0
-
-# Bounds of the orthographic clip volume; updated in change_size.
-window_width: float = 100.0
-window_height: float = 100.0
-
 # 33 ms timer in the C++ original
 TICK_INTERVAL: float = 33.0 / 1000.0
-last_tick: float = 0.0
-paused: bool = False
+
+# Square size (in the orthographic units set up by change_size).
+rsize: float = 25.0
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # set in main(); used by the menubar actions
+    window: typing.Any = None  # glfw window handle
+
+    # Initial square position (in the orthographic units set up by
+    # change_size).
+    x: float = 0.0
+    y: float = 0.0
+
+    # Step size (per-tick) in x and y -- 33 ms / tick to match the C++ timer.
+    xstep: float = 1.0
+    ystep: float = 1.0
+
+    # Bounds of the orthographic clip volume; updated in change_size.
+    window_width: float = 100.0
+    window_height: float = 100.0
+
+    last_tick: float = 0.0
+    paused: bool = False
+
+
+state: AppState = AppState()
 
 
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glColor3f(1.0, 0.0, 0.0)
-    GL.glRectf(x, y, x + rsize, y - rsize)
+    GL.glRectf(state.x, state.y, state.x + rsize, state.y - rsize)
 
 
 def tick() -> None:
     """Equivalent to TimerFunction in bounce.cpp -- step the rectangle
     one frame and bounce off the clip-volume edges."""
-    global x, y, xstep, ystep
+    if state.x > state.window_width - rsize or state.x < -state.window_width:
+        state.xstep = -state.xstep
+    if state.y > state.window_height or state.y < -state.window_height + rsize:
+        state.ystep = -state.ystep
 
-    if x > window_width - rsize or x < -window_width:
-        xstep = -xstep
-    if y > window_height or y < -window_height + rsize:
-        ystep = -ystep
-
-    x += xstep
-    y += ystep
+    state.x += state.xstep
+    state.y += state.ystep
 
     # Clip in case the window shrank while bouncing
-    if x > (window_width - rsize + xstep):
-        x = window_width - rsize - 1
-    elif x < -(window_width + xstep):
-        x = -window_width - 1
-    if y > (window_height + ystep):
-        y = window_height - 1
-    elif y < -(window_height - rsize + ystep):
-        y = -window_height + rsize - 1
+    if state.x > (state.window_width - rsize + state.xstep):
+        state.x = state.window_width - rsize - 1
+    elif state.x < -(state.window_width + state.xstep):
+        state.x = -state.window_width - 1
+    if state.y > (state.window_height + state.ystep):
+        state.y = state.window_height - 1
+    elif state.y < -(state.window_height - rsize + state.ystep):
+        state.y = -state.window_height + rsize - 1
 
 
 def setup_rc() -> None:
@@ -81,7 +90,6 @@ def setup_rc() -> None:
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height
     if h == 0:
         h = 1
 
@@ -91,69 +99,77 @@ def change_size(w: int, h: int) -> None:
 
     aspect_ratio: float = float(w) / float(h)
     if w <= h:
-        window_width = 100.0
-        window_height = window_width / aspect_ratio
-        GL.glOrtho(-100.0, 100.0, -window_height, window_height, 1.0, -1.0)
+        state.window_width = 100.0
+        state.window_height = state.window_width / aspect_ratio
+        GL.glOrtho(
+            -100.0, 100.0, -state.window_height, state.window_height, 1.0, -1.0
+        )
     else:
-        window_height = 100.0
-        window_width = window_height * aspect_ratio
-        GL.glOrtho(-window_width, window_width, -100.0, 100.0, 1.0, -1.0)
+        state.window_height = 100.0
+        state.window_width = state.window_height * aspect_ratio
+        GL.glOrtho(
+            -state.window_width, state.window_width, -100.0, 100.0, 1.0, -1.0
+        )
 
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
-    global paused
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
     elif key == glfw.KEY_SPACE and action == glfw.PRESS:
-        paused = not paused
+        state.paused = not state.paused
 
 
 def imgui_menubar() -> None:
     """Top menubar. The Bounce menu carries the step sliders plus the
     Reverse and Pause/Resume actions (SPACE still toggles pause)."""
-    global xstep, ystep, paused
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Bounce", True):
         # Sliders live inside the menu (begin_menu/end_menu); they have no
         # menubar-native equivalent so they render as ordinary widgets here.
-        _, xstep = imgui.slider_float("xstep", xstep, -5.0, 5.0)
-        _, ystep = imgui.slider_float("ystep", ystep, -5.0, 5.0)
+        xstep_slider: tuple[bool, float] = imgui.slider_float(
+            "xstep", state.xstep, -5.0, 5.0
+        )
+        state.xstep = xstep_slider[1]
+        ystep_slider: tuple[bool, float] = imgui.slider_float(
+            "ystep", state.ystep, -5.0, 5.0
+        )
+        state.ystep = ystep_slider[1]
         imgui.separator()
 
         def _reverse() -> None:
-            global xstep, ystep
-            xstep = -xstep
-            ystep = -ystep
+            state.xstep = -state.xstep
+            state.ystep = -state.ystep
 
         def _toggle_pause() -> None:
-            global paused
-            paused = not paused
+            state.paused = not state.paused
 
         _common.menu_action("Reverse", "", _reverse)
         _common.menu_action(
-            "Resume" if paused else "Pause", "SPACE", _toggle_pause
+            "Resume" if state.paused else "Pause", "SPACE", _toggle_pause
         )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global last_tick, _window
-
     if not glfw.init():
         sys.exit(1)
 
@@ -167,7 +183,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -179,10 +195,10 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
-    last_tick = time.monotonic()
+    state.last_tick = time.monotonic()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -190,9 +206,9 @@ def main() -> None:
 
         # Step physics on a 33 ms tick
         now: float = time.monotonic()
-        if not paused and now - last_tick >= TICK_INTERVAL:
+        if not state.paused and now - state.last_tick >= TICK_INTERVAL:
             tick()
-            last_tick = now
+            state.last_tick = now
 
         render_scene()
 
