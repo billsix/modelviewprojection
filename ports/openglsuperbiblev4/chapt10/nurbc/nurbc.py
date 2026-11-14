@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 10
 # Python port of Nurbc.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -19,8 +20,18 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# glfw window handle
-_window: typing.Any = None  # set in main(); used by the Quit menu item
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main(); used by the Quit menu item
+    window: typing.Any = None
+    # GLU NURBS renderer (gluNewNurbsRenderer)
+    p_nurb: typing.Any = None
+
+
+state: AppState = AppState()
 
 
 ctrl_points: np.ndarray = np.array(
@@ -31,13 +42,13 @@ knots: np.ndarray = np.array(
     [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
     dtype=np.float32,
 )
-p_nurb: typing.Any = None  # GLU NURBS renderer (gluNewNurbsRenderer)
 
 
 def draw_points() -> None:
     GL.glPointSize(5.0)
     GL.glColor3ub(255, 0, 0)
     GL.glBegin(GL.GL_POINTS)
+    p: np.ndarray
     for p in ctrl_points:
         GL.glVertex3f(*p)
     GL.glEnd()
@@ -50,20 +61,19 @@ def render_scene() -> None:
     GL.glPushMatrix()
     GL.glRotatef(330.0, 1.0, 0.0, 0.0)
 
-    GLU.gluBeginCurve(p_nurb)
-    GLU.gluNurbsCurve(p_nurb, knots, ctrl_points, GL.GL_MAP1_VERTEX_3)
-    GLU.gluEndCurve(p_nurb)
+    GLU.gluBeginCurve(state.p_nurb)
+    GLU.gluNurbsCurve(state.p_nurb, knots, ctrl_points, GL.GL_MAP1_VERTEX_3)
+    GLU.gluEndCurve(state.p_nurb)
 
     draw_points()
     GL.glPopMatrix()
 
 
 def setup_rc() -> None:
-    global p_nurb
     GL.glClearColor(1.0, 1.0, 1.0, 1.0)
-    p_nurb = GLU.gluNewNurbsRenderer()
-    GLU.gluNurbsProperty(p_nurb, GLU.GLU_SAMPLING_TOLERANCE, 25.0)
-    GLU.gluNurbsProperty(p_nurb, GLU.GLU_DISPLAY_MODE, GLU.GLU_FILL)
+    state.p_nurb = GLU.gluNewNurbsRenderer()
+    GLU.gluNurbsProperty(state.p_nurb, GLU.GLU_SAMPLING_TOLERANCE, 25.0)
+    GLU.gluNurbsProperty(state.p_nurb, GLU.GLU_DISPLAY_MODE, GLU.GLU_FILL)
 
 
 def change_size(w: int, h: int) -> None:
@@ -78,11 +88,13 @@ def change_size(w: int, h: int) -> None:
     GL.glTranslatef(0.0, 0.0, -20.0)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -94,15 +106,16 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -112,7 +125,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -123,8 +136,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
