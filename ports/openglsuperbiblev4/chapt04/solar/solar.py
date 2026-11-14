@@ -5,6 +5,7 @@
 # OpenGL SuperBible, Chapter 4
 # Python port of Solar.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -21,19 +22,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main(), used by Quit
-
 white_light: tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1.0)
 source_light: tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0)
 light_pos: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
 
-f_moon_rot: float = 0.0
-f_earth_rot: float = 0.0
 # Time-based animation rates (C++ used a 100 ms timer that advanced by
 # 15° / 5° per tick = 150°/sec and 50°/sec).
 MOON_DEG_PER_SEC: float = 150.0
 EARTH_DEG_PER_SEC: float = 50.0
-start_time: float = 0.0
 
 
 # Spheres are identical every frame, so build the vertex bands once at import
@@ -48,6 +44,20 @@ PLANET_SPHERE: _primitives.Mesh = _primitives.build_sphere(
 MOON_SPHERE: _primitives.Mesh = _primitives.build_sphere(
     6.0, 30, 17, swap_winding=True
 )
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main(), used by Quit
+
+    f_moon_rot: float = 0.0
+    f_earth_rot: float = 0.0
+    start_time: float = 0.0
+
+
+state: AppState = AppState()
 
 
 def render_scene() -> None:
@@ -67,7 +77,7 @@ def render_scene() -> None:
     # Place light at the sun's location
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
 
-    GL.glRotatef(f_earth_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.f_earth_rot, 0.0, 1.0, 0.0)
 
     # Earth
     GL.glColor3ub(0, 0, 255)
@@ -76,7 +86,7 @@ def render_scene() -> None:
 
     # Moon -- in Earth's frame
     GL.glColor3ub(200, 200, 200)
-    GL.glRotatef(f_moon_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.f_moon_rot, 0.0, 1.0, 0.0)
     GL.glTranslatef(30.0, 0.0, 0.0)
     _primitives.draw_mesh(MOON_SPHERE)
 
@@ -84,10 +94,9 @@ def render_scene() -> None:
 
 
 def update_animation() -> None:
-    global f_earth_rot, f_moon_rot
-    elapsed: float = time.monotonic() - start_time
-    f_moon_rot = (elapsed * MOON_DEG_PER_SEC) % 360.0
-    f_earth_rot = (elapsed * EARTH_DEG_PER_SEC) % 360.0
+    elapsed: float = time.monotonic() - state.start_time
+    state.f_moon_rot = (elapsed * MOON_DEG_PER_SEC) % 360.0
+    state.f_earth_rot = (elapsed * EARTH_DEG_PER_SEC) % 360.0
 
 
 def setup_rc() -> None:
@@ -119,11 +128,13 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -135,16 +146,16 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global start_time, _window
-
     if not glfw.init():
         sys.exit(1)
 
@@ -157,7 +168,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
@@ -170,10 +181,10 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
-    start_time = time.monotonic()
+    state.start_time = time.monotonic()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
