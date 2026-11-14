@@ -9,6 +9,7 @@
 # OpenGL SuperBible, Chapter 17
 # Python port of imageproc.cpp by Benjamin Lipchak
 
+import dataclasses
 import os
 import sys
 import typing
@@ -26,15 +27,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-window_width: int = 1024
-window_height: int = 512
-texture_width: int = 1024
-texture_height: int = 512
-
-PASS_THROUGH, BLUR, SHARPEN, DILATION, EROSION, LAPLACIAN, SOBEL, PREWITT = (
-    range(8)
-)
+PASS_THROUGH: int = 0
+BLUR: int = 1
+SHARPEN: int = 2
+DILATION: int = 3
+EROSION: int = 4
+LAPLACIAN: int = 5
+SOBEL: int = 6
+PREWITT: int = 7
 TOTAL_SHADERS: int = 8
 shader_names: list[str] = [
     "passthrough",
@@ -46,24 +46,53 @@ shader_names: list[str] = [
     "sobel",
     "prewitt",
 ]
-f_shader: list[int] = [0] * TOTAL_SHADERS
-prog_obj: list[int] = [0] * TOTAL_SHADERS
-which_shader: int = PASS_THROUGH
 
-camera_pos: list[float] = [100.0, 75.0, 150.0, 1.0]
 camera_zoom: float = 0.3
 light_pos: list[float] = [140.0, 250.0, 140.0, 1.0]
 ambient_light: list[float] = [0.2, 0.2, 0.2, 1.0]
 diffuse_light: list[float] = [0.7, 0.7, 0.7, 1.0]
-light_rotation: float = 0.0
-tex_coord_offsets: np.ndarray = np.zeros(18, dtype=np.float32)
-num_passes: int = 2
-max_tex_size: int = 0
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+    window_width: int = 1024
+    window_height: int = 512
+    texture_width: int = 1024
+    texture_height: int = 512
+
+    f_shader: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADERS
+    )
+    prog_obj: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADERS
+    )
+    which_shader: int = PASS_THROUGH
+
+    camera_pos: list[float] = dataclasses.field(
+        default_factory=lambda: [100.0, 75.0, 150.0, 1.0]
+    )
+
+    light_rotation: float = 0.0
+    tex_coord_offsets: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.zeros(18, dtype=np.float32)
+    )
+    num_passes: int = 2
+    max_tex_size: int = 0
+
+
+state: AppState = AppState()
 
 
 def draw_solid_cube(size: float) -> None:
     s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
+    nx: int
+    ny: int
+    nz: int
+    vs: list[tuple[float, float, float]]
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
         (0, 0, -1, [(s, -s, -s), (-s, -s, -s), (-s, s, -s), (s, s, -s)]),
@@ -73,6 +102,7 @@ def draw_solid_cube(size: float) -> None:
         (0, -1, 0, [(-s, -s, -s), (s, -s, -s), (s, -s, s), (-s, -s, s)]),
     ]:
         GL.glNormal3f(nx, ny, nz)
+        v: tuple[float, float, float]
         for v in vs:
             GL.glVertex3f(*v)
     GL.glEnd()
@@ -86,21 +116,22 @@ TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 def prepare_shader(n: int) -> None:
     fname: str = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
+    f: typing.TextIO
     with open(fname) as f:
         fs_src: str = f.read()
-    f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
-    prog_obj[n] = GL.glCreateProgram()
-    GL.glAttachShader(prog_obj[n], f_shader[n])
-    GL.glLinkProgram(prog_obj[n])
-    if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
+    state.f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
+    state.prog_obj[n] = GL.glCreateProgram()
+    GL.glAttachShader(state.prog_obj[n], state.f_shader[n])
+    GL.glLinkProgram(state.prog_obj[n])
+    if not GL.glGetProgramiv(state.prog_obj[n], GL.GL_LINK_STATUS):
+        info: bytes = GL.glGetProgramInfoLog(state.prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
 
 def draw_models() -> None:
     GL.glPushMatrix()
-    GL.glRotatef(light_rotation, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.light_rotation, 0.0, 1.0, 0.0)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
     GL.glPopMatrix()
 
@@ -140,8 +171,8 @@ def draw_models() -> None:
 def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    if window_width > window_height:
-        ar: float = float(window_width) / float(window_height)
+    if state.window_width > state.window_height:
+        ar: float = float(state.window_width) / float(state.window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -151,7 +182,7 @@ def render_scene() -> None:
             1000.0,
         )
     else:
-        ar = float(window_height) / float(window_width)
+        ar = float(state.window_height) / float(state.window_width)
         GL.glFrustum(
             -camera_zoom,
             camera_zoom,
@@ -163,9 +194,9 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
     GLU.gluLookAt(
-        camera_pos[0],
-        camera_pos[1],
-        camera_pos[2],
+        state.camera_pos[0],
+        state.camera_pos[1],
+        state.camera_pos[2],
         0.0,
         0.0,
         0.0,
@@ -173,20 +204,20 @@ def render_scene() -> None:
         1.0,
         0.0,
     )
-    GL.glViewport(0, 0, window_width, window_height)
+    GL.glViewport(0, 0, state.window_width, state.window_height)
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     draw_models()
 
-    p: int = prog_obj[which_shader]
+    p: int = state.prog_obj[state.which_shader]
     GL.glUseProgram(p)
     loc: int = GL.glGetUniformLocation(p, "sampler0")
     if loc != -1:
         GL.glUniform1i(loc, 0)
     loc = GL.glGetUniformLocation(p, "tc_offset")
     if loc != -1:
-        GL.glUniform2fv(loc, 9, tex_coord_offsets)
+        GL.glUniform2fv(loc, 9, state.tex_coord_offsets)
 
     GL.glDisable(GL.GL_DEPTH_TEST)
     GL.glMatrixMode(GL.GL_PROJECTION)
@@ -194,20 +225,20 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
-    for _ in range(num_passes):
+    for _ in range(state.num_passes):
         GL.glCopyTexImage2D(
             GL.GL_TEXTURE_2D,
             0,
             GL.GL_RGBA8,
-            (window_width - texture_width) // 2,
-            (window_height - texture_height) // 2,
-            texture_width,
-            texture_height,
+            (state.window_width - state.texture_width) // 2,
+            (state.window_height - state.texture_height) // 2,
+            state.texture_width,
+            state.texture_height,
             0,
         )
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        wx: float = float(texture_width) / float(window_width)
-        wy: float = float(texture_height) / float(window_height)
+        wx: float = float(state.texture_width) / float(state.window_width)
+        wy: float = float(state.texture_height) / float(state.window_height)
         GL.glBegin(GL.GL_QUADS)
         GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 0.0)
         GL.glVertex2f(-wx, -wy)
@@ -224,39 +255,43 @@ def render_scene() -> None:
 
 
 def _nudge_light(d: float) -> None:
-    global light_rotation
-    light_rotation += d
+    state.light_rotation += d
 
 
 def _select_filter(n: int) -> None:
-    global which_shader
-    which_shader = n
+    state.which_shader = n
 
 
 def imgui_menubar() -> None:
     # All controls live in the top menubar. Movement items run once per click
     # and show their key in the shortcut column; hold the key for continuous
     # motion. "Passes" runs the convolution shader 1..5 times.
-    global num_passes
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Filter", True):
+        i: int
+        name: str
         for i, name in enumerate(shader_names):
             _common.menu_action(
                 name,
                 "",
                 lambda i=i: _select_filter(i),
-                selected=(which_shader == i),
+                selected=(state.which_shader == i),
             )
         imgui.separator()
         if imgui.begin_menu("Passes", True):
-            _, num_passes = imgui.slider_int("##passes", num_passes, 1, 5)
+            passes_slider: tuple[bool, int] = imgui.slider_int(
+                "##passes", state.num_passes, 1, 5
+            )
+            state.num_passes = passes_slider[1]
             imgui.end_menu()
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
@@ -266,39 +301,38 @@ def imgui_menubar() -> None:
         _common.menu_action(
             "Camera +X",
             "X",
-            lambda: camera_pos.__setitem__(0, camera_pos[0] + 5.0),
+            lambda: state.camera_pos.__setitem__(0, state.camera_pos[0] + 5.0),
         )
         _common.menu_action(
             "Camera -X",
             "Shift+X",
-            lambda: camera_pos.__setitem__(0, camera_pos[0] - 5.0),
+            lambda: state.camera_pos.__setitem__(0, state.camera_pos[0] - 5.0),
         )
         _common.menu_action(
             "Camera +Y",
             "Up / Y",
-            lambda: camera_pos.__setitem__(1, camera_pos[1] + 5.0),
+            lambda: state.camera_pos.__setitem__(1, state.camera_pos[1] + 5.0),
         )
         _common.menu_action(
             "Camera -Y",
             "Down / Shift+Y",
-            lambda: camera_pos.__setitem__(1, camera_pos[1] - 5.0),
+            lambda: state.camera_pos.__setitem__(1, state.camera_pos[1] - 5.0),
         )
         _common.menu_action(
             "Camera +Z",
             "Z",
-            lambda: camera_pos.__setitem__(2, camera_pos[2] + 5.0),
+            lambda: state.camera_pos.__setitem__(2, state.camera_pos[2] + 5.0),
         )
         _common.menu_action(
             "Camera -Z",
             "Shift+Z",
-            lambda: camera_pos.__setitem__(2, camera_pos[2] - 5.0),
+            lambda: state.camera_pos.__setitem__(2, state.camera_pos[2] - 5.0),
         )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def setup_rc() -> None:
-    global max_tex_size
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glDepthFunc(GL.GL_LEQUAL)
@@ -310,7 +344,7 @@ def setup_rc() -> None:
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, ambient_light)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, diffuse_light)
 
-    max_tex_size = GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)
+    state.max_tex_size = GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
@@ -322,36 +356,40 @@ def setup_rc() -> None:
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
     )
 
+    i: int
     for i in range(TOTAL_SHADERS):
         prepare_shader(i)
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height, texture_width, texture_height
-    window_width = texture_width = w
-    window_height = texture_height = h
-    if texture_width > max_tex_size:
-        texture_width = max_tex_size
-    if texture_height > max_tex_size:
-        texture_height = max_tex_size
+    state.window_width = state.texture_width = w
+    state.window_height = state.texture_height = h
+    if state.texture_width > state.max_tex_size:
+        state.texture_width = state.max_tex_size
+    if state.texture_height > state.max_tex_size:
+        state.texture_height = state.max_tex_size
 
-    x_inc: float = 1.0 / float(texture_width)
-    y_inc: float = 1.0 / float(texture_height)
+    x_inc: float = 1.0 / float(state.texture_width)
+    y_inc: float = 1.0 / float(state.texture_height)
+    i: int
     for i in range(3):
+        j: int
         for j in range(3):
-            tex_coord_offsets[(((i * 3) + j) * 2) + 0] = (-1.0 * x_inc) + (
-                i * x_inc
-            )
-            tex_coord_offsets[(((i * 3) + j) * 2) + 1] = (-1.0 * y_inc) + (
-                j * y_inc
-            )
+            state.tex_coord_offsets[(((i * 3) + j) * 2) + 0] = (
+                -1.0 * x_inc
+            ) + (i * x_inc)
+            state.tex_coord_offsets[(((i * 3) + j) * 2) + 1] = (
+                -1.0 * y_inc
+            ) + (j * y_inc)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, mods: int
+) -> None:
     # Shader selection and pass count moved to the imgui panel; keys here
     # are navigation only. These keys are mirrored by the panel's "Controls"
     # buttons (which name each key).
@@ -365,30 +403,33 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     elif key == glfw.KEY_RIGHT:
         _nudge_light(5.0)
     elif key == glfw.KEY_UP:
-        camera_pos[1] += 5.0
+        state.camera_pos[1] += 5.0
     elif key == glfw.KEY_DOWN:
-        camera_pos[1] -= 5.0
+        state.camera_pos[1] -= 5.0
     elif key == glfw.KEY_X:
-        camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
-        camera_pos[1] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[1] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Z:
-        camera_pos[2] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[2] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window: typing.Any = glfw.create_window(  # glfw window handle
-        window_width, window_height, "Image Processing Demo", None, None
+        state.window_width,
+        state.window_height,
+        "Image Processing Demo",
+        None,
+        None,
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -399,8 +440,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()
