@@ -13,6 +13,15 @@ live" needs a baked fallback so the image still runs when nobody mounts a repo o
 - **Dependencies** are installed into `/venv` at image-build time (dnf packages + a
   `--system-site-packages` venv + `requirements.txt` at the `constraints.txt` versions), so they're in committed image layers and the
   image is offline-reproducible. (Unchanged by this design.)
+- **Layer order** (William Emerison Six <billsix@gmail.com>, 2026-11-14): least volatile and most
+  expensive first — base dnf → docs (TeX) → tex-expression-to-png → X → venv + requirements →
+  ePiX → Jupyter → Spyder → Emacs → dotfiles, run-time scripts and history seeding → gacalc sdist →
+  `COPY . /mvp`. Each install script is `COPY`ed just before its own `RUN`, and each `ARG` is declared
+  just before the first layer that reads it (a build-arg's value is in the cache key of every later
+  `RUN`). So editing `entrypoint/04-install-emacs.sh` or toggling `USE_SPYDER` reruns only that
+  layer and the cheap ones after it; TeX, ePiX and the requirements stay cached. The requirements
+  files are `COPY`ed, not bind-mounted, so a change to them changes the venv layer's cache key.
+  (`tasks/archive/2026/11/14/dockerfile-layer-ordering.md`.)
 - **Own source** is baked with `COPY . /mvp` near the END of the Dockerfile (after the dnf/pip/TeX
   layers, so a source change rebuilds only the COPY + editable-install layers, not the expensive
   ones). `.dockerignore` keeps `.git`, `output/`, `*.tar`, and caches out of the baked tree.
