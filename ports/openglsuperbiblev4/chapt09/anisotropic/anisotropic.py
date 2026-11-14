@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 9
 # Python port of Anisotropic.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -23,25 +24,37 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-
-TEXTURE_BRICK, TEXTURE_FLOOR, TEXTURE_CEILING = 0, 1, 2
-texture_files: list[str] = ["brick.tga", "floor.tga", "ceiling.tga"]
-textures: list[int] = [0, 0, 0]
-filter_idx: int = 5
-anisotropic: bool = False
-
-# Walk-around camera. Initial position puts the camera at the tunnel
-# mouth looking down -Z, matching the original z_pos=-60 view.
-camera_x: float = 0.0
 camera_y: float = 0.0
-camera_z: float = 60.0
-camera_yaw: float = 0.0
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main()
+    window: typing.Any = None
+    textures: list[int] = dataclasses.field(default_factory=lambda: [0, 0, 0])
+    filter_idx: int = 5
+    anisotropic: bool = False
+
+    # Walk-around camera. Initial position puts the camera at the tunnel
+    # mouth looking down -Z, matching the original z_pos=-60 view.
+    camera_x: float = 0.0
+    camera_z: float = 60.0
+    camera_yaw: float = 0.0
+
+
+state: AppState = AppState()
+
+TEXTURE_BRICK: int = 0
+TEXTURE_FLOOR: int = 1
+TEXTURE_CEILING: int = 2
+texture_files: list[str] = ["brick.tga", "floor.tga", "ceiling.tga"]
 
 
 def apply_camera_transform() -> None:
-    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
-    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
+    GL.glRotatef(-math.degrees(state.camera_yaw), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-state.camera_x, -camera_y, -state.camera_z)
 
 
 GL_TEXTURE_MAX_ANISOTROPY_EXT: int = 0x84FE
@@ -52,17 +65,25 @@ def load_textures() -> None:
     GL.glEnable(GL.GL_TEXTURE_2D)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
+    i: int
+    fname: str
     for i, fname in enumerate(texture_files):
         img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
-        h, w = img.shape[:2]
+        img_size: tuple[int, ...] = img.shape[:2]
         fmt: Constant = (
             GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         )
         img = np.ascontiguousarray(img, dtype=np.uint8)
-        textures[i] = GL.glGenTextures(1)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[i])
+        state.textures[i] = GL.glGenTextures(1)
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[i])
         GLU.gluBuild2DMipmaps(
-            GL.GL_TEXTURE_2D, fmt, w, h, fmt, GL.GL_UNSIGNED_BYTE, img
+            GL.GL_TEXTURE_2D,
+            fmt,
+            img_size[1],
+            img_size[0],
+            fmt,
+            GL.GL_UNSIGNED_BYTE,
+            img,
         )
         GL.glTexParameteri(
             GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
@@ -94,7 +115,8 @@ def apply_filter(idx: int, aniso: bool) -> None:
         f_max_aniso = GL.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
     except Exception:
         pass
-    for tex in textures:
+    tex: int
+    for tex in state.textures:
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
         GL.glTexParameteri(
             GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, modes[idx]
@@ -120,7 +142,7 @@ def render_scene() -> None:
     apply_camera_transform()
     z: float = 60.0
     while z >= 0.0:
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_FLOOR])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[TEXTURE_FLOOR])
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(0.0, 0.0)
         GL.glVertex3f(-10.0, -10.0, z)
@@ -131,7 +153,7 @@ def render_scene() -> None:
         GL.glTexCoord2f(0.0, 1.0)
         GL.glVertex3f(-10.0, -10.0, z - 10.0)
         GL.glEnd()
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_CEILING])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[TEXTURE_CEILING])
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(0.0, 1.0)
         GL.glVertex3f(-10.0, 10.0, z - 10.0)
@@ -142,7 +164,7 @@ def render_scene() -> None:
         GL.glTexCoord2f(0.0, 0.0)
         GL.glVertex3f(-10.0, 10.0, z)
         GL.glEnd()
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_BRICK])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[TEXTURE_BRICK])
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(0.0, 0.0)
         GL.glVertex3f(-10.0, -10.0, z)
@@ -188,7 +210,7 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -196,37 +218,36 @@ MOVE_UNITS_PER_SEC: float = 10.0
 YAW_RAD_PER_SEC: float = 1.5
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global camera_x, camera_z, camera_yaw
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     move: float = MOVE_UNITS_PER_SEC * dt
     yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera_x += -move * math.sin(camera_yaw)
-        camera_z += -move * math.cos(camera_yaw)
+        state.camera_x += -move * math.sin(state.camera_yaw)
+        state.camera_z += -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= -move * math.sin(camera_yaw)
-        camera_z -= -move * math.cos(camera_yaw)
+        state.camera_x -= -move * math.sin(state.camera_yaw)
+        state.camera_z -= -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += yaw
+        state.camera_yaw += yaw
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= yaw
+        state.camera_yaw -= yaw
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def _move(sign: float) -> None:
-    global camera_x, camera_z
     step: float = sign * MOVE_UNITS_PER_SEC / 60.0
-    camera_x += -step * math.sin(camera_yaw)
-    camera_z += -step * math.cos(camera_yaw)
+    state.camera_x += -step * math.sin(state.camera_yaw)
+    state.camera_z += -step * math.cos(state.camera_yaw)
 
 
 def _yaw(sign: float) -> None:
-    global camera_yaw
-    camera_yaw += sign * YAW_RAD_PER_SEC / 60.0
+    state.camera_yaw += sign * YAW_RAD_PER_SEC / 60.0
 
 
 FILTER_NAMES: list[str] = [
@@ -240,15 +261,13 @@ FILTER_NAMES: list[str] = [
 
 
 def _set_filter(idx: int) -> None:
-    global filter_idx
-    filter_idx = idx
-    apply_filter(filter_idx, anisotropic)
+    state.filter_idx = idx
+    apply_filter(state.filter_idx, state.anisotropic)
 
 
 def _toggle_aniso() -> None:
-    global anisotropic
-    anisotropic = not anisotropic
-    apply_filter(filter_idx, anisotropic)
+    state.anisotropic = not state.anisotropic
+    apply_filter(state.filter_idx, state.anisotropic)
 
 
 def imgui_menubar() -> None:
@@ -259,18 +278,27 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Filtering", True):
+        i: int
+        name: str
         for i, name in enumerate(FILTER_NAMES):
             _common.menu_action(
-                name, "", lambda v=i: _set_filter(v), selected=(filter_idx == i)
+                name,
+                "",
+                lambda v=i: _set_filter(v),
+                selected=(state.filter_idx == i),
             )
         imgui.separator()
-        clicked, _ = imgui.menu_item("Anisotropic", "", anisotropic, True)
-        if clicked:
+        aniso_item: tuple[bool, bool] = imgui.menu_item(
+            "Anisotropic", "", state.anisotropic, True
+        )
+        if aniso_item[0]:
             _toggle_aniso()
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
@@ -283,7 +311,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -294,7 +321,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -305,9 +332,9 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    apply_filter(filter_idx, anisotropic)
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    apply_filter(state.filter_idx, state.anisotropic)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     glfw.swap_interval(1)
     last_frame: float = time.monotonic()
