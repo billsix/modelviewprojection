@@ -30,7 +30,7 @@ on-screen behaviour yet. Track each as its own task; known cases:
   provably identical to the C++. So it looks **hardware/driver-specific** (a texture-matrix
   + multitexture + `CLAMP_TO_BORDER` edge case llvmpipe doesn't hit) or tied to interactive
   state. Tracked in `tasks/pixbufobj-port-fidelity.md`. (Its *separate* PBO-readback crash
-  is already fixed — see `tasks/ports-pbo-floattex-runtime-crashes.md`.)
+  is already fixed — see `tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`.)
 
 Add to this list as more divergences surface.
 

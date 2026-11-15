@@ -17,7 +17,7 @@ on Bill's hardware. Reported to persist even with motion blur unchecked in the i
 (Bill confirmed the C++ with motion blur OFF is a single clean rotating image.)
 
 This is **behavioural fidelity**, separate from the PBO-readback crash (that one is fixed —
-see `tasks/ports-pbo-floattex-runtime-crashes.md`).
+see `tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`).
 
 ## What was established 2026-08-02 (the useful part for resuming)
 
@@ -68,7 +68,7 @@ non-interactive headless run doesn't reach.
 
 ## Related
 
-- `tasks/ports-pbo-floattex-runtime-crashes.md` — the PBO crash and the texfloat startup crash (both fixed).
+- `tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md` — the PBO crash and the texfloat startup crash (both fixed).
 - `tasks/reference/superbible-ports-guide.md` › "Port fidelity" — the running list of ports
   that don't match the C++.
 - C++ reference set: github.com/billsix/OpenGLSuperBibleV4Code `tasks/reference/`.

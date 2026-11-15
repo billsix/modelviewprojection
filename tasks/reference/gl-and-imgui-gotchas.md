@@ -124,7 +124,7 @@ sections above are the failure modes.
   image keeps the float range: pyav decodes EXR but clamps to [0, 1], and Fedora's freeimage has no
   EXR support. `OpenEXR.File(path).channels()["RGBA" or "RGB"].pixels` is an `(h, w, c)` float16
   array, top row first (`np.flipud` for GL). (chapt18/texfloat;
-  `tasks/ports-pbo-floattex-runtime-crashes.md`)
+  `tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`)
 - **imgui-bundle 1.92+ removed `imgui.set_window_font_scale`.** Scale text
   with `imgui.push_font(None, imgui.get_font_size() * k)` … `pop_font()`
   (chapt21/fonts).
@@ -199,7 +199,7 @@ could in principle hit the same at extreme angles — untested.
   offset-0 case. Two siblings from the same demo: the ring PBOs must come from
   `glGenBuffers` (not literal names `1/2/3`), and the map/attenuate helper must use
   stdlib **`ctypes.c_uint8`**, not `np.ctypes.c_uint8` (numpy has no `ctypes` attr).
-  All three bit chapt18/pixbufobj. (`tasks/ports-pbo-floattex-runtime-crashes.md`)
+  All three bit chapt18/pixbufobj. (`tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`)
 
 ## 6. Python-side traps
 
