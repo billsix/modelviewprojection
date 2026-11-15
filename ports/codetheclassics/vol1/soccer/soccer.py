@@ -9,12 +9,13 @@
 """soccer -- Substitute Soccer, a top-down football game from Code the
 Classics vol. 1, on GLFW + OpenGL 3.3 core.
 
-One self-contained file, read top to bottom like the course's demos: first
-the small engine this game needs (a software audio mixer with a looping
-crowd and a music fade, an image loader, a textured-quad renderer plus debug
-lines and text, the anchored Actor sprite, keyboard state), then the game,
-then the loop the game itself owns. The camera is the INVERSE of the
-camera's placement, as the course teaches (Game.draw).
+One file, read top to bottom like the course's demos. The audio mixer,
+image loading and GL helpers come from the shared
+modelviewprojection.pgzero_gl modules; this file holds the rest: first
+the engine this game needs (a textured-quad renderer plus debug lines and
+text, the anchored Actor sprite, keyboard state), then the game -- a looping
+crowd and a music fade -- then the loop the game itself owns. The camera is
+the INVERSE of the camera's placement, as the course teaches (Game.draw).
 """
 
 from __future__ import annotations
@@ -24,12 +25,11 @@ import os
 import random
 import signal
 import sys
-import threading
 import time
-from collections.abc import Callable, Generator, Iterator
+from collections.abc import Callable
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol, TypeAlias, cast
+from typing import Any, ClassVar, Protocol, TypeAlias
 
 import gacalc.g3 as g3
 import glfw
@@ -50,6 +50,15 @@ from gacalc.transforms import (
 from numpy.typing import NDArray
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageFont
+
+from modelviewprojection.pgzero_gl.audio import Music, Sound, shutdown_audio
+from modelviewprojection.pgzero_gl.gl import (
+    GLBuffer,
+    link_program,
+    make_buffer,
+    ortho_pixels,
+)
+from modelviewprojection.pgzero_gl.resources import Image, Loader
 
 # ===== engine: shared state =====
 
@@ -91,382 +100,12 @@ class SpriteRenderer(Protocol):
 
 # ===== engine: audio =====
 #
-# Sound effects and the music track, mixed in software on ONE miniaudio
-# output device: every effect is decoded into memory once, each play is a
-# "voice" over that buffer, the music streams from disk in chunks, and the
-# device's callback sums the live voices. Starting or stopping a voice is a
-# flag flip -- zero device operations after startup. (One OS stream per
-# voice, the earlier design, audibly clunked and eventually froze a game
-# once the audio client slots ran out; see
-# tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md.)
-#
-# Audio is BEST EFFORT: if miniaudio can't be imported or no device opens,
-# every call is a no-op and the game plays silently (as it does headless).
+# Sound effects and the music track play through the shared software mixer,
+# modelviewprojection.pgzero_gl.audio (one miniaudio device, best effort:
+# silent when no device opens). The game only says where its music/ is.
 
-if TYPE_CHECKING:
-    import miniaudio
+music: Music = Music(ASSET_ROOT)
 
-#: interleaved float32 PCM at the mixing format
-_PCM: TypeAlias = NDArray[np.float32]
-
-# the miniaudio module, or None if it isn't installed (Any: the sentinel
-# and the module share a type)
-_ma: Any = None
-try:
-    import miniaudio as _miniaudio
-
-    _ma = _miniaudio
-except Exception:  # pragma: no cover - depends on runtime env
-    pass
-
-# One mixing format for everything; decode/stream converts to it.
-_SAMPLE_RATE: int = 44100
-_CHANNELS: int = 2
-
-# Cap the concurrent voices per effect so a rapidly re-fired sound (the
-# ball hitting a bat) recycles its oldest voice instead of piling up.
-_MAX_VOICES_PER_SOUND: int = 8
-
-
-@dataclass(slots=True)
-class _Voice:
-    """One playing instance inside the mixer: a position in a shared sample
-    buffer (an effect) or a pull-stream (the music), plus its volume.
-
-    Mutated under the engine lock; consumed by the mixer callback.
-    """
-
-    samples: _PCM | None
-    stream: Iterator[Any] | None
-    volume: float
-    #: buffer voices only: wrap around gaplessly instead of finishing
-    looping: bool
-    #: frame offset into ``samples`` (buffer voices only)
-    pos: int = field(default=0, init=False)
-    #: a fade-out: fade_gain multiplies volume and moves by fade_step per
-    #: FRAME until it reaches 0, when the voice stops (music.fadeout)
-    fade_gain: float = field(default=1.0, init=False)
-    fade_step: float = field(default=0.0, init=False)
-    stop_when_faded: bool = field(default=False, init=False)
-    done: bool = field(default=False, init=False)
-
-    def start_fadeout(self, ms: float) -> None:
-        frames: float = max(_SAMPLE_RATE * ms / 1000.0, 1.0)
-        self.fade_step = -self.fade_gain / frames
-        self.stop_when_faded = True
-
-
-@dataclass(slots=True)
-class _Engine:
-    """The single miniaudio PlaybackDevice + the software mixer feeding it."""
-
-    #: Guards ``_voices`` between the game thread and the mixer callback.
-    _lock: threading.Lock = field(default_factory=threading.Lock)
-    #: Every live voice; the callback sums them and drops the finished ones.
-    _voices: list[_Voice] = field(default_factory=list)
-    #: The one output device, opened on the first play; None until then.
-    _device: miniaudio.PlaybackDevice | None = None
-    #: True once opening the device failed, so we never retry (audio off).
-    _failed: bool = False
-
-    # -- device ---------------------------------------------------------
-    def _ensure_device(self) -> bool:
-        if self._device is not None:
-            return True
-        if self._failed or _ma is None:
-            return False
-        try:
-            device: miniaudio.PlaybackDevice = _ma.PlaybackDevice(
-                output_format=_ma.SampleFormat.FLOAT32,
-                nchannels=_CHANNELS,
-                sample_rate=_SAMPLE_RATE,
-            )
-            gen: Generator[_PCM, int, None] = self._mixer()
-            next(gen)  # prime the generator protocol
-            # numpy arrays satisfy the buffer protocol miniaudio consumes;
-            # its stubs only admit bytes/array.array, hence the cast.
-            device.start(cast(Any, gen))
-            self._device = device
-            return True
-        except Exception:
-            # no sound hardware (e.g. the headless build container):
-            # audio becomes a no-op.
-            self._failed = True
-            return False
-
-    # -- the mixer callback (runs on miniaudio's thread) ------------------
-    def _mixer(self) -> Generator[_PCM, int, None]:
-        required: int = yield np.zeros(0, dtype=np.float32)
-        while True:
-            out: _PCM = np.zeros(required * _CHANNELS, dtype=np.float32)
-            with self._lock:
-                voices: list[_Voice] = list(self._voices)
-            for v in voices:
-                try:
-                    self._mix_voice(v, out, required)
-                except Exception:
-                    v.done = True
-            with self._lock:
-                self._voices = [v for v in self._voices if not v.done]
-            required = yield out
-
-    def _mix_voice(self, v: _Voice, out: _PCM, frames: int) -> None:
-        """Add up to ``frames`` frames of ``v`` into ``out`` (interleaved)."""
-        filled: int = 0
-        while filled < frames and not v.done:
-            if v.stream is not None:
-                chunk: _PCM | None = self._next_stream_chunk(v)
-                if chunk is None:
-                    v.done = True
-                    break
-                take: int = min(frames - filled, len(chunk) // _CHANNELS)
-                seg: _PCM = chunk[: take * _CHANNELS]
-                # stash any remainder for the next pull
-                rest: _PCM = chunk[take * _CHANNELS :]
-                v.samples = rest if len(rest) else None
-            else:
-                assert v.samples is not None
-                total: int = len(v.samples) // _CHANNELS
-                if v.pos >= total:
-                    if v.looping:
-                        v.pos = 0  # gapless wraparound
-                        continue
-                    v.done = True
-                    break
-                take = min(frames - filled, total - v.pos)
-                seg = v.samples[v.pos * _CHANNELS : (v.pos + take) * _CHANNELS]
-                v.pos += take
-            gain: _PCM | float
-            if v.fade_step != 0.0:
-                # a per-frame linear ramp while fading out
-                ramp: _PCM = v.fade_gain + v.fade_step * np.arange(
-                    1, take + 1, dtype=np.float32
-                )
-                np.clip(ramp, 0.0, 1.0, out=ramp)
-                v.fade_gain = float(ramp[-1])
-                gain = np.repeat(ramp, _CHANNELS) * v.volume
-                if v.fade_gain <= 0.0 and v.stop_when_faded:
-                    v.done = True
-            else:
-                gain = v.fade_gain * v.volume
-            sl: slice = slice(filled * _CHANNELS, (filled + take) * _CHANNELS)
-            out[sl] += seg * gain
-            filled += take
-
-    def _next_stream_chunk(self, v: _Voice) -> _PCM | None:
-        """The music path: the leftover stash, else the next decoded chunk."""
-        if v.samples is not None and len(v.samples):
-            chunk, v.samples = v.samples, None
-            return chunk
-        assert v.stream is not None
-        try:
-            return np.asarray(next(v.stream), dtype=np.float32)
-        except StopIteration:
-            return None
-
-    # -- game-thread API ---------------------------------------------------
-    def play_buffer(
-        self, samples: _PCM, volume: float, looping: bool
-    ) -> _Voice | None:
-        if not self._ensure_device():
-            return None
-        v: _Voice = _Voice(samples, None, volume, looping)
-        with self._lock:
-            self._voices.append(v)
-        return v
-
-    def play_stream(
-        self, stream: Iterator[Any], volume: float
-    ) -> _Voice | None:
-        if not self._ensure_device():
-            return None
-        v: _Voice = _Voice(None, stream, volume, False)
-        with self._lock:
-            self._voices.append(v)
-        return v
-
-    def stop_voice(self, v: _Voice) -> None:
-        with self._lock:
-            v.done = True
-
-    def shutdown(self) -> None:
-        """Stop the output device and its native callback thread.
-
-        miniaudio's ``PlaybackDevice`` runs its mixer callback on a background
-        thread that is NOT a Python ``threading.Thread``; if it is left running
-        when the game loop ends, the process hangs on exit -- the window closes
-        but Python never returns (seen on real hardware playing music; headless
-        the device never opens, so this is a no-op there). Closing the device
-        stops that thread. Idempotent and best-effort -- audio is optional.
-
-        The device is closed with the lock RELEASED: ``close()`` joins the
-        callback thread, which itself takes ``self._lock`` in the mixer, so
-        holding it here would deadlock.
-        """
-        with self._lock:
-            self._voices = []
-            device: miniaudio.PlaybackDevice | None = self._device
-            self._device = None
-        if device is not None:
-            try:
-                device.close()
-            except Exception:
-                pass
-
-
-_engine: _Engine = _Engine()
-
-
-def shutdown_audio() -> None:
-    """Tear down the audio backend at game exit (see :meth:`_Engine.shutdown`)."""
-    _engine.shutdown()
-
-
-def _decode(path: str) -> _PCM:
-    decoded: Any = _ma.decode_file(  # miniaudio DecodedSoundFile
-        path,
-        output_format=_ma.SampleFormat.FLOAT32,
-        nchannels=_CHANNELS,
-        sample_rate=_SAMPLE_RATE,
-    )
-    return np.asarray(decoded.samples, dtype=np.float32)
-
-
-@dataclass(slots=True)
-class Sound:
-    """A sound effect: decoded ONCE into a shared buffer on first play; each
-    play is a lightweight mixer voice over that buffer, so plays overlap."""
-
-    path: str
-    #: The decoded PCM, filled on the first play.
-    _samples: _PCM | None = field(default=None, init=False)
-    #: Volume (0.0-1.0) for current and future plays.
-    _volume: float = field(default=1.0, init=False)
-    #: This effect's live voices (capped at ``_MAX_VOICES_PER_SOUND``).
-    _voices: list[_Voice] = field(default_factory=list, init=False)
-
-    def _buffer(self) -> _PCM | None:
-        if self._samples is None:
-            try:
-                self._samples = _decode(self.path)
-            except Exception:
-                return None
-        return self._samples
-
-    def _live(self) -> list[_Voice]:
-        self._voices = [v for v in self._voices if not v.done]
-        return self._voices
-
-    def play(self, loops: int = 0) -> None:
-        """Play the effect, overlapping any prior plays; ``loops=-1`` loops it
-        until :meth:`stop` (the crowd)."""
-        if _ma is None:
-            return
-        buf: _PCM | None = self._buffer()
-        if buf is None:
-            return
-        live: list[_Voice] = self._live()
-        if len(live) >= _MAX_VOICES_PER_SOUND:
-            _engine.stop_voice(live[0])  # oldest voice yields its budget
-        v: _Voice | None = _engine.play_buffer(
-            buf, self._volume, looping=loops != 0
-        )
-        if v is not None:
-            self._voices.append(v)
-
-    def stop(self) -> None:
-        """Stop all currently-playing instances of this effect."""
-        for v in self._live():
-            _engine.stop_voice(v)
-
-    def set_volume(self, v: float) -> None:
-        """Set this effect's volume (0.0-1.0), applied to current + future plays."""
-        self._volume = v
-        for voice in self._live():
-            voice.volume = v
-
-
-@dataclass(slots=True)
-class _Music:
-    """The single streamed, looping background track."""
-
-    #: The playing track's voice, or None when stopped.
-    _voice: _Voice | None = None
-    _volume: float = 1.0
-    #: Read by the stream generator at the end of each pass through the file.
-    _looping: bool = False
-
-    def _path(self, name: str) -> str | None:
-        """Resolve a track ``name`` to a file under ``music/``, or ``None``."""
-        base: str = os.path.join(ASSET_ROOT, "music", name)
-        if os.path.isfile(base):
-            return base
-        for ext in ("ogg", "mp3", "wav"):
-            p: str = base + "." + ext
-            if os.path.exists(p):
-                return p
-        return None
-
-    def _stream(self, path: str) -> Iterator[Any]:
-        outer: _Music = self
-
-        def gen() -> Iterator[Any]:
-            # music streams from disk (a decoded multi-minute track would be
-            # tens of MB); looping restarts the stream, so the loop seam
-            # lands on a chunk boundary.
-            while True:
-                inner: Iterator[Any] = _ma.stream_file(
-                    path,
-                    output_format=_ma.SampleFormat.FLOAT32,
-                    nchannels=_CHANNELS,
-                    sample_rate=_SAMPLE_RATE,
-                    frames_to_read=1024,
-                )
-                for chunk in inner:
-                    yield chunk
-                if not outer._looping:
-                    return
-
-        return gen()
-
-    def play(self, name: str) -> None:
-        """Play track ``name`` on loop, replacing whatever was playing."""
-        if _ma is None:
-            return
-        p: str | None = self._path(name)
-        if not p:
-            self.stop()
-            return
-        try:
-            self.stop()
-            self._looping = True
-            self._voice = _engine.play_stream(self._stream(p), self._volume)
-        except Exception:
-            self._voice = None
-
-    def set_volume(self, v: float) -> None:
-        """Set the music volume (0.0-1.0), applied to the current track if any."""
-        self._volume = v
-        if self._voice is not None and not self._voice.done:
-            self._voice.volume = v
-
-    def stop(self) -> None:
-        """Stop the current track."""
-        self._looping = False
-        if self._voice is not None:
-            _engine.stop_voice(self._voice)
-            self._voice = None
-
-    def fadeout(self, seconds: float) -> None:
-        """Ramp the track to silence over ``seconds``, then stop it."""
-        if self._voice is None or self._voice.done or seconds <= 0:
-            self.stop()
-            return
-        self._looping = False
-        self._voice.start_fadeout(seconds * 1000.0)
-
-
-music: _Music = _Music()
 
 # ===== engine: images and sounds =====
 #
@@ -477,109 +116,12 @@ music: _Music = _Music()
 # lazily on first draw, because the GL context doesn't exist yet at import.
 
 
-@dataclass(slots=True, eq=False)
-class Image:
-    """A loaded image: CPU pixels now, GL texture on first draw. Built by
-    :meth:`Image.load` (or :meth:`Image.from_rgba` for rendered text)."""
-
-    #: H x W x 4 uint8 pixels, straight alpha
-    rgba: NDArray[np.uint8]
-    #: The GL texture name, uploaded lazily by gl_texture()
-    _tex: int | None = field(default=None, init=False)
-
-    @property
-    def width(self) -> int:
-        return int(self.rgba.shape[1])
-
-    @property
-    def height(self) -> int:
-        return int(self.rgba.shape[0])
-
-    def gl_texture(self) -> int:
-        """Return this image's GL texture name, uploading it to the GPU on first call."""
-        if self._tex is None:
-            self._tex = GL.glGenTextures(1)
-            GL.glBindTexture(GL.GL_TEXTURE_2D, self._tex)
-            GL.glTexParameteri(
-                GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST
-            )
-            GL.glTexParameteri(
-                GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST
-            )
-            GL.glTexParameteri(
-                GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
-            )
-            GL.glTexParameteri(
-                GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
-            )
-            GL.glTexImage2D(
-                GL.GL_TEXTURE_2D,
-                0,
-                GL.GL_RGBA,
-                self.width,
-                self.height,
-                0,
-                GL.GL_RGBA,
-                GL.GL_UNSIGNED_BYTE,
-                self.rgba,
-            )
-        return cast(int, self._tex)
-
-    @classmethod
-    def from_rgba(cls, arr: NDArray[Any]) -> Image:
-        """Wrap an H x W x 4 array (e.g. rendered text) as an :class:`Image`."""
-        return cls(np.ascontiguousarray(arr.astype(np.uint8)))
-
-    @classmethod
-    def load(cls, path: str) -> Image:
-        """Decode the image file at ``path`` into an :class:`Image`."""
-        # Decode with Pillow + convert("RGBA").  This correctly turns palette
-        # (mode "P") transparency and grayscale/LA into a real alpha channel --
-        # imageio drops palette transparency (returns 3-channel RGB), which made
-        # transparent sprite backgrounds render as opaque white boxes.
-        return cls.from_rgba(np.array(PILImage.open(path).convert("RGBA")))
-
-
-@dataclass(slots=True)
-class _Loader[T]:
-    """A cached loader for one asset folder: ``load(name)`` finds
-    ``<ASSET_ROOT>/<subdir>/<name>.<ext>`` and builds it once with ``make``."""
-
-    #: The folder under ``ASSET_ROOT`` ("images", "sounds").
-    subdir: str
-    #: Extensions tried, in order, when ``name`` has none.
-    extns: tuple[str, ...]
-    #: Builds the asset from its path (``Image`` or ``Sound``).
-    make: Callable[[str], T]
-    _cache: dict[str, T] = field(default_factory=dict, init=False)
-
-    def _path(self, name: str) -> str | None:
-        """Resolve ``name`` to an on-disk path under the folder, or ``None``."""
-        base: str = os.path.join(ASSET_ROOT, self.subdir, name)
-        if os.path.isfile(base):
-            return base
-        for ext in self.extns:
-            p: str = base + "." + ext
-            if os.path.exists(p):
-                return p
-        return None
-
-    def load(self, name: str) -> T:
-        """Load (and cache) the asset ``name``; raise ``KeyError`` if absent."""
-        if name not in self._cache:
-            p: str | None = self._path(name)
-            if p is None:
-                raise KeyError(
-                    f"No {self.subdir[:-1]} found like {name!r} in {self.subdir}/"
-                )
-            self._cache[name] = self.make(p)
-        return self._cache[name]
-
-
-images: _Loader[Image] = _Loader(
-    "images", ("png", "gif", "jpg", "jpeg", "bmp"), Image.load
+images: Loader[Image] = Loader(
+    ASSET_ROOT, "images", ("png", "gif", "jpg", "jpeg", "bmp"), Image.load
 )
-sounds: _Loader[Sound] = _Loader("sounds", ("ogg", "wav", "oga"), Sound)
+sounds: Loader[Sound] = Loader(
+    ASSET_ROOT, "sounds", ("ogg", "wav", "oga"), Sound
+)
 
 # ===== engine: renderer (OpenGL 3.3 core) =====
 #
@@ -606,25 +148,6 @@ MODEL: MatrixTemplate = compose(
         scale_non_uniform(_W, _H, 1),
     ]
 ).to_matrix_template(g3.Vector, (_TX, _TY, _W, _H))
-
-
-def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
-    """Map pixel space (0,0)=top-left .. (width,height)=bottom-right to NDC:
-    scale to a 2 x 2 box (y flipped, z into the clip range), then move its
-    corner to (-1, 1). Built once per renderer.
-    """
-    return np.asarray(
-        to_matrix(
-            compose(
-                [
-                    translate(b=-1 * g3.Vector.e_1 + 1 * g3.Vector.e_2),
-                    scale_non_uniform(2.0 / width, -2.0 / height, -1),
-                ]
-            ),
-            g3.Vector,
-        ),
-        dtype=np.float32,
-    )
 
 
 # One shader program, shared by all the games' renderers: textured (sprites)
@@ -662,19 +185,6 @@ void main() {
 """
 
 
-def _compile(src: str, kind: Any) -> int:
-    """Compile one GLSL shader of the given ``kind``; raise on a compile error.
-
-    ``kind`` is a PyOpenGL ``GL_*_SHADER`` constant (opaque, so typed ``Any``).
-    """
-    sid: int = GL.glCreateShader(kind)
-    GL.glShaderSource(sid, src)
-    GL.glCompileShader(sid)
-    if GL.glGetShaderiv(sid, GL.GL_COMPILE_STATUS) != GL.GL_TRUE:
-        raise RuntimeError(GL.glGetShaderInfoLog(sid).decode())
-    return sid
-
-
 @dataclass(slots=True, eq=False)
 class Uniforms:
     """The shader program's uniform locations, queried once after linking."""
@@ -686,46 +196,6 @@ class Uniforms:
     tex: int
     tex_off: int
     tex_scale: int
-
-
-@dataclass(slots=True, eq=False)
-class GLBuffer:
-    """A vertex array object and the vertex buffer it reads 2-D positions
-    (attribute 0) from."""
-
-    vao: int
-    vbo: int
-
-
-def _link_program() -> int:
-    """Compile both shaders and link them into a program; raise on failure."""
-    vs: int = _compile(src=_VERT, kind=GL.GL_VERTEX_SHADER)
-    fs: int = _compile(src=_FRAG, kind=GL.GL_FRAGMENT_SHADER)
-    program: int = GL.glCreateProgram()
-    GL.glAttachShader(program, vs)
-    GL.glAttachShader(program, fs)
-    GL.glLinkProgram(program)
-    if GL.glGetProgramiv(program, GL.GL_LINK_STATUS) != GL.GL_TRUE:
-        raise RuntimeError(GL.glGetProgramInfoLog(program).decode())
-    GL.glDeleteShader(vs)
-    GL.glDeleteShader(fs)
-    return program
-
-
-def _make_buffer(data: NDArray[np.float32] | None) -> GLBuffer:
-    """Create a VAO + VBO of 2-D positions at attribute 0; ``data`` fills a
-    static buffer, ``None`` leaves a dynamic one to be filled per draw."""
-    vao: int = GL.glGenVertexArrays(1)
-    vbo: int = GL.glGenBuffers(1)
-    GL.glBindVertexArray(vao)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
-    if data is not None:
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_STATIC_DRAW
-        )
-    GL.glEnableVertexAttribArray(0)
-    GL.glVertexAttribPointer(0, 2, GL.GL_FLOAT, GL.GL_FALSE, 0, None)
-    return GLBuffer(vao, vbo)
 
 
 @dataclass(slots=True, eq=False)
@@ -816,7 +286,7 @@ class Renderer:
         """Build the renderer for a ``width`` x ``height`` pixel game: link the
         program, query its uniforms, upload the unit quad and an empty dynamic buffer, set the blend
         state. Needs a current GL context."""
-        program: int = _link_program()
+        program: int = link_program(_VERT, _FRAG)
         uniforms: Uniforms = Uniforms(
             ortho=GL.glGetUniformLocation(program, "uOrtho"),
             model=GL.glGetUniformLocation(program, "uModel"),
@@ -829,8 +299,8 @@ class Renderer:
         quad_verts: NDArray[np.float32] = np.array(
             [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1], dtype=np.float32
         )
-        quad: GLBuffer = _make_buffer(quad_verts)
-        prim: GLBuffer = _make_buffer(None)
+        quad: GLBuffer = make_buffer(quad_verts)
+        prim: GLBuffer = make_buffer(None)
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glDisable(GL.GL_DEPTH_TEST)
