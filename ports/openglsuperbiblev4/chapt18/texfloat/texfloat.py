@@ -1,5 +1,6 @@
 # texfloat.py
-# Floating-point textures (GL_RGB16F): load an HDR EXR image into a
+# Floating-point textures (GL_RGB16F): load an HDR EXR image (read with
+# the OpenEXR package, which keeps values above 1.0) into a
 # half-float 2D texture, then run one of four tone-mapping fragment
 # shaders to bring it into 0..1. The "iris" and "whitebalance"
 # shaders are interactive: they use the brightest texel within a
@@ -18,8 +19,8 @@ import sys
 import typing
 
 import glfw
-import imageio.v3 as iio
 import numpy as np
+import OpenEXR
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 from imgui_bundle import imgui
@@ -87,14 +88,6 @@ class AppState:
 state: AppState = AppState()
 
 
-def _trace(msg: str) -> None:
-    # DEBUG instrumentation: texfloat segfaults (C-level SIGSEGV) at startup on
-    # some Mesa drivers, somewhere in setup_rc -> setup_textures. flush=True so
-    # the LAST line printed before the crash survives and names the failing
-    # call. Remove once the culprit GL call is identified and fixed.
-    print(f"[texfloat] {msg}", flush=True)
-
-
 def prepare_shader(n: int) -> None:
     fname: str = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
     f: typing.TextIO
@@ -132,30 +125,26 @@ def alter_aspect() -> None:
 
 def setup_textures(which: int) -> None:
     state.current_image = which
-    _trace(f"setup_textures({which}): imread {exr_files[which]}")
-    img: np.ndarray = iio.imread(
+    exr: OpenEXR.File
+    with OpenEXR.File(
         os.path.join(PWD, "openexr-images", exr_files[which])
-    )
-    img = np.flipud(img).astype(np.float32)
-    if img.ndim == 3 and img.shape[2] >= 3:
-        img = img[:, :, :3]
+    ) as exr:
+        # The test images store color as one interleaved "RGBA" or "RGB"
+        # channel of half floats, shape (height, width, channels), top row
+        # first; GL wants the bottom row first.
+        channels: dict[str, typing.Any] = exr.channels()  # OpenEXR.Channel
+        color: np.ndarray = channels[
+            "RGBA" if "RGBA" in channels else "RGB"
+        ].pixels
+    img: np.ndarray = np.flipud(color[:, :, :3]).astype(np.float32)
     img_shape: tuple[int, ...] = img.shape[:2]
     state.npot_h = img_shape[0]
     state.npot_w = img_shape[1]
     state.pot_w = state.npot_w
     state.pot_h = state.npot_h
     state.f_texels = np.ascontiguousarray(img, dtype=np.float32)
-    _trace(
-        f"  image {state.npot_w}x{state.npot_h} shape={state.f_texels.shape} "
-        f"MAX_TEXTURE_SIZE={GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)}"
-    )
     alter_aspect()
-    _trace("  glTexParameteri(GL_GENERATE_MIPMAP, 1)")
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, 1)
-    _trace(
-        f"  glTexImage2D(RGB16F, {state.pot_w}, {state.pot_h}, "
-        f"GL_RGB, GL_FLOAT)"
-    )
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
         0,
@@ -167,7 +156,6 @@ def setup_textures(which: int) -> None:
         GL.GL_FLOAT,
         state.f_texels,
     )
-    _trace("  glTexImage2D returned OK")
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR
@@ -237,14 +225,11 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    _trace("setup_rc: start")
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     setup_textures(0)
     i: int
     for i in range(TOTAL_SHADERS):
-        _trace(f"setup_rc: prepare_shader({i}) [{shader_names[i]}]")
         prepare_shader(i)
-    _trace("setup_rc: done -- all textures + shaders set up")
 
 
 def cursor_update(x: float, y: float) -> None:

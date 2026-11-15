@@ -68,7 +68,7 @@ non-interactive headless run doesn't reach.
 
 ## Related
 
-- `tasks/ports-pbo-floattex-runtime-crashes.md` — the PBO crash (fixed) + texfloat (instrumented).
+- `tasks/ports-pbo-floattex-runtime-crashes.md` — the PBO crash and the texfloat startup crash (both fixed).
 - `tasks/reference/superbible-ports-guide.md` › "Port fidelity" — the running list of ports
   that don't match the C++.
 - C++ reference set: github.com/billsix/OpenGLSuperBibleV4Code `tasks/reference/`.

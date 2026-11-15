@@ -24,6 +24,9 @@ myst-nb==1.4.0
 nbsphinx==0.9.8
 Pillow==13.0.0
 numpy==2.5.4
+# OpenEXR reader for the SuperBible texfloat port (chapt18/texfloat). It keeps
+# the images' HDR float values; imageio's pyav backend clamps them to [0, 1].
+OpenEXR==3.5.4
 # glTF 2.0 reader/writer. Used by demo22b (src/.../demos/demo22b/), which
 # round-trips the demo22 scene through a .glb. Pure-Python, no native deps.
 pygltflib==1.16.5

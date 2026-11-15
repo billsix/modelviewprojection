@@ -120,6 +120,11 @@ sections above are the failure modes.
   the data argument of `glReadPixels`/`glTexImage2D`: PyOpenGL turns `None`
   into a client array and passes its address as the buffer offset
   (`GLError 1282`; pixbufobj, chapt18/hdrbloom).
+- **Read HDR `.exr` images with the `OpenEXR` package, not imageio.** No imageio backend in the
+  image keeps the float range: pyav decodes EXR but clamps to [0, 1], and Fedora's freeimage has no
+  EXR support. `OpenEXR.File(path).channels()["RGBA" or "RGB"].pixels` is an `(h, w, c)` float16
+  array, top row first (`np.flipud` for GL). (chapt18/texfloat;
+  `tasks/ports-pbo-floattex-runtime-crashes.md`)
 - **imgui-bundle 1.92+ removed `imgui.set_window_font_scale`.** Scale text
   with `imgui.push_font(None, imgui.get_font_size() * k)` … `pop_font()`
   (chapt21/fonts).

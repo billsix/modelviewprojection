@@ -295,6 +295,9 @@ numpy==2.5.4
     #   gacalc
     #   imageio
     #   matplotlib
+    #   openexr
+openexr==3.5.4
+    # via -r /tmp/requirements.txt
 packaging==26.3
     # via
     #   ipykernel
