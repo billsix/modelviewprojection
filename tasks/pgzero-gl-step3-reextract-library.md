@@ -1,7 +1,7 @@
 # Step 3 — re-extract a library that actually makes sense
 
-**Status:** PARKED — maintainer, 2026-09-06: "I don't want to re-extract yet"; stays its own task, not next-work until the maintainer says go. Steps 1 (inline) & 2 (strip/restructure) landed, and **the tightening pass that this step takes as input is complete (2026-09-05: all ten games, `tasks/archive/2026/09/05/codetheclassics-tighten-games.md`; the per-family engine flag list is `tasks/reference/code-the-classics-tightening.md` §6)**; it also inherits the licensing remainder — what becomes of the LGPL shim source under `src/modelviewprojection/pgzero_gl/` (`tasks/archive/2026/09/05/codetheclassics-licensing-after-shim-inline.md`). Steps 1–2 and **play-tested good (maintainer, 2026-09-05)**; this step is unblocked and actionable (the games are inlined/un-library-ized now — this step re-extracts the real shared library), awaiting the maintainer's call on the re-extraction criterion before extracting.
-**Priority:** 9
+**Status:** in progress — un-parked by William Emerison Six <billsix@gmail.com>, 2026-11-15, as an authorized batch (branch `pgzero-gl-step3-reextract-library`, commits by the agent). Steps 1 (inline) & 2 (strip/restructure) and the tightening pass (`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`) are done; this step takes their output as input.
+**Priority:** 4
 **Difficulty:** 6
 **Part of:** `tasks/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Depends on:** `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`
 
@@ -121,11 +121,43 @@ Extract partially, in three steps:
 + mixer), different licence, and `ports/` stays independent of the package. Its own library-ification (done 2026-11-12) is
 `tasks/archive/2026/11/12/cayley-gl-caller-owned-loop.md`.
 
+## Decisions (William Emerison Six <billsix@gmail.com>, 2026-11-15)
+
+1. **N = 7 of 11, plus the teaching exclusion.** Extract only audio, asset loading and the GL helpers;
+   the loop, `Actor`, `Rect`, `Keyboard`, `Renderer` and `SpriteRenderer` stay per game.
+2. **The shim directory is the library's home.** Do NOT delete `src/modelviewprojection/pgzero_gl/`:
+   put the extracted code there and have the ports import it, so it is part of the mvp package. (This
+   reverses the assessment's "must live under `ports/`" licence point; see Implementation notes for the
+   licence handling.)
+3. **Un-park and do the whole step now**, not only the clean-up.
+4. **Import mechanism: nothing to do.** The games import `modelviewprojection.pgzero_gl` like any other
+   package module; the editable install in the image puts it on the path.
+5. **Single-file rule relaxed.** CLAUDE.md's "each ONE self-contained file" becomes "self-contained apart
+   from the shared `pgzero_gl` engine modules".
+
+Process (same instruction): gpg signing off for the repo while the agent commits, one branch, commit per
+step, archive, then hand the branch to the maintainer to merge.
+
+## Implementation notes (agent judgment calls, 2026-11-15)
+
+- **Union, not intersection.** Each extracted class is the superset variant: `_Voice`/`_Engine`/`Sound`
+  from avenger/leadingedge (looping, fade-in, fade-out, per-play volume), `_Music` from leadingedge
+  (`fadeout`). With no fade active, the superset mixer's gain is `1.0 * volume`, the same float the
+  simpler mixers compute, so the games that never fade mix identically.
+- **Asset roots are parameters.** The inlined loaders read the game's module-level `ASSET_ROOT`; the
+  library's `Loader` and `Music` take the root as a field, and each game constructs its own `images`,
+  `sounds` and `music` with its `ASSET_ROOT`.
+- **Shaders, `Uniforms` and `MODEL` stay in each game** next to its `Renderer`: the shader source is what
+  the GPU runs, and `Uniforms` names that shader's locations. The library's `link_program` takes the two
+  shader sources as arguments.
+- **Old shim modules replaced.** The 2026-09 shim modules nothing imports (the pgzero facade `__init__`,
+  `runner`, `actor`, `screen`, …) are deleted; `audio.py` and `resources.py` are rewritten from the games'
+  engines and `gl.py` is added. Git history keeps the old facade.
+- **Licence.** The directory stays LGPL-2.1 (its `LICENSE`); the extracted code is the maintainer's own
+  engine code, so it takes the directory's licence. The games stay BSD-2-Clause and import an LGPL
+  library, the same relationship the upstream games had with pygame. `ports/codetheclassics/LICENSE`
+  says so.
+
 ## Open questions
 
-1. **Set N.** Recommendation: ≥ 7 of 11 as the count test, plus the teaching exclusion above. Extract only
-   audio, assets and GL helpers.
-2. **Old shim's fate.** Recommendation: delete `src/modelviewprojection/pgzero_gl/`. Nothing imports it, and
-   the games replaced it.
-3. **Un-park this task?** It has been parked since 2026-09-06. Recommendation: un-park only step 1 (the dead-code
-   cleanup) now, as a quick win; the extraction itself can stay parked.
+None; all five were answered 2026-11-15 (Decisions above).
