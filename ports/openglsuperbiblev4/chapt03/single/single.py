@@ -1,7 +1,8 @@
 # single.py
-# Single-buffered rendering. The C++ original used GLUT_SINGLE so each
-# new point persists in the front buffer; we emulate this by clearing
-# only on the first frame of each spiral pass.
+# The C++ original used GLUT_SINGLE: each tick drew one new point into the
+# front buffer, so the spiral grew on screen. Many window systems (Wayland
+# among them) never show a single-buffered GL window, so this port is
+# double-buffered and redraws every point of the current pass each tick.
 # OpenGL SuperBible, Chapter 3
 # Python port of Single.cpp by Richard S. Wright Jr.
 
@@ -32,6 +33,8 @@ class AppState:
 
     d_radius: float = 0.1
     d_angle: float = 0.0
+    # the points drawn so far in the current spiral pass
+    points: list[tuple[float, float]] = dataclasses.field(default_factory=list)
 
 
 state: AppState = AppState()
@@ -53,19 +56,22 @@ def imgui_menubar() -> None:
 
 
 def render_scene() -> None:
-    """Each call advances one step of the outward spiral and draws a
-    single point. Original used GLUT_SINGLE + glFlush; with double
-    buffering we draw to the back buffer and swap, but to keep the
-    growing-spiral effect we don't clear between frames within a pass.
-    Instead we accumulate by re-drawing every prior point."""
+    """Advance the outward spiral one step and draw every point of the
+    current pass into the back buffer."""
     if state.d_angle == 0.0:
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-    GL.glBegin(GL.GL_POINTS)
-    GL.glVertex2d(
-        state.d_radius * math.cos(state.d_angle),
-        state.d_radius * math.sin(state.d_angle),
+        state.points.clear()
+    state.points.append(
+        (
+            state.d_radius * math.cos(state.d_angle),
+            state.d_radius * math.sin(state.d_angle),
+        )
     )
+
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    GL.glBegin(GL.GL_POINTS)
+    point: tuple[float, float]
+    for point in state.points:
+        GL.glVertex2d(*point)
     GL.glEnd()
 
     state.d_radius *= 1.01
@@ -108,8 +114,6 @@ def main() -> None:
 
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    # Match GLUT_SINGLE -- single buffer, no swap between draws
-    glfw.window_hint(glfw.DOUBLEBUFFER, glfw.FALSE)
 
     window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "OpenGL Single Buffered", None, None
@@ -140,15 +144,13 @@ def main() -> None:
 
         now: float = time.monotonic()
         if now - last_tick >= TICK_INTERVAL:
+            last_tick = now
             render_scene()
-            # Single-buffered: draw the menubar over the accumulating
-            # spiral on the same tick, then flush (no buffer swap).
             imgui.new_frame()
             imgui_menubar()
             imgui.render()
             impl.render(imgui.get_draw_data())
-            GL.glFlush()
-            last_tick = now
+            glfw.swap_buffers(window)
 
     impl.shutdown()
     glfw.terminate()

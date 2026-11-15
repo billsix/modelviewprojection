@@ -207,7 +207,9 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   2026-09-17) are glfw/imgui stub friction in faithful port code, not bugs:
   `glfw.set_window_should_close(_window, True)` where the stub wants a
   non-`None` window but the value is `_GLFWwindow | None`, and imgui-bundle
-  members the stubs don't declare (`imgui.set_window_font_scale`). The two
+  members the stubs don't declare. One exception turned out to be a real
+  bug (2026-11-15): ty flagged `imgui.set_window_font_scale` because
+  imgui-bundle 1.92 removed it, and chapt21/fonts crashed on it at runtime. The two
   rejected options were ~101 narrow `# ty: ignore[...]` sites (clutter in port
   code) and None-guards to satisfy the stubs (touches port behaviour). Revisit
   only if the stubs improve. (`tasks/archive/2026/11/14/openglsuperbible-ty-diagnostics.md`)

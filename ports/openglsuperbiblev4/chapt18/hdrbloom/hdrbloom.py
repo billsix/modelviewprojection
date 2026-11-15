@@ -317,6 +317,10 @@ def render_scene() -> None:
     final_pass()
 
     GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, state.pbo_id)
+    # With a pack buffer bound, the last argument is a byte offset into it.
+    # Pass the integer 0: PyOpenGL turns None into a fresh client array and
+    # passes that array's address, which GL reads as a huge offset and
+    # rejects with GL_INVALID_OPERATION.
     GL.glReadPixels(
         0,
         0,
@@ -324,7 +328,7 @@ def render_scene() -> None:
         state.fbo_height,
         GL.GL_RGB,
         GL.GL_UNSIGNED_BYTE,
-        None,
+        0,
     )
     GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
     state.after_glow_valid = True

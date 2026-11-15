@@ -123,7 +123,8 @@ Mechanical, uniform — new ports match these so students can read across demos.
   `glutKeyboardFunc` → `glfw.set_key_callback` (PRESS vs REPEAT
   distinguishable); `glutTimerFunc(ms,…)` → a `time.monotonic()` tick loop
   (`tick()` on interval, render every iteration); `GLUT_SINGLE` →
-  `window_hint(DOUBLEBUFFER, FALSE)`; `GLUT_STENCIL` →
+  double-buffer and redraw what the original accumulated in the front
+  buffer (single-buffered windows may never show; chapt03/single); `GLUT_STENCIL` →
   `window_hint(STENCIL_BITS, 8)`; `GLUT_MULTISAMPLE` →
   `window_hint(SAMPLES, 4)`.
 - **GUI:** GLUT right-click menus / bitmap text → imgui via `_common`

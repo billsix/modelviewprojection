@@ -3,9 +3,11 @@
 # revolving sphere 10 times at slightly different rotations and blends
 # them together.
 #
-# Note: GL_ACCUM is deprecated and not all drivers expose it via the
-# default GLFW context. If glAccum raises an error, this demo simply
-# won't run -- the technique itself is what's pedagogically interesting.
+# Many drivers and window systems (Wayland among them) give a context no
+# accumulation buffer. When GL_ACCUM_RED_BITS is 0 the demo does the same
+# weighted sum with two textures and additive blending instead: each pass
+# is copied into one texture and added, scaled, onto a running sum kept in
+# the other.
 #
 # OpenGL SuperBible, Chapter 6
 # Python port of MotionBlur.cpp by Richard S. Wright Jr.
@@ -35,6 +37,15 @@ class AppState:
     window: typing.Any = None
 
     y_rot: float = 45.0
+
+    # True when the context has an accumulation buffer; set in main()
+    has_accum: bool = False
+    # framebuffer size, for the texture fallback; set in change_size()
+    width: int = 1
+    height: int = 1
+    # fallback textures: the pass just drawn, and the running weighted sum
+    pass_texture: int = 0
+    sum_texture: int = 0
 
 
 state: AppState = AppState()
@@ -85,21 +96,99 @@ def draw_geometry() -> None:
     GL.glPopMatrix()
 
 
-def render_scene() -> None:
-    f_passes: float = 10.0
-    state.y_rot = 35.0
+PASSES: int = 10
 
-    f_pass: float = 0.0
-    while f_pass < f_passes:
+
+def pass_weight(index: int) -> float:
+    # The newest image gets half the weight; the trailing ones share the rest.
+    return 0.5 if index == 0 else 0.5 / PASSES
+
+
+def add_texture(texture: int, weight: float) -> None:
+    """Add ``weight`` times ``texture`` to every pixel of the color buffer.
+
+    Call between ``begin_texture_sum`` and ``end_texture_sum``.
+    """
+    GL.glBindTexture(GL.GL_TEXTURE_2D, texture)
+    # GL_MODULATE multiplies each texel by the current color.
+    GL.glColor4f(weight, weight, weight, 1.0)
+    GL.glBegin(GL.GL_QUADS)
+    GL.glTexCoord2f(0.0, 0.0)
+    GL.glVertex2f(-1.0, -1.0)
+    GL.glTexCoord2f(1.0, 0.0)
+    GL.glVertex2f(1.0, -1.0)
+    GL.glTexCoord2f(1.0, 1.0)
+    GL.glVertex2f(1.0, 1.0)
+    GL.glTexCoord2f(0.0, 1.0)
+    GL.glVertex2f(-1.0, 1.0)
+    GL.glEnd()
+
+
+def begin_texture_sum() -> None:
+    # Clear the color buffer to black, then add full-window quads to it with
+    # no lighting or depth test.
+    GL.glPushAttrib(
+        GL.GL_ENABLE_BIT
+        | GL.GL_CURRENT_BIT
+        | GL.GL_COLOR_BUFFER_BIT
+        | GL.GL_TEXTURE_BIT
+    )
+    GL.glDisable(GL.GL_LIGHTING)
+    GL.glDisable(GL.GL_DEPTH_TEST)
+    GL.glDisable(GL.GL_CULL_FACE)
+    GL.glEnable(GL.GL_TEXTURE_2D)
+    GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
+    GL.glEnable(GL.GL_BLEND)
+    GL.glBlendFunc(GL.GL_ONE, GL.GL_ONE)
+    GL.glClearColor(0.0, 0.0, 0.0, 0.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GL.glPushMatrix()
+    GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_MODELVIEW)
+    GL.glPushMatrix()
+    GL.glLoadIdentity()
+
+
+def end_texture_sum() -> None:
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GL.glPopMatrix()
+    GL.glMatrixMode(GL.GL_MODELVIEW)
+    GL.glPopMatrix()
+    GL.glPopAttrib()
+
+
+def copy_color_buffer_to(texture: int) -> None:
+    GL.glBindTexture(GL.GL_TEXTURE_2D, texture)
+    GL.glCopyTexSubImage2D(
+        GL.GL_TEXTURE_2D, 0, 0, 0, 0, 0, state.width, state.height
+    )
+
+
+def render_scene() -> None:
+    state.y_rot = 35.0
+    index: int
+    for index in range(PASSES):
         state.y_rot += 0.75
         draw_geometry()
-        if f_pass == 0.0:
-            GL.glAccum(GL.GL_LOAD, 0.5)
+        if state.has_accum:
+            if index == 0:
+                GL.glAccum(GL.GL_LOAD, pass_weight(index))
+            else:
+                GL.glAccum(GL.GL_ACCUM, pass_weight(index))
         else:
-            GL.glAccum(GL.GL_ACCUM, 0.5 * (1.0 / f_passes))
-        f_pass += 1.0
+            # sum = sum + weight * pass, rebuilt in the color buffer
+            copy_color_buffer_to(state.pass_texture)
+            begin_texture_sum()
+            if index > 0:
+                add_texture(state.sum_texture, 1.0)
+            add_texture(state.pass_texture, pass_weight(index))
+            end_texture_sum()
+            copy_color_buffer_to(state.sum_texture)
 
-    GL.glAccum(GL.GL_RETURN, 1.0)
+    if state.has_accum:
+        GL.glAccum(GL.GL_RETURN, 1.0)
+    # Without an accumulation buffer the color buffer already holds the sum.
 
 
 def setup_rc() -> None:
@@ -126,6 +215,24 @@ def change_size(w: int, h: int) -> None:
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
+    state.width = w
+    state.height = h
+    texture: int
+    for texture in (state.pass_texture, state.sum_texture):
+        if texture == 0:
+            continue
+        GL.glBindTexture(GL.GL_TEXTURE_2D, texture)
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D,
+            0,
+            GL.GL_RGBA8,
+            w,
+            h,
+            0,
+            GL.GL_RGBA,
+            GL.GL_UNSIGNED_BYTE,
+            None,
+        )
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(35.0, float(w) / float(h), 1.0, 50.0)
@@ -191,6 +298,22 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
+    state.has_accum = GL.glGetIntegerv(GL.GL_ACCUM_RED_BITS) > 0
+    if not state.has_accum:
+        print("No accumulation buffer; blending textures instead.")
+        textures: typing.Any = GL.glGenTextures(2)  # numpy array of names
+        state.pass_texture = int(textures[0])
+        state.sum_texture = int(textures[1])
+        texture: int
+        for texture in (state.pass_texture, state.sum_texture):
+            GL.glBindTexture(GL.GL_TEXTURE_2D, texture)
+            # one level, no mipmaps, so the default filter must change
+            GL.glTexParameteri(
+                GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST
+            )
+            GL.glTexParameteri(
+                GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST
+            )
     size: tuple[int, int] = glfw.get_framebuffer_size(window)
     change_size(size[0], size[1])
 

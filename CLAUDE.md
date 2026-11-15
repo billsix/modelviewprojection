@@ -35,7 +35,7 @@ Which SuperBible demos are already in the curriculum (do not re-port), the wishl
 - When asked "why is this written this way?" the answer is almost always "to avoid introducing matrices before the student understands what the transformation is doing."
 - The book chapters (`book/docs/chNN.rst`) are the authoritative source for terminology — use *Cayley graph*, *space*, *modelspace→NDC*, *invertible function*, not linear-algebra vocabulary.
 - Reference the visualizations in `src/modelviewprojection/mvpvisualization/` (`coordinatesystems.py`, `pushmatrix.py`, `modelviewperspectiveprojection.py`) when the user wants to *show* the graph traversal interactively — pedagogical aids, not demos; part of the installed package, run by path.
-- Match the demo-era style (procedural, globals, inline comments explaining the *why*), not idiomatic modern Python. When porting from external sources, port *into* his style rather than preserving the source's structure.
+- Match the demo-era style (procedural, globals, inline comments explaining the *why*), not idiomatic modern Python. When porting from external sources, port *into* his style rather than preserving the source's structure. Exception: each SuperBible v4 port keeps its mutable state in one module-level `state: AppState` dataclass, with no `global` statements (`tasks/reference/superbible-ports-guide.md` §3).
 - **Passing a vector to immediate-mode GL: unpack it** — `GL.glVertex3f(*v)`, not per-coordinate. gacalc's `Vector` iterates its coordinates in `(e_1, e_2[, e_3])` order with the right arity; the contract is guarded by `tests/test_gl_vector_unpacking.py`.
 
 ---

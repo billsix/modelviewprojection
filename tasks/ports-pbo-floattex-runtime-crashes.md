@@ -18,6 +18,22 @@ strip `_trace()`.
 **Priority:** 3
 **Difficulty:** 5
 
+## Update 2026-11-15 — no imageio backend decodes these EXRs as HDR
+
+The maintainer re-ran texfloat on host GL 2026-11-15: same `OSError` (no EXR backend).
+Tested in the mvp image (imageio 2.38.1, Python 3.15) against all eight `openexr-images/*.exr`:
+
+- **pyav** (`av==19.0.2`, wheel): decodes all eight through imageio, but even with
+  `format="gbrpf32le"` the values are clamped to [0, 1]; the HDR range the demo exists to show is lost.
+- **freeimage** (Fedora `freeimage-3.19.0`, `IMAGEIO_FREEIMAGE_LIB=/usr/lib64/libfreeimage.so.3`): the
+  library loads but `EXR-FI` "can not handle the given uri"; Fedora's build has no EXR support.
+- **OpenEXR** (`OpenEXR==3.5.4`, the ASWF Python bindings, wheel; not an imageio plugin): reads all
+  eight as float16 with true HDR maxima (Blobbies 6.4, Ocean 2100), via `OpenEXR.File(path).channels()`
+  (`RGBA` or `RGB` key; `pixels` is an `(h, w, c)` array).
+
+So the 2026-10-22 decision ("use the imageio EXR backend") has no backend that keeps HDR. Pending the
+maintainer's choice between OpenEXR (outside imageio) and pyav (clamped).
+
 ## Update 2026-08-02 (evening) — pixbufobj crash FULLY fixed + reproduced headless
 
 Reproduced both symptoms headlessly (Xvfb + nested `mvp-docs` container + software Mesa) —

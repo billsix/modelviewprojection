@@ -86,8 +86,10 @@ def main() -> None:
         imgui.set_next_window_pos((0, 0))
         imgui.set_next_window_size((size[0], size[1]))
         imgui.begin("text", None, flags)
-        imgui.set_window_font_scale(2.5)
+        # Draw the text at 2.5x the current font size.
+        imgui.push_font(None, imgui.get_font_size() * 2.5)
         imgui.text_colored((0, 0, 0, 1), "GLX Fonts")
+        imgui.pop_font()
         imgui.end()
         imgui.render()
         impl.render(imgui.get_draw_data())

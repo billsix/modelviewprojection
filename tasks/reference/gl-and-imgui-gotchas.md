@@ -107,8 +107,22 @@ sections above are the failure modes.
   without swapping, `glReadPixels` one pixel, decode; HiDPI needs a
   cursor→framebuffer scale. `GL_FEEDBACK` bounding boxes → scan the
   framebuffer with numpy instead. (same)
-- **`glAccum` is a hard error on Bill's Mesa** (no accumulation buffer;
-  `GLError 1282` — chapt06/motionblur). (same)
+- **Many contexts have no accumulation buffer** (the maintainer's Mesa,
+  Wayland, Xvfb): the GLFW `ACCUM_*_BITS` hints are ignored and `glAccum`
+  fails with `GLError 1282`. Check `glGetIntegerv(GL_ACCUM_RED_BITS)` and
+  fall back to summing with textures: `glCopyTexSubImage2D` each pass, add
+  it scaled onto a running sum with `glBlendFunc(GL_ONE, GL_ONE)`, and clear
+  to **black** before adding (chapt06/motionblur).
+- **A single-buffered window may never appear** (`DOUBLEBUFFER` false; seen
+  on the maintainer's host). Double-buffer and redraw everything the
+  original left in the front buffer (chapt03/single keeps the pass's points).
+- **With a pack/unpack buffer bound, pass the integer `0`, never `None`**, as
+  the data argument of `glReadPixels`/`glTexImage2D`: PyOpenGL turns `None`
+  into a client array and passes its address as the buffer offset
+  (`GLError 1282`; pixbufobj, chapt18/hdrbloom).
+- **imgui-bundle 1.92+ removed `imgui.set_window_font_scale`.** Scale text
+  with `imgui.push_font(None, imgui.get_font_size() * k)` … `pop_font()`
+  (chapt21/fonts).
 - **dt-based animation always:** never `rot += constant` per frame; use a
   `*_PER_SEC` rate × dt from `time.monotonic()`. And accept `glfw.PRESS`
   **and** `glfw.REPEAT` for movement keys (matches GLUT auto-repeat), PRESS
