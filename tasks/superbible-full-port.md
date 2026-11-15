@@ -30,9 +30,10 @@ first-run issues (2026-04-28 list; strike items as Bill verifies):
 2. **`chapt04/transform` rotation direction** — `rotation_matrix_about_axis`
    is standard Rodrigues; if rotation looks reversed, transpose (sign
    convention varies).
-3. **`chapt03/single` flicker** — single-buffered behavior depends on the
-   driver honoring `glfw.DOUBLEBUFFER = FALSE`; fall back to manual
-   accumulation if the spiral doesn't persist.
+3. **`chapt03/single`** — on the maintainer's host the single-buffered window
+   showed nothing (2026-11-15), so the port is now double-buffered and redraws
+   the current pass's points each tick (verified headless). Confirm the spiral
+   grows on host GL.
 4. **`chapt01/block` step 5 draws only front/top/right faces** — faithful to
    the C++; looks incomplete on purpose.
 5. **`glRotatef` argument types** — wrap angles in `float()` if PyOpenGL
@@ -42,7 +43,9 @@ first-run issues (2026-04-28 list; strike items as Bill verifies):
 
 ## Remaining open questions (for Bill)
 
-- `chapt21/fonts` was ported (2 files exist in chapt21) — confirm it renders.
+- `chapt21/fonts` crashed on host 2026-11-15 (imgui-bundle 1.92 removed
+  `set_window_font_scale`); now fixed with `push_font` and verified headless.
+  Confirm it renders on host GL.
 - The chapt20/chapt22 "skip entirely" plan became print-a-notice **stubs**
   instead; fine as-is?
 
