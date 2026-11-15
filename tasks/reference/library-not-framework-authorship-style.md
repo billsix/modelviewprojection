@@ -66,7 +66,7 @@ they are **framework-style**. Each game defines `WIDTH`/`HEIGHT`/`update()`/`dra
 inversion as `wxapp.py`'s `OnPaint`. This is faithful to upstream PyGame Zero (whose whole point is that
 inversion), but it means the ports are written in the one style the course otherwise argues against. That gap is
 the motivation for the **inline / strip / re-extract** initiative
-(`tasks/pgzero-gl-inline-strip-reextract.md`): flip the games to library style so each owns its own loop and
+(`tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md`): flip the games to library style so each owns its own loop and
 reads like a demo.
 
 ## Claim 2 — repetition, increasingly adding complexity: ACCURATE
@@ -188,7 +188,7 @@ no stack. Small inaccuracy in the doc, not in the claims above — worth correct
 
 ## Related
 
-- `tasks/pgzero-gl-inline-strip-reextract.md` — the initiative to flip the ports from framework- to library-style
+- `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` — the initiative to flip the ports from framework- to library-style
   (the direct consequence of this record).
 - `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md` — the `pgzero_gl` design + per-game usage
   slices (the shim that is the framework exception).

@@ -7,7 +7,7 @@ anchored `file:line` and checked against the real game sources. Author: synthesi
 William Emerison Six <billsix@gmail.com>. Project: `github.com/billsix/modelviewprojection`.
 
 **Dated snapshot (2026-09-03), kept as the map of what each game used.** Two days later the shim was inlined
-per game (steps 1–2 of `tasks/pgzero-gl-inline-strip-reextract.md`) and each copy tightened
+per game (steps 1–2 of `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md`) and each copy tightened
 (`tasks/reference/code-the-classics-tightening.md` — its §3/§6 per-family engine flags are the current form
 of the usage slices below). On 2026-11-15 step 3 replaced the package shim source with the shared engine
 modules the games import (`audio`, `resources`, `gl`; `tasks/reference/code-the-classics-tightening.md` §9), so
