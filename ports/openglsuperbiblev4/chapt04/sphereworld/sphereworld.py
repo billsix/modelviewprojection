@@ -11,6 +11,7 @@
 # OpenGL SuperBible, Chapter 4
 # Python port of SphereWorld.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import random
@@ -29,21 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main(), used by Quit
-
 NUM_SPHERES: int = 50
-
-# 50 sphere positions, generated once at startup
-sphere_positions: list[tuple[float, float, float]] = []
-
-# Camera state: position + yaw (rotation about Y). The C++ GLFrame
-# tracks (origin, forward, up); for this demo only origin + yaw is used.
-camera_x: float = 0.0
-camera_y: float = 0.0
-camera_z: float = 0.0
-camera_yaw: float = 0.0
-
-y_rot: float = 0.0  # animation angle for the orbiting sphere/torus group
 
 
 # The 50 field spheres, the orbiting sphere, and the torus are identical
@@ -54,12 +41,38 @@ SPHERE: _primitives.Mesh = _primitives.build_sphere(0.1, 13, 26)
 TORUS: _primitives.Mesh = _primitives.build_torus(0.35, 0.15, 40, 20)
 
 
+camera_y: float = 0.0
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main(), used by Quit
+
+    # 50 sphere positions, generated once at startup
+    sphere_positions: list[tuple[float, float, float]] = dataclasses.field(
+        default_factory=list
+    )
+
+    # Camera state: position + yaw (rotation about Y). The C++ GLFrame
+    # tracks (origin, forward, up); for this demo only origin + yaw is used.
+    camera_x: float = 0.0
+    camera_z: float = 0.0
+    camera_yaw: float = 0.0
+
+    y_rot: float = 0.0  # animation angle for the orbiting sphere/torus group
+
+
+state: AppState = AppState()
+
+
 def apply_camera_transform() -> None:
     """Equivalent to GLFrame::ApplyCameraTransform for a camera that has
     only been rotated about Y. Rotate world by -yaw, then translate by
     -position."""
-    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
-    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
+    GL.glRotatef(-math.degrees(state.camera_yaw), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-state.camera_x, -camera_y, -state.camera_z)
 
 
 def setup_rc() -> None:
@@ -71,7 +84,7 @@ def setup_rc() -> None:
         # Place between -20 and 20 in 0.1 increments
         sx: float = (random.randint(0, 399) - 200) * 0.1
         sz: float = (random.randint(0, 399) - 200) * 0.1
-        sphere_positions.append((sx, 0.0, sz))
+        state.sphere_positions.append((sx, 0.0, sz))
 
 
 def draw_ground() -> None:
@@ -99,7 +112,10 @@ def render_scene() -> None:
     draw_ground()
 
     # The 50 random spheres
-    for sx, sy, sz in sphere_positions:
+    sx: float
+    sy: float
+    sz: float
+    for sx, sy, sz in state.sphere_positions:
         GL.glPushMatrix()
         GL.glTranslatef(sx, sy, sz)
         _primitives.draw_mesh(SPHERE)
@@ -110,12 +126,12 @@ def render_scene() -> None:
     GL.glTranslatef(0.0, 0.0, -2.5)
 
     GL.glPushMatrix()
-    GL.glRotatef(-y_rot * 2.0, 0.0, 1.0, 0.0)
+    GL.glRotatef(-state.y_rot * 2.0, 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
     _primitives.draw_mesh(SPHERE)
     GL.glPopMatrix()
 
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     _primitives.draw_mesh(TORUS, normals=False)
     GL.glPopMatrix()
 
@@ -134,7 +150,7 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -145,27 +161,28 @@ YAW_RAD_PER_SEC: float = 1.5
 TORUS_DEG_PER_SEC: float = 30.0
 
 
-def handle_camera_keys(window, dt: float) -> None:
+def handle_camera_keys(window: typing.Any, dt: float) -> None:
     """Replaces GLFrame::MoveForward / RotateLocalY for arrow keys."""
-    global camera_x, camera_z, camera_yaw
     move: float = MOVE_UNITS_PER_SEC * dt
     yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         # Forward in world coords for a camera rotated about +Y by yaw:
         # the default forward (0,0,-1) becomes (-sin yaw, 0, -cos yaw)
         # after the standard right-handed Y-rotation.
-        camera_x += -move * math.sin(camera_yaw)
-        camera_z += -move * math.cos(camera_yaw)
+        state.camera_x += -move * math.sin(state.camera_yaw)
+        state.camera_z += -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= -move * math.sin(camera_yaw)
-        camera_z -= -move * math.cos(camera_yaw)
+        state.camera_x -= -move * math.sin(state.camera_yaw)
+        state.camera_z -= -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += yaw
+        state.camera_yaw += yaw
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= yaw
+        state.camera_yaw -= yaw
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -177,15 +194,13 @@ BTN_YAW_STEP: float = 0.1
 
 
 def _walk(direction: int) -> None:
-    global camera_x, camera_z
     m: float = BTN_MOVE_STEP * direction
-    camera_x += -m * math.sin(camera_yaw)
-    camera_z += -m * math.cos(camera_yaw)
+    state.camera_x += -m * math.sin(state.camera_yaw)
+    state.camera_z += -m * math.cos(state.camera_yaw)
 
 
 def _turn(d: float) -> None:
-    global camera_yaw
-    camera_yaw += d
+    state.camera_yaw += d
 
 
 def imgui_menubar() -> None:
@@ -195,10 +210,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))
         _common.menu_action("Back", "Down", lambda: _walk(-1))
@@ -209,8 +226,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global y_rot, _window
-
     if not glfw.init():
         sys.exit(1)
 
@@ -223,7 +238,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
@@ -236,8 +251,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 
@@ -249,7 +264,7 @@ def main() -> None:
         glfw.poll_events()
         impl.process_inputs()
         handle_camera_keys(window, dt)
-        y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
+        state.y_rot = (state.y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
         imgui.new_frame()
         imgui_menubar()

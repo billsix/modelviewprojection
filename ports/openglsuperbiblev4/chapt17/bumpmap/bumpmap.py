@@ -13,6 +13,7 @@
 # OpenGL SuperBible, Chapter 17
 # Python port of bumpmap.cpp by Benjamin Lipchak
 
+import dataclasses
 import math
 import os
 import sys
@@ -31,50 +32,75 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-window_width: int = 512
-window_height: int = 512
-
-BUMPMAP, SHOWBUMP = 0, 1
+BUMPMAP: int = 0
+SHOWBUMP: int = 1
 TOTAL_SHADER_SETS: int = 2
 shader_names: list[str] = ["bumpmap", "showbump"]
-BOX, CYLINDER, TORUS = 0, 1, 2
+BOX: int = 0
+CYLINDER: int = 1
+TORUS: int = 2
 shape_names: list[str] = ["box", "cylinder", "torus"]
-RIVETS, PYRAMIDS = 0, 1
+RIVETS: int = 0
+PYRAMIDS: int = 1
 bumpmap_names: list[str] = ["rivets", "pyramids"]
 
-f_shader: list[int] = [0] * TOTAL_SHADER_SETS
-v_shader: list[int] = [0] * TOTAL_SHADER_SETS
-prog_obj: list[int] = [0] * TOTAL_SHADER_SETS
-which_shader: int = BUMPMAP
-which_shape: int = BOX
-which_bumpmap: int = RIVETS
 
-camera_pos: list[float] = [0.0, 125.0, -200.0, 1.0]
-light_rotation: float = 90.0
-light_pos0: np.ndarray = np.zeros(3, dtype=np.float32)
-max_tex_size: int = 0
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+    window_width: int = 512
+    window_height: int = 512
+
+    f_shader: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADER_SETS
+    )
+    v_shader: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADER_SETS
+    )
+    prog_obj: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADER_SETS
+    )
+    which_shader: int = BUMPMAP
+    which_shape: int = BOX
+    which_bumpmap: int = RIVETS
+
+    camera_pos: list[float] = dataclasses.field(
+        default_factory=lambda: [0.0, 125.0, -200.0, 1.0]
+    )
+    light_rotation: float = 90.0
+    light_pos0: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.zeros(3, dtype=np.float32)
+    )
+    max_tex_size: int = 0
+
+
+state: AppState = AppState()
 
 
 def update_light() -> None:
-    a: float = -light_rotation * math.pi / 180.0
-    light_pos0[0] = 300.0 * math.cos(a)
-    light_pos0[1] = 0.0
-    light_pos0[2] = 300.0 * math.sin(a)
+    a: float = -state.light_rotation * math.pi / 180.0
+    state.light_pos0[0] = 300.0 * math.cos(a)
+    state.light_pos0[1] = 0.0
+    state.light_pos0[2] = 300.0 * math.sin(a)
 
 
 def create_rivet_map() -> None:
-    tex_size: int = min(max_tex_size, 128)
+    tex_size: int = min(state.max_tex_size, 128)
     texels: np.ndarray = np.zeros(tex_size * tex_size * 4, dtype=np.float32)
     half: float = (tex_size - 1) * 0.5
+    v: int
     for v in range(tex_size):
         y: float = (v - half) / half
+        u: int
         for u in range(tex_size):
             x: float = (u - half) / half
             r: float = x * x + y * y
             idx: int = (v * tex_size + u) * 4
             if r <= 0.64:
-                nx, ny = x * 1.25, y * 1.25
+                nx: float = x * 1.25
+                ny: float = y * 1.25
                 nz: float = math.sqrt(0.64 - r) * 1.25
                 s: float = 1.0 / math.sqrt(nx * nx + ny * ny + nz * nz)
                 texels[idx] = nx * s * 0.5 + 0.5
@@ -97,11 +123,13 @@ def create_rivet_map() -> None:
 
 
 def create_pyramid_map() -> None:
-    tex_size: int = min(max_tex_size, 128)
+    tex_size: int = min(state.max_tex_size, 128)
     texels: np.ndarray = np.zeros(tex_size * tex_size * 4, dtype=np.float32)
     half: float = (tex_size - 1) * 0.5
+    v: int
     for v in range(tex_size):
         y: float = (v - half) / half
+        u: int
         for u in range(tex_size):
             x: float = (u - half) / half
             idx: int = (v * tex_size + u) * 4
@@ -131,18 +159,19 @@ def create_pyramid_map() -> None:
 
 def prepare_shader(n: int) -> None:
     name: str = shader_names[n]
+    f: typing.TextIO
     with open(os.path.join(PWD, "shaders", f"{name}.vs")) as f:
         vs_src: str = f.read()
     with open(os.path.join(PWD, "shaders", f"{name}.fs")) as f:
         fs_src: str = f.read()
-    v_shader[n] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
-    f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
-    prog_obj[n] = GL.glCreateProgram()
-    GL.glAttachShader(prog_obj[n], v_shader[n])
-    GL.glAttachShader(prog_obj[n], f_shader[n])
-    GL.glLinkProgram(prog_obj[n])
-    if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
+    state.v_shader[n] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
+    state.f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
+    state.prog_obj[n] = GL.glCreateProgram()
+    GL.glAttachShader(state.prog_obj[n], state.v_shader[n])
+    GL.glAttachShader(state.prog_obj[n], state.f_shader[n])
+    GL.glLinkProgram(state.prog_obj[n])
+    if not GL.glGetProgramiv(state.prog_obj[n], GL.GL_LINK_STATUS):
+        info: bytes = GL.glGetProgramInfoLog(state.prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
@@ -156,6 +185,7 @@ def draw_cylinder(
 ) -> None:
     inc: float = (2.0 * math.pi) / slices
     GL.glBegin(GL.GL_QUAD_STRIP)
+    i: int
     for i in range(slices + 1):
         a: float = inc * i
         GL.glMultiTexCoord2f(GL.GL_TEXTURE0, x_tex_scale * i / slices, 0.0)
@@ -181,6 +211,7 @@ def draw_cylinder(
     GL.glMultiTexCoord3f(GL.GL_TEXTURE2, 0.0, 0.0, 1.0)
     GL.glMultiTexCoord3f(GL.GL_TEXTURE3, 0.0, 1.0, 0.0)
     GL.glVertex3f(0.0, height * 0.5, 0.0)
+    i: int
     for i in range(slices + 1):
         a = inc * i
         GL.glMultiTexCoord2f(
@@ -200,6 +231,7 @@ def draw_cylinder(
     GL.glMultiTexCoord3f(GL.GL_TEXTURE2, 0.0, 0.0, -1.0)
     GL.glMultiTexCoord3f(GL.GL_TEXTURE3, 0.0, -1.0, 0.0)
     GL.glVertex3f(0.0, -height * 0.5, 0.0)
+    i: int
     for i in range(slices + 1):
         a = inc * i
         GL.glMultiTexCoord2f(
@@ -221,12 +253,15 @@ def draw_torus(
 ) -> None:
     s_inc: float = (2.0 * math.pi) / slices
     r_inc: float = (2.0 * math.pi) / rings
+    i: int
     for i in range(rings + 1):
         GL.glBegin(GL.GL_QUAD_STRIP)
+        j: int
         for j in range(slices + 1):
             sj: float = s_inc * j
             cs: float = math.cos(sj)
             ss: float = math.sin(sj)
+            offset: int
             for offset in (1, 0):
                 ri: float = r_inc * (i + offset) if offset else r_inc * i
                 cr: float = math.cos(ri)
@@ -302,10 +337,22 @@ def draw_box(size: float, tex_scale: float) -> None:
         (tex_scale, tex_scale),
         (tex_scale, 0.0),
     ]
+    tx: int
+    ty: int
+    tz: int
+    bx: int
+    by: int
+    bz: int
+    nx: int
+    ny: int
+    nz: int
+    verts: list[tuple[float, float, float]]
     for (tx, ty, tz), (bx, by, bz), (nx, ny, nz), verts in faces:
+        k: int
+        vert: tuple[float, float, float]
         for k, vert in enumerate(verts):
-            u, v = uvs[k]
-            GL.glMultiTexCoord2f(GL.GL_TEXTURE0, u, v)
+            uv: tuple[float, float] = uvs[k]
+            GL.glMultiTexCoord2f(GL.GL_TEXTURE0, uv[0], uv[1])
             GL.glMultiTexCoord3f(GL.GL_TEXTURE1, tx, ty, tz)
             GL.glMultiTexCoord3f(GL.GL_TEXTURE2, bx, by, bz)
             GL.glMultiTexCoord3f(GL.GL_TEXTURE3, nx, ny, nz)
@@ -314,48 +361,44 @@ def draw_box(size: float, tex_scale: float) -> None:
 
 
 def draw_models() -> None:
-    p: int = prog_obj[which_shader]
+    p: int = state.prog_obj[state.which_shader]
     loc: int = GL.glGetUniformLocation(p, "sampler0")
     if loc != -1:
         GL.glUniform1i(loc, 0)
     loc = GL.glGetUniformLocation(p, "lightPos0")
     if loc != -1:
-        GL.glUniform3fv(loc, 1, light_pos0)
+        GL.glUniform3fv(loc, 1, state.light_pos0)
 
     GL.glColor3f(0.8, 0.5, 0.3)
-    if which_shape == CYLINDER:
+    if state.which_shape == CYLINDER:
         draw_cylinder(25.0, 70.0, 25, 20.0, 10.0)
-    elif which_shape == TORUS:
+    elif state.which_shape == TORUS:
         draw_torus(20.0, 15.0, 50, 25, 40.0, 12.0)
     else:
         draw_box(70.0, 10.0)
 
 
 def select_shader(n: int) -> None:
-    global which_shader
-    which_shader = n
-    GL.glUseProgram(prog_obj[which_shader])
+    state.which_shader = n
+    GL.glUseProgram(state.prog_obj[state.which_shader])
 
 
 def select_bumpmap(n: int) -> None:
-    global which_bumpmap
-    which_bumpmap = n
-    GL.glBindTexture(GL.GL_TEXTURE_2D, which_bumpmap)
+    state.which_bumpmap = n
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.which_bumpmap)
 
 
 def _nudge_light(d: float) -> None:
-    global light_rotation
-    light_rotation += d
+    state.light_rotation += d
     update_light()
 
 
 def _nudge_cam(axis: int, d: float) -> None:
-    camera_pos[axis] += d
+    state.camera_pos[axis] += d
 
 
 def _select_shape(i: int) -> None:
-    global which_shape
-    which_shape = i
+    state.which_shape = i
 
 
 def imgui_menubar() -> None:
@@ -366,36 +409,44 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Render options", True):
         if imgui.begin_menu("Shape", True):
+            i: int
+            name: str
             for i, name in enumerate(shape_names):
                 _common.menu_action(
                     name,
                     "",
                     lambda i=i: _select_shape(i),
-                    selected=(which_shape == i),
+                    selected=(state.which_shape == i),
                 )
             imgui.end_menu()
         if imgui.begin_menu("Shader", True):
+            i: int
+            name: str
             for i, name in enumerate(shader_names):
                 _common.menu_action(
                     name,
                     "",
                     lambda i=i: select_shader(i),
-                    selected=(which_shader == i),
+                    selected=(state.which_shader == i),
                 )
             imgui.end_menu()
         if imgui.begin_menu("Bump texture", True):
+            i: int
+            name: str
             for i, name in enumerate(bumpmap_names):
                 _common.menu_action(
                     name,
                     "",
                     lambda i=i: select_bumpmap(i),
-                    selected=(which_bumpmap == i),
+                    selected=(state.which_bumpmap == i),
                 )
             imgui.end_menu()
         imgui.end_menu()
@@ -420,9 +471,9 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
     GLU.gluLookAt(
-        camera_pos[0],
-        camera_pos[1],
-        camera_pos[2],
+        state.camera_pos[0],
+        state.camera_pos[1],
+        state.camera_pos[2],
         0.0,
         0.0,
         0.0,
@@ -430,21 +481,20 @@ def render_scene() -> None:
         1.0,
         0.0,
     )
-    GL.glViewport(0, 0, window_width, window_height)
+    GL.glViewport(0, 0, state.window_width, state.window_height)
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     draw_models()
 
 
 def setup_rc() -> None:
-    global max_tex_size
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glDepthFunc(GL.GL_LEQUAL)
     GL.glShadeModel(GL.GL_SMOOTH)
     GL.glEnable(GL.GL_CULL_FACE)
 
-    max_tex_size = GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)
+    state.max_tex_size = GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
     GL.glTexParameteri(
@@ -467,21 +517,24 @@ def setup_rc() -> None:
     GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
 
     update_light()
+    i: int
     for i in range(TOTAL_SHADER_SETS):
         prepare_shader(i)
-    GL.glUseProgram(prog_obj[which_shader])
+    GL.glUseProgram(state.prog_obj[state.which_shader])
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height
-    window_width, window_height = w, h
+    state.window_width = w
+    state.window_height = h
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, mods: int
+) -> None:
     # Shape, shader, and bumpmap texture selection moved to the imgui panel;
     # keys here are navigation only.
     if action != glfw.PRESS and action != glfw.REPEAT:
@@ -506,18 +559,17 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window: typing.Any = glfw.create_window(  # glfw window handle
-        window_width, window_height, "Bump Mapping Demo", None, None
+        state.window_width, state.window_height, "Bump Mapping Demo", None, None
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -528,8 +580,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()

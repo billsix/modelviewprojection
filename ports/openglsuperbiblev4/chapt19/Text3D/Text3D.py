@@ -8,6 +8,7 @@
 # OpenGL SuperBible, Chapter 19
 # Python port of Text3D.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -23,7 +24,15 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+
+
+state: AppState = AppState()
 
 
 def imgui_menubar() -> None:
@@ -34,16 +43,22 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
 def draw_cube(s: float = 1.0) -> None:
     s /= 2.0
     GL.glBegin(GL.GL_QUADS)
+    nx: int
+    ny: int
+    nz: int
+    vs: list[tuple[float, float, float]]
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
         (0, 0, -1, [(s, -s, -s), (-s, -s, -s), (-s, s, -s), (s, s, -s)]),
@@ -54,13 +69,13 @@ def draw_cube(s: float = 1.0) -> None:
     ]:
         GL.glColor3f(0.5 + 0.5 * nx, 0.5 + 0.5 * ny, 0.5 + 0.5 * nz)
         GL.glNormal3f(nx, ny, nz)
+        v: tuple[float, float, float]
         for v in vs:
             GL.glVertex3f(*v)
     GL.glEnd()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -71,7 +86,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     imgui.create_context()
     impl: GlfwRenderer = GlfwRenderer(window)
@@ -84,13 +99,13 @@ def main() -> None:
         if glfw.get_key(window, glfw.KEY_ESCAPE) == glfw.PRESS:
             break
 
-        w, h = glfw.get_framebuffer_size(window)
-        GL.glViewport(0, 0, w, h)
+        size: tuple[int, int] = glfw.get_framebuffer_size(window)
+        GL.glViewport(0, 0, size[0], size[1])
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
-        GLU.gluPerspective(45.0, w / h, 0.1, 50.0)
+        GLU.gluPerspective(45.0, size[0] / size[1], 0.1, 50.0)
         GL.glMatrixMode(GL.GL_MODELVIEW)
         GL.glLoadIdentity()
         GLU.gluLookAt(3.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)

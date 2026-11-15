@@ -5,6 +5,7 @@
 # OpenGL SuperBible, Chapter 3
 # Python port of Star.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -19,36 +20,44 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# set in main(); used by the Quit control button
-_window: typing.Any = None  # glfw window handle
-x_rot: float = 0.0
-y_rot: float = 0.0
-
 MODE_SOLID: int = 0
 MODE_LINE: int = 1
 MODE_POINT: int = 2
 
-i_mode: int = MODE_SOLID
-b_edge_flag: bool = True
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # set in main(); used by the Quit control button
+    window: typing.Any = None  # glfw window handle
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+
+    i_mode: int = MODE_SOLID
+    b_edge_flag: bool = True
+
+
+state: AppState = AppState()
 
 
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-    if i_mode == MODE_LINE:
+    if state.i_mode == MODE_LINE:
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
-    elif i_mode == MODE_POINT:
+    elif state.i_mode == MODE_POINT:
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_POINT)
     else:
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
 
     GL.glPushMatrix()
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
 
     GL.glBegin(GL.GL_TRIANGLES)
 
-    GL.glEdgeFlag(b_edge_flag)
+    GL.glEdgeFlag(state.b_edge_flag)
     GL.glVertex2f(-20.0, 0.0)
     GL.glEdgeFlag(True)
     GL.glVertex2f(20.0, 0.0)
@@ -56,24 +65,24 @@ def render_scene() -> None:
 
     GL.glVertex2f(-20.0, 0.0)
     GL.glVertex2f(-60.0, -20.0)
-    GL.glEdgeFlag(b_edge_flag)
+    GL.glEdgeFlag(state.b_edge_flag)
     GL.glVertex2f(-20.0, -40.0)
     GL.glEdgeFlag(True)
 
     GL.glVertex2f(-20.0, -40.0)
     GL.glVertex2f(0.0, -80.0)
-    GL.glEdgeFlag(b_edge_flag)
+    GL.glEdgeFlag(state.b_edge_flag)
     GL.glVertex2f(20.0, -40.0)
     GL.glEdgeFlag(True)
 
     GL.glVertex2f(20.0, -40.0)
     GL.glVertex2f(60.0, -20.0)
-    GL.glEdgeFlag(b_edge_flag)
+    GL.glEdgeFlag(state.b_edge_flag)
     GL.glVertex2f(20.0, 0.0)
     GL.glEdgeFlag(True)
 
     # Center square as two triangles
-    GL.glEdgeFlag(b_edge_flag)
+    GL.glEdgeFlag(state.b_edge_flag)
     GL.glVertex2f(-20.0, 0.0)
     GL.glVertex2f(-20.0, -40.0)
     GL.glVertex2f(20.0, 0.0)
@@ -121,7 +130,7 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -132,67 +141,71 @@ ROT_STEP: float = ROT_DEG_PER_SEC / 60.0
 
 
 def _nudge_rot(axis: str, d: float) -> None:
-    global x_rot, y_rot
     if axis == "x":
-        x_rot += d
+        state.x_rot += d
     else:
-        y_rot += d
+        state.y_rot += d
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def _set_mode(m: int) -> None:
-    global i_mode
-    i_mode = m
+    state.i_mode = m
 
 
 def imgui_menubar() -> None:
-    global b_edge_flag
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Mode", True):
         _common.menu_action(
             "Solid",
             "",
             lambda: _set_mode(MODE_SOLID),
-            selected=(i_mode == MODE_SOLID),
+            selected=(state.i_mode == MODE_SOLID),
         )
         _common.menu_action(
             "Outline",
             "",
             lambda: _set_mode(MODE_LINE),
-            selected=(i_mode == MODE_LINE),
+            selected=(state.i_mode == MODE_LINE),
         )
         _common.menu_action(
             "Points",
             "",
             lambda: _set_mode(MODE_POINT),
-            selected=(i_mode == MODE_POINT),
+            selected=(state.i_mode == MODE_POINT),
         )
         imgui.separator()
-        _, b_edge_flag = imgui.menu_item("Edge flag", "", b_edge_flag, True)
+        # (clicked, selected) -- the toggled selection is the new flag
+        edge_item: tuple[bool, bool] = imgui.menu_item(
+            "Edge flag", "", state.b_edge_flag, True
+        )
+        state.b_edge_flag = edge_item[1]
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action(
@@ -212,7 +225,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
 
@@ -226,7 +238,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -237,8 +249,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     glfw.swap_interval(1)
     last_frame: float = time.monotonic()

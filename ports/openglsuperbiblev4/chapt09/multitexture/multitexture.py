@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 9
 # Python port of Multitexture.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -24,15 +25,28 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-
-camera_x: float = 0.0
 camera_y: float = 0.0
-camera_z: float = 0.0
-camera_yaw: float = 0.0
 
-CUBE_MAP, COLOR_MAP = 0, 1
-texture_objects: list[int] = [0, 0]
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main()
+    window: typing.Any = None
+    camera_x: float = 0.0
+    camera_z: float = 0.0
+    camera_yaw: float = 0.0
+    texture_objects: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0]
+    )
+
+
+state: AppState = AppState()
+
+
+CUBE_MAP: int = 0
+COLOR_MAP: int = 1
 cube_faces: list[str] = [
     "pos_x.tga",
     "neg_x.tga",
@@ -51,13 +65,18 @@ cube_targets: list[Constant] = [
 ]
 
 
-def load_image(fname: str) -> "tuple[np.ndarray, int, int, int]":
+def load_image(fname: str) -> "tuple[np.ndarray, int, int, Constant]":
     img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
-    h, w = img.shape[:2]
+    img_size: tuple[int, ...] = img.shape[:2]
     fmt: Constant = (
         GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     )
-    return np.ascontiguousarray(img, dtype=np.uint8), w, h, fmt
+    return (
+        np.ascontiguousarray(img, dtype=np.uint8),
+        img_size[1],
+        img_size[0],
+        fmt,
+    )
 
 
 # Sphere with a tarnish color-map on unit 0. Its texcoords go on TEXTURE0
@@ -68,9 +87,10 @@ SPHERE: _primitives.Mesh = _primitives.build_sphere(0.75, 41, 41)
 
 
 def draw_sphere_multitex() -> None:
-    mode, bands = SPHERE
-    for band in bands:
-        GL.glBegin(mode)
+    band: list[_primitives.Vertex]
+    for band in SPHERE[1]:
+        GL.glBegin(SPHERE[0])
+        v: _primitives.Vertex
         for v in band:
             GL.glNormal3f(v[0], v[1], v[2])
             GL.glMultiTexCoord2f(GL.GL_TEXTURE0, v[3], v[4])
@@ -126,7 +146,14 @@ def draw_skybox() -> None:
         ],
     ]
     GL.glBegin(GL.GL_QUADS)
+    face: list[tuple[float, float, float, float, float, float]]
     for face in faces:
+        tx: float
+        ty: float
+        tz: float
+        vx: float
+        vy: float
+        vz: float
         for tx, ty, tz, vx, vy, vz in face:
             GL.glMultiTexCoord3f(GL.GL_TEXTURE1, tx, ty, tz)
             GL.glVertex3f(vx, vy, vz)
@@ -139,11 +166,12 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_CULL_FACE)
     GL.glEnable(GL.GL_DEPTH_TEST)
 
-    texture_objects[0] = GL.glGenTextures(1)
-    texture_objects[1] = GL.glGenTextures(1)
+    state.texture_objects[0] = GL.glGenTextures(1)
+    state.texture_objects[1] = GL.glGenTextures(1)
 
     # Cube map
-    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, texture_objects[CUBE_MAP])
+    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, state.texture_objects[CUBE_MAP])
+    p: tuple[Constant, Constant]
     for p in [
         (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
         (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
@@ -152,17 +180,27 @@ def setup_rc() -> None:
         (GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE),
     ]:
         GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, p[0], p[1])
+    i: int
+    fname: str
     for i, fname in enumerate(cube_faces):
-        img, w, h, fmt = load_image(fname)
+        face_image: tuple[np.ndarray, int, int, Constant] = load_image(fname)
         GL.glTexParameteri(
             GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE
         )
         GL.glTexImage2D(
-            cube_targets[i], 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+            cube_targets[i],
+            0,
+            face_image[3],
+            face_image[1],
+            face_image[2],
+            0,
+            face_image[3],
+            GL.GL_UNSIGNED_BYTE,
+            face_image[0],
         )
 
     # Color map
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[COLOR_MAP])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[COLOR_MAP])
     for p in [
         (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
         (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
@@ -171,19 +209,29 @@ def setup_rc() -> None:
     ]:
         GL.glTexParameteri(GL.GL_TEXTURE_2D, p[0], p[1])
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE)
-    img, w, h, fmt = load_image("tarnish.tga")
+    color_image: tuple[np.ndarray, int, int, Constant] = load_image(
+        "tarnish.tga"
+    )
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        GL.GL_TEXTURE_2D,
+        0,
+        color_image[3],
+        color_image[1],
+        color_image[2],
+        0,
+        color_image[3],
+        GL.GL_UNSIGNED_BYTE,
+        color_image[0],
     )
 
     # Texture units
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glEnable(GL.GL_TEXTURE_2D)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[COLOR_MAP])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[COLOR_MAP])
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
 
     GL.glActiveTexture(GL.GL_TEXTURE1)
-    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, texture_objects[CUBE_MAP])
+    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, state.texture_objects[CUBE_MAP])
     GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
     GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
     GL.glTexGeni(GL.GL_R, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
@@ -192,8 +240,8 @@ def setup_rc() -> None:
 
 
 def apply_camera_transform() -> None:
-    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
-    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
+    GL.glRotatef(-math.degrees(state.camera_yaw), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-state.camera_x, -camera_y, -state.camera_z)
 
 
 def render_scene() -> None:
@@ -230,7 +278,7 @@ def render_scene() -> None:
     # touches the cube map's matrix.
     GL.glMatrixMode(GL.GL_TEXTURE)
     GL.glPushMatrix()
-    GL.glRotatef(math.degrees(camera_yaw), 0.0, 1.0, 0.0)
+    GL.glRotatef(math.degrees(state.camera_yaw), 0.0, 1.0, 0.0)
 
     draw_sphere_multitex()
 
@@ -264,7 +312,7 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -272,23 +320,24 @@ MOVE_UNITS_PER_SEC: float = 3.0
 YAW_RAD_PER_SEC: float = 1.5
 
 
-def handle_camera_keys(window, dt: float) -> None:
-    global camera_x, camera_z, camera_yaw
+def handle_camera_keys(window: typing.Any, dt: float) -> None:
     move: float = MOVE_UNITS_PER_SEC * dt
     yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera_x += -move * math.sin(camera_yaw)
-        camera_z += -move * math.cos(camera_yaw)
+        state.camera_x += -move * math.sin(state.camera_yaw)
+        state.camera_z += -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= -move * math.sin(camera_yaw)
-        camera_z -= -move * math.cos(camera_yaw)
+        state.camera_x -= -move * math.sin(state.camera_yaw)
+        state.camera_z -= -move * math.cos(state.camera_yaw)
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += yaw
+        state.camera_yaw += yaw
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= yaw
+        state.camera_yaw -= yaw
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -300,15 +349,13 @@ BTN_YAW_STEP: float = 0.1
 
 
 def _walk(direction: int) -> None:
-    global camera_x, camera_z
     m: float = BTN_MOVE_STEP * direction
-    camera_x += -m * math.sin(camera_yaw)
-    camera_z += -m * math.cos(camera_yaw)
+    state.camera_x += -m * math.sin(state.camera_yaw)
+    state.camera_z += -m * math.cos(state.camera_yaw)
 
 
 def _turn(d: float) -> None:
-    global camera_yaw
-    camera_yaw += d
+    state.camera_yaw += d
 
 
 def imgui_menubar() -> None:
@@ -318,10 +365,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))
         _common.menu_action("Back", "Down", lambda: _walk(-1))
@@ -332,7 +381,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
 
     if not glfw.init():
         sys.exit(1)
@@ -344,7 +392,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -356,8 +404,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 

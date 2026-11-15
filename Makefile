@@ -217,7 +217,9 @@ update-pins: image ## (container, network) re-resolve constraints.txt, the image
 # mutated), plus the local-variable annotation checker (tools/, enforcing the
 # "every local is annotated" rule).  Every step runs and the target fails if ANY
 # failed (s=1 accumulates), so one run reports all the red.  `$$s` is a literal
-# `$s` for the shell (Make would otherwise expand `$s`).
+# `$s` for the shell (Make would otherwise expand `$s`).  ports/openglsuperbiblev4
+# gets the annotation check but no ty step, on purpose: its ty diagnostics are
+# glfw/imgui stub friction (tasks/reference/tests-and-gates.md section 5).
 .PHONY: type-check
 type-check: image ## (container) ty + local-annotation check over the source
 	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm \

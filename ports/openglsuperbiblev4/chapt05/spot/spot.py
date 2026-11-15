@@ -5,6 +5,7 @@
 # OpenGL SuperBible, Chapter 5
 # Python port of Spot.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -22,11 +23,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-
-x_rot: float = 0.0
-y_rot: float = 0.0
-
 light_pos: tuple[float, float, float, float] = (0.0, 0.0, 75.0, 1.0)
 specular: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 specref: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
@@ -39,8 +35,21 @@ MODE_VERYLOW: int = 3
 MODE_MEDIUM: int = 4
 MODE_VERYHIGH: int = 5
 
-i_shade: int = MODE_FLAT
-i_tess: int = MODE_VERYLOW
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+
+    i_shade: int = MODE_FLAT
+    i_tess: int = MODE_VERYLOW
+
+
+state: AppState = AppState()
 
 
 def _build_slant_cone(
@@ -56,16 +65,20 @@ def _build_slant_cone(
     mag: float = math.sqrt(1.0 + slope * slope)
     nz: float = slope / mag
     bands: list[list[tuple[float, ...]]] = []
+    i: int
     for i in range(stacks):
         z0: float = float(i) / stacks * height
         z1: float = float(i + 1) / stacks * height
         r0: float = base * (1.0 - float(i) / stacks)
         r1: float = base * (1.0 - float(i + 1) / stacks)
         band: list[tuple[float, ...]] = []
+        j: int
         for j in range(slices + 1):
             lng: float = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            nx, ny = cl / mag, sl / mag
+            cl: float = math.cos(lng)
+            sl: float = math.sin(lng)
+            nx: float = cl / mag
+            ny: float = sl / mag
             band.append((nx, ny, nz, 0.0, 0.0, r1 * cl, r1 * sl, z1))
             band.append((nx, ny, nz, 0.0, 0.0, r0 * cl, r0 * sl, z0))
         bands.append(band)
@@ -76,6 +89,7 @@ def _build_cone_cap(base: float, slices: int) -> "_primitives.Mesh":
     """Cone base cap at z=0 facing -Z, wound (cos, -sin) so it's CCW from -Z;
     one flat normal for the whole fan -- replay with draw_mesh(flat=True)."""
     band: list[tuple[float, ...]] = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
+    j: int
     for j in range(slices + 1):
         lng: float = 2.0 * math.pi * float(j) / slices
         band.append(
@@ -115,7 +129,7 @@ BLUE_SPHERE_HIGH: _primitives.Mesh = _primitives.build_sphere(
 
 
 def render_scene() -> None:
-    if i_shade == MODE_FLAT:
+    if state.i_shade == MODE_FLAT:
         GL.glShadeModel(GL.GL_FLAT)
     else:
         GL.glShadeModel(GL.GL_SMOOTH)
@@ -123,8 +137,8 @@ def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     GL.glPushMatrix()
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
 
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPOT_DIRECTION, spot_dir)
@@ -146,32 +160,28 @@ def render_scene() -> None:
 
     # The blue sphere being illuminated
     GL.glColor3ub(0, 0, 255)
-    if i_tess == MODE_VERYLOW:
+    if state.i_tess == MODE_VERYLOW:
         _primitives.draw_mesh(BLUE_SPHERE_LOW)
-    elif i_tess == MODE_MEDIUM:
+    elif state.i_tess == MODE_MEDIUM:
         _primitives.draw_mesh(BLUE_SPHERE_MEDIUM)
     else:
         _primitives.draw_mesh(BLUE_SPHERE_HIGH)
 
 
 def _nudge_x(d: float) -> None:
-    global x_rot
-    x_rot += d
+    state.x_rot += d
 
 
 def _nudge_y(d: float) -> None:
-    global y_rot
-    y_rot += d
+    state.y_rot += d
 
 
 def _set_shade(mode: int) -> None:
-    global i_shade
-    i_shade = mode
+    state.i_shade = mode
 
 
 def _set_tess(mode: int) -> None:
-    global i_tess
-    i_tess = mode
+    state.i_tess = mode
 
 
 def imgui_menubar() -> None:
@@ -182,22 +192,24 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Shade Model", True):
         _common.menu_action(
             "Flat",
             "",
             lambda: _set_shade(MODE_FLAT),
-            selected=(i_shade == MODE_FLAT),
+            selected=(state.i_shade == MODE_FLAT),
         )
         _common.menu_action(
             "Smooth",
             "",
             lambda: _set_shade(MODE_SMOOTH),
-            selected=(i_shade == MODE_SMOOTH),
+            selected=(state.i_shade == MODE_SMOOTH),
         )
         imgui.end_menu()
     if imgui.begin_menu("Tessellation", True):
@@ -205,19 +217,19 @@ def imgui_menubar() -> None:
             "Very Low",
             "",
             lambda: _set_tess(MODE_VERYLOW),
-            selected=(i_tess == MODE_VERYLOW),
+            selected=(state.i_tess == MODE_VERYLOW),
         )
         _common.menu_action(
             "Medium",
             "",
             lambda: _set_tess(MODE_MEDIUM),
-            selected=(i_tess == MODE_MEDIUM),
+            selected=(state.i_tess == MODE_MEDIUM),
         )
         _common.menu_action(
             "Very High",
             "",
             lambda: _set_tess(MODE_VERYHIGH),
-            selected=(i_tess == MODE_VERYHIGH),
+            selected=(state.i_tess == MODE_VERYHIGH),
         )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
@@ -263,7 +275,7 @@ def change_size(w: int, h: int) -> None:
     GL.glTranslatef(0.0, 0.0, -250.0)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -272,26 +284,26 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -303,7 +315,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
@@ -316,8 +328,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 

@@ -10,6 +10,7 @@
 # OpenGL SuperBible, Chapter 6
 # Python port of MotionBlur.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -25,15 +26,24 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main() for Quit item
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main() for Quit item
+    window: typing.Any = None
+
+    y_rot: float = 45.0
+
+
+state: AppState = AppState()
 
 
 f_light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 50.0, 1.0)
 f_no_light: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
 f_low_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
 f_bright_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
-
-y_rot: float = 45.0
 
 
 # The revolving sphere is the same every frame (drawn 10x per frame for
@@ -69,20 +79,19 @@ def draw_geometry() -> None:
 
     GL.glColor3f(1.0, 0.0, 0.0)
     GL.glTranslatef(0.0, 0.5, -3.5)
-    GL.glRotatef(-(y_rot * 2.0), 0.0, 1.0, 0.0)
+    GL.glRotatef(-(state.y_rot * 2.0), 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
     _primitives.draw_mesh(SPHERE)
     GL.glPopMatrix()
 
 
 def render_scene() -> None:
-    global y_rot
     f_passes: float = 10.0
-    y_rot = 35.0
+    state.y_rot = 35.0
 
     f_pass: float = 0.0
     while f_pass < f_passes:
-        y_rot += 0.75
+        state.y_rot += 0.75
         draw_geometry()
         if f_pass == 0.0:
             GL.glAccum(GL.GL_LOAD, 0.5)
@@ -125,11 +134,13 @@ def change_size(w: int, h: int) -> None:
     GL.glTranslatef(0.0, -0.4, 0.0)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -141,15 +152,16 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
 
     if not glfw.init():
         sys.exit(1)
@@ -167,7 +179,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -179,8 +191,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()

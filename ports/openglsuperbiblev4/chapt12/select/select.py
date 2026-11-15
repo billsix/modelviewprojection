@@ -15,6 +15,7 @@
 # OpenGL SuperBible, Chapter 12
 # Python port of Select.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -42,21 +43,32 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 sys.path.insert(0, os.path.dirname(os.path.dirname(_PWD)))
 import _common  # noqa: E402
 
-# glfw window handle; set in main(), used by the Quit control button
-_window: typing.Any = None
-
 # Pick ids encoded as the red byte (0 reserved for background).
-TORUS, SPHERE = 1, 2
+TORUS: int = 1
+SPHERE: int = 2
 PICK_PALETTE: dict[int, tuple[float, float, float]] = {
     TORUS: (1.0, 1.0, 0.0),  # yellow
     SPHERE: (1.0, 0.0, 1.0),  # magenta
 }
 
-# UI state
-selected_object: int = 0
-bounding_rect: list[int] = [0, 0, 0, 0]  # top, bottom, left, right
-f_aspect: float = 1.0
-show_pick_buffer: bool = False
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main(), used by the Quit control button
+    window: typing.Any = None
+
+    # UI state
+    selected_object: int = 0
+    bounding_rect: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0, 0, 0]
+    )  # top, bottom, left, right
+    f_aspect: float = 1.0
+    show_pick_buffer: bool = False
+
+
+state: AppState = AppState()
 
 
 def draw_torus(num_major: int, num_minor: int) -> None:
@@ -65,11 +77,16 @@ def draw_torus(num_major: int, num_minor: int) -> None:
     major_step: float = 2.0 * math.pi / num_major
     minor_step: float = 2.0 * math.pi / num_minor
     GL.glEnable(GL.GL_NORMALIZE)
+    i: int
     for i in range(num_major):
-        a0, a1 = i * major_step, (i + 1) * major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
+        a0: float = i * major_step
+        a1: float = (i + 1) * major_step
+        x0: float = math.cos(a0)
+        y0: float = math.sin(a0)
+        x1: float = math.cos(a1)
+        y1: float = math.sin(a1)
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
+        j: int
         for j in range(num_minor + 1):
             b: float = j * minor_step
             cb: float = math.cos(b)
@@ -121,7 +138,7 @@ def _draw_objects(mode: str) -> None:
 
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-    if show_pick_buffer:
+    if state.show_pick_buffer:
         GL.glDisable(GL.GL_LIGHTING)
         _draw_objects("pick_debug")
         GL.glEnable(GL.GL_LIGHTING)
@@ -129,7 +146,7 @@ def render_scene() -> None:
         _draw_objects("normal")
 
     # Bounding rectangle overlay around the selected object.
-    if selected_object != 0:
+    if state.selected_object != 0:
         viewport: np.ndarray = GL.glGetIntegerv(GL.GL_VIEWPORT)
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glPushMatrix()
@@ -142,10 +159,18 @@ def render_scene() -> None:
         GL.glDisable(GL.GL_LIGHTING)
         GL.glColor3f(1.0, 0.0, 0.0)
         GL.glBegin(GL.GL_LINE_LOOP)
-        GL.glVertex2i(bounding_rect[2], bounding_rect[0])  # left, top
-        GL.glVertex2i(bounding_rect[2], bounding_rect[1])  # left, bottom
-        GL.glVertex2i(bounding_rect[3], bounding_rect[1])  # right, bottom
-        GL.glVertex2i(bounding_rect[3], bounding_rect[0])  # right, top
+        GL.glVertex2i(
+            state.bounding_rect[2], state.bounding_rect[0]
+        )  # left, top
+        GL.glVertex2i(
+            state.bounding_rect[2], state.bounding_rect[1]
+        )  # left, bottom
+        GL.glVertex2i(
+            state.bounding_rect[3], state.bounding_rect[1]
+        )  # right, bottom
+        GL.glVertex2i(
+            state.bounding_rect[3], state.bounding_rect[0]
+        )  # right, top
         GL.glEnd()
         GL.glEnable(GL.GL_LIGHTING)
         GL.glPopMatrix()
@@ -161,27 +186,26 @@ def _compute_bounds(arr: np.ndarray, pid: int) -> "list[int] | None":
     mask: np.ndarray = (
         (arr[:, :, 0] == pid) & (arr[:, :, 1] == 0) & (arr[:, :, 2] == 0)
     )
-    ys, xs = np.nonzero(mask)
-    if len(xs) == 0:
+    nonzero: tuple[np.ndarray, ...] = np.nonzero(mask)
+    if len(nonzero[1]) == 0:
         return None
     h: int = arr.shape[0]
     # arr[0] is the bottom row (glReadPixels GL convention).  Flip y so
     # the bbox is in window coords matching the flipped ortho below.
-    y_max_arr: int = int(ys.max())  # near top of screen
-    y_min_arr: int = int(ys.min())  # near bottom of screen
+    y_max_arr: int = int(nonzero[0].max())  # near top of screen
+    y_min_arr: int = int(nonzero[0].min())  # near bottom of screen
     top: int = h - 1 - y_max_arr
     bottom: int = h - 1 - y_min_arr
-    return [top, bottom, int(xs.min()), int(xs.max())]
+    return [top, bottom, int(nonzero[1].min()), int(nonzero[1].max())]
 
 
-def process_selection(window, x_pos: float, y_pos: float) -> None:
-    global selected_object, bounding_rect
-    win_w, win_h = glfw.get_window_size(window)
-    fb_w, fb_h = glfw.get_framebuffer_size(window)
-    scale_x: float = fb_w / float(win_w) if win_w else 1.0
-    scale_y: float = fb_h / float(win_h) if win_h else 1.0
+def process_selection(window: typing.Any, x_pos: float, y_pos: float) -> None:
+    win_size: tuple[int, int] = glfw.get_window_size(window)
+    fb_size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    scale_x: float = fb_size[0] / float(win_size[0]) if win_size[0] else 1.0
+    scale_y: float = fb_size[1] / float(win_size[1]) if win_size[1] else 1.0
     fb_x: int = int(x_pos * scale_x)
-    fb_y: int = fb_h - int(y_pos * scale_y) - 1
+    fb_y: int = fb_size[1] - int(y_pos * scale_y) - 1
 
     # Render pick-encoded colors into the back buffer (no swap).
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -195,28 +219,30 @@ def process_selection(window, x_pos: float, y_pos: float) -> None:
     # and (if it hit) recover the object's screen-space bbox.
     GL.glReadBuffer(GL.GL_BACK)
     fb: typing.Any = GL.glReadPixels(  # raw RGB pixel buffer (bytes)
-        0, 0, fb_w, fb_h, GL.GL_RGB, GL.GL_UNSIGNED_BYTE
+        0, 0, fb_size[0], fb_size[1], GL.GL_RGB, GL.GL_UNSIGNED_BYTE
     )
-    arr: np.ndarray = np.frombuffer(fb, dtype=np.uint8).reshape(fb_h, fb_w, 3)
+    arr: np.ndarray = np.frombuffer(fb, dtype=np.uint8).reshape(
+        fb_size[1], fb_size[0], 3
+    )
     obj_id: int = int(arr[fb_y, fb_x, 0])
 
     if obj_id == 0:
         return
     # Toggle: clicking the already-selected object deselects it.
-    if obj_id == selected_object:
-        selected_object = 0
+    if obj_id == state.selected_object:
+        state.selected_object = 0
         return
     bounds: list[int] | None = _compute_bounds(arr, obj_id)
     if bounds is None:
         return
     # Scale framebuffer-space bbox down to window space (HiDPI).
-    bounding_rect = [
+    state.bounding_rect = [
         int(bounds[0] / scale_y),
         int(bounds[1] / scale_y),
         int(bounds[2] / scale_x),
         int(bounds[3] / scale_x),
     ]
-    selected_object = obj_id
+    state.selected_object = obj_id
 
 
 def setup_rc() -> None:
@@ -237,23 +263,24 @@ def setup_rc() -> None:
 
 
 def change_size(w: int, h: int) -> None:
-    global f_aspect
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
-    f_aspect = float(w) / float(h)
+    state.f_aspect = float(w) / float(h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    GLU.gluPerspective(60.0, f_aspect, 1.0, 425.0)
+    GLU.gluPerspective(60.0, state.f_aspect, 1.0, 425.0)
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -263,25 +290,26 @@ def imgui_menubar() -> None:
     on-screen render between the lit scene and the pick-color visualization;
     mouse-click selects an object (click again to deselect) in either view.
     No keyboard nav besides Esc, which the File -> Quit item covers."""
-    global show_pick_buffer
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Selection", True):
-        _, show_pick_buffer = imgui.menu_item(
-            "Show selection buffer", "", show_pick_buffer, True
+        pick_item: tuple[bool, bool] = imgui.menu_item(
+            "Show selection buffer", "", state.show_pick_buffer, True
         )
+        state.show_pick_buffer = pick_item[1]
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -292,7 +320,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -307,8 +335,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     prev_click: bool = False
 
@@ -320,8 +348,8 @@ def main() -> None:
             glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
         )
         if click and not prev_click and not imgui.get_io().want_capture_mouse:
-            x_pos, y_pos = glfw.get_cursor_pos(window)
-            process_selection(window, x_pos, y_pos)
+            cursor: tuple[float, float] = glfw.get_cursor_pos(window)
+            process_selection(window, cursor[0], cursor[1])
         prev_click = click
 
         render_scene()

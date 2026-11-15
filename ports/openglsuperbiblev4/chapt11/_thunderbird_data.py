@@ -16,6 +16,7 @@ from __future__ import annotations
 import ast
 import os
 import re
+import typing
 
 import numpy as np
 
@@ -74,8 +75,10 @@ def load_model(directory: str) -> dict[str, np.ndarray]:
     body_path: str = os.path.join(directory, "body.cpp")
     glass_path: str = os.path.join(directory, "glass.cpp")
 
+    f: typing.TextIO
     with open(body_path) as f:
         body_text: str = f.read()
+    f: typing.TextIO
     with open(glass_path) as f:
         glass_text: str = f.read()
 

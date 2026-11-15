@@ -64,14 +64,22 @@ is therefore required for the ty steps too now, not just ruff.
 
 ## 2. Shape of the test suite
 
-Seven files under `tests/`, ~60 test functions, **no `conftest.py` anywhere** —
+Six files under `tests/`, 25 test functions, **no `conftest.py` anywhere** —
 imports work solely via `pythonpath = src` in `pytest.ini`.
 
-- **The doctest allow-list in `pytest.ini` is a workaround, not the design**
-  (its own comment says so): `--doctest-modules` *imports* what it collects,
-  and the runnable demo scripts execute on import, so the list names only the
-  library areas. It already covers every library module — see
-  `design-decisions.md` › "The main-guard + `:dedent:` plan was CLOSED".
+- **`pytest.ini` collects `tests` and all of `src` minus the programs**
+  (William Emerison Six <billsix@gmail.com>, 2026-11-14): `--doctest-modules`
+  *imports* what it collects, so `addopts` `--ignore`s `demos/`, `notebooksrc/`,
+  `mvpvisualization/` and `wxapp*.py`. The demos end their imports with
+  `if __name__ != "__main__": sys.exit(...)` on purpose (flat chapter
+  listings), and that exit at import kills pytest with `INTERNALERROR`, so they
+  can't simply be collected. Any other module under `src/` is collected
+  automatically, so a new library doctest needs no config edit.
+- **A unit test is a doctest by default.** `tests/` keeps only what a doctest
+  can't express: book `literalinclude` sources, `pytest.raises`/fixtures/
+  parametrize, `numpy.allclose` checks, regression invariants, and the
+  module-level `rotate*` closures that have no docstring
+  (`tasks/archive/2026/11/14/migrate-unit-tests-to-doctests.md`).
 - **The `slow` marker is declared but unused** — `pytest.ini` defines it and
   `addopts` deselects it, but no `@pytest.mark.slow` exists in the tree. It's
   inherited convention from gacalc, currently a no-op here.
@@ -192,6 +200,17 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   (invalid-assignment) but says nothing about `v.x += …` — pair it with a grep
   for `\.(x|y|z)\s*[-+*/]?=` (see
   `tasks/reference/code-the-classics-tightening.md` §8, frozen vectors).
+- **`ports/openglsuperbiblev4` is annotation-checked but not ty-checked, by
+  decision** (William Emerison Six <billsix@gmail.com>, 2026-11-14). `make
+  type-check` runs `tools/check_local_annotations.py --include-module` over the
+  tree but leaves it out of the `ty` steps. Its ~101 ty diagnostics (as of
+  2026-09-17) are glfw/imgui stub friction in faithful port code, not bugs:
+  `glfw.set_window_should_close(_window, True)` where the stub wants a
+  non-`None` window but the value is `_GLFWwindow | None`, and imgui-bundle
+  members the stubs don't declare (`imgui.set_window_font_scale`). The two
+  rejected options were ~101 narrow `# ty: ignore[...]` sites (clutter in port
+  code) and None-guards to satisfy the stubs (touches port behaviour). Revisit
+  only if the stubs improve. (`tasks/archive/2026/11/14/openglsuperbible-ty-diagnostics.md`)
 - **Never check mvp against an installed gacalc with `ty --python <prefix>`**
   — it gives false readings (e.g. `Vector − Vector → G3`). The container's
   gate works because `ty` and every Python package are installed in the one

@@ -53,16 +53,22 @@ def build_sphere(
     the camera-facing side winds CCW and isn't culled. Most use the default.
     """
     bands: list[list[Vertex]] = []
+    i: int
     for i in range(stacks):
         lat0: float = math.pi * (-0.5 + float(i) / stacks)
         lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
-        sin0, cos0 = math.sin(lat0), math.cos(lat0)
-        sin1, cos1 = math.sin(lat1), math.cos(lat1)
-        v0, v1 = float(i) / stacks, float(i + 1) / stacks
+        sin0: float = math.sin(lat0)
+        cos0: float = math.cos(lat0)
+        sin1: float = math.sin(lat1)
+        cos1: float = math.cos(lat1)
+        v0: float = float(i) / stacks
+        v1: float = float(i + 1) / stacks
         band: list[Vertex] = []
+        j: int
         for j in range(slices + 1):
             lng: float = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
+            cl: float = math.cos(lng)
+            sl: float = math.sin(lng)
             u: float = float(j) / slices
             row0: Vertex = (
                 cl * cos0,
@@ -103,16 +109,22 @@ def build_torus(major: float, minor: float, n_major: int, n_minor: int) -> Mesh:
     major_step: float = 2.0 * math.pi / n_major
     minor_step: float = 2.0 * math.pi / n_minor
     bands: list[list[Vertex]] = []
+    i: int
     for i in range(n_major):
         a0: float = i * major_step
         a1: float = a0 + major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
-        u0, u1 = float(i) / n_major, float(i + 1) / n_major
+        x0: float = math.cos(a0)
+        y0: float = math.sin(a0)
+        x1: float = math.cos(a1)
+        y1: float = math.sin(a1)
+        u0: float = float(i) / n_major
+        u1: float = float(i + 1) / n_major
         band: list[Vertex] = []
+        j: int
         for j in range(n_minor + 1):
             b: float = j * minor_step
-            cb, sb = math.cos(b), math.sin(b)
+            cb: float = math.cos(b)
+            sb: float = math.sin(b)
             r: float = minor * cb + major
             z: float = minor * sb
             v: float = float(j) / n_minor
@@ -162,6 +174,7 @@ def build_cone(base: float, height: float, slices: int) -> Mesh:
     No base cap is included (the shader scenes have none); demos that want one
     (axes3d) add their own disk."""
     band: list[Vertex] = [(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, height)]
+    i: int
     for i in range(slices + 1):
         a: float = 2.0 * math.pi * float(i) / slices
         band.append(
@@ -195,12 +208,14 @@ def draw_mesh(
     (cones, disks) whose original emitted a *single* ``glNormal3f`` for the
     whole band: the normal of the band's first vertex is emitted once, before
     the vertices."""
-    mode, bands = mesh
-    for band in bands:
-        GL.glBegin(mode)
+    # a Mesh is (GL primitive mode, bands of vertices)
+    band: list[Vertex]
+    for band in mesh[1]:
+        GL.glBegin(mesh[0])
         if flat and normals and band:
             n: Vertex = band[0]
             GL.glNormal3f(n[0], n[1], n[2])
+        v: Vertex
         for v in band:
             if normals and not flat:
                 GL.glNormal3f(v[0], v[1], v[2])

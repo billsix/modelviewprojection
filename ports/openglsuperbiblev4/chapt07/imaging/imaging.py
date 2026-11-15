@@ -11,6 +11,7 @@
 # OpenGL SuperBible, Chapter 7
 # Python port of Imaging.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -28,15 +29,33 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
-image_data: np.ndarray
-image_w: int = 0
-image_h: int = 0
-image_fmt: Constant = GL.GL_RGB
+MODE_RAW: int = 1
+MODE_CONTRAST: int = 2
+MODE_INVERT: int = 3
+MODE_EMBOSS: int = 4
+MODE_SHARPEN: int = 5
 
-MODE_RAW, MODE_CONTRAST, MODE_INVERT, MODE_EMBOSS, MODE_SHARPEN = 1, 2, 3, 4, 5
-i_render_mode: int = MODE_RAW
-b_histogram: bool = False
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main()
+    window: typing.Any = None
+    # replaced by load_image() before first use
+    image_data: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.empty((0, 0, 3), dtype=np.uint8)
+    )
+    image_w: int = 0
+    image_h: int = 0
+    image_fmt: Constant = GL.GL_RGB
+
+    i_render_mode: int = MODE_RAW
+    b_histogram: bool = False
+
+
+state: AppState = AppState()
+
 
 # Luminance weights (Rec. 601). In the C++ this was a 4x4 GL_COLOR
 # matrix; here it's just a dot-product against (R, G, B).
@@ -53,30 +72,33 @@ KERNEL_EMBOSS: np.ndarray = np.array(
 
 
 def load_image() -> None:
-    global image_data, image_w, image_h, image_fmt
     img: np.ndarray = iio.imread(os.path.join(PWD, "horse.tga"))
     img = np.flipud(img)
-    image_h, image_w = img.shape[:2]
+    img_size: tuple[int, ...] = img.shape[:2]
+    state.image_h = img_size[0]
+    state.image_w = img_size[1]
     if img.ndim == 3 and img.shape[2] == 4:
-        image_fmt = GL.GL_RGBA
+        state.image_fmt = GL.GL_RGBA
     elif img.ndim == 3 and img.shape[2] == 3:
-        image_fmt = GL.GL_RGB
+        state.image_fmt = GL.GL_RGB
     else:
-        image_fmt = GL.GL_LUMINANCE
-    image_data = np.ascontiguousarray(img, dtype=np.uint8)
+        state.image_fmt = GL.GL_LUMINANCE
+    state.image_data = np.ascontiguousarray(img, dtype=np.uint8)
 
 
 def convolve3x3(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     """3x3 convolution per channel, edge-padded. Returns uint8 clipped
     0..255. Same result as the deprecated glConvolutionFilter2D."""
-    h, w = image.shape[:2]
+    size: tuple[int, ...] = image.shape[:2]
     padded: np.ndarray = np.pad(image, ((1, 1), (1, 1), (0, 0)), mode="edge")
     out: np.ndarray = np.zeros(image.shape, dtype=np.float32)
+    i: int
+    j: int
     for i in range(3):
         for j in range(3):
-            out += kernel[i, j] * padded[i : i + h, j : j + w].astype(
-                np.float32
-            )
+            out += kernel[i, j] * padded[
+                i : i + size[0], j : j + size[1]
+            ].astype(np.float32)
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
@@ -92,23 +114,23 @@ def process_image(mode: int) -> np.ndarray:
     """The CPU equivalent of the GL_ARB_imaging pipeline for each
     radio-button mode."""
     if mode == MODE_RAW:
-        return image_data
+        return state.image_data
     if mode == MODE_CONTRAST:
         # C++: glScalef(1.25, 1.25, 1.25) on the GL_COLOR matrix.
-        return np.clip(image_data.astype(np.float32) * 1.25, 0, 255).astype(
-            np.uint8
-        )
+        return np.clip(
+            state.image_data.astype(np.float32) * 1.25, 0, 255
+        ).astype(np.uint8)
     if mode == MODE_INVERT:
         # C++: glColorTable inverting every entry.
-        out: np.ndarray = image_data.copy()
+        out: np.ndarray = state.image_data.copy()
         out[:, :, :3] = 255 - out[:, :, :3]
         return out
     if mode == MODE_EMBOSS:
         # C++ applied the emboss kernel AND the luminance color matrix.
-        return to_luminance(convolve3x3(image_data, KERNEL_EMBOSS))
+        return to_luminance(convolve3x3(state.image_data, KERNEL_EMBOSS))
     if mode == MODE_SHARPEN:
-        return convolve3x3(image_data, KERNEL_SHARPEN)
-    return image_data
+        return convolve3x3(state.image_data, KERNEL_SHARPEN)
+    return state.image_data
 
 
 def compute_histogram(image: np.ndarray) -> np.ndarray:
@@ -117,32 +139,40 @@ def compute_histogram(image: np.ndarray) -> np.ndarray:
     lum: np.ndarray = (image[:, :, :3].astype(np.float32) @ LUM_WEIGHTS).astype(
         np.uint8
     )
-    counts, _ = np.histogram(lum, bins=256, range=(0, 256))
-    return counts.astype(np.int32)
+    histogram: tuple[np.ndarray, np.ndarray] = np.histogram(
+        lum, bins=256, range=(0, 256)
+    )
+    return histogram[0].astype(np.int32)
 
 
 def render_scene() -> None:
-    global b_histogram
-
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glRasterPos2i(0, 0)
     viewport: np.ndarray = GL.glGetIntegerv(GL.GL_VIEWPORT)
-    GL.glPixelZoom(viewport[2] / image_w, viewport[3] / image_h)
+    GL.glPixelZoom(viewport[2] / state.image_w, viewport[3] / state.image_h)
 
-    processed: np.ndarray = process_image(i_render_mode)
+    processed: np.ndarray = process_image(state.i_render_mode)
     processed = np.ascontiguousarray(processed)
-    GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE, processed)
+    GL.glDrawPixels(
+        state.image_w,
+        state.image_h,
+        state.image_fmt,
+        GL.GL_UNSIGNED_BYTE,
+        processed,
+    )
 
-    if b_histogram:
+    if state.b_histogram:
         # Scale histogram x-extent to the window so it stays readable
         # at any window size; y-extent is fixed at 25% of window height.
         GL.glPixelZoom(1.0, 1.0)
         hist: np.ndarray = compute_histogram(processed)
         largest: int = int(hist[:255].max()) or 1
-        win_w, win_h = float(viewport[2]), float(viewport[3])
+        win_w: float = float(viewport[2])
+        win_h: float = float(viewport[3])
         GL.glColor3f(1.0, 1.0, 0.0)
         GL.glLineWidth(2.0)
         GL.glBegin(GL.GL_LINE_STRIP)
+        i: int
         for i in range(256):
             x: float = (i / 255.0) * win_w
             y: float = (float(hist[i]) / largest) * (win_h * 0.25)
@@ -168,33 +198,37 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def _set_mode(value: int) -> None:
-    global i_render_mode
-    i_render_mode = value
+    state.i_render_mode = value
 
 
 def imgui_menubar() -> None:
     # All controls live in the top menubar (no keyboard nav besides Esc,
     # which the File -> Quit item covers).
-    global b_histogram
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Imaging", True):
+        label: str
+        value: int
         for label, value in [
             ("Raw Stretched Image", MODE_RAW),
             ("Increase Contrast", MODE_CONTRAST),
@@ -206,16 +240,18 @@ def imgui_menubar() -> None:
                 label,
                 "",
                 lambda v=value: _set_mode(v),
-                selected=(i_render_mode == value),
+                selected=(state.i_render_mode == value),
             )
         imgui.separator()
-        _, b_histogram = imgui.menu_item("Histogram", "", b_histogram, True)
+        histogram_item: tuple[bool, bool] = imgui.menu_item(
+            "Histogram", "", state.b_histogram, True
+        )
+        state.b_histogram = histogram_item[1]
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -228,7 +264,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -239,8 +275,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()

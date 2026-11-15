@@ -8,6 +8,7 @@
 # OpenGL SuperBible, Chapter 11
 # Python port of thundergl.cpp + body.cpp + glass.cpp using VBOs.
 
+import dataclasses
 import os
 import sys
 import time
@@ -31,13 +32,9 @@ from _thunderbird_data import load_model  # noqa: E402
 
 PWD: str = os.path.dirname(os.path.abspath(__file__))
 
-_window: typing.Any = None  # glfw window handle; set in main()
-
-x_rot: float = 0.0
-y_rot: float = 0.0
-
-texture_objects: list[int] = [0, 0, 0]
-BODY_TEXTURE, GLASS_TEXTURE, CUBE_MAP = 0, 1, 2
+BODY_TEXTURE: int = 0
+GLASS_TEXTURE: int = 1
+CUBE_MAP: int = 2
 cube_faces: list[str] = [
     "pos_x.tga",
     "neg_x.tga",
@@ -55,9 +52,30 @@ cube_targets: list[Constant] = [
     GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
 ]
 
-# VBO state
-body_vbos: dict[str, int] = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
-glass_vbos: dict[str, int] = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+
+    texture_objects: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0, 0]
+    )
+
+    # VBO state
+    body_vbos: dict[str, int] = dataclasses.field(
+        default_factory=lambda: {"vert": 0, "norm": 0, "tex": 0, "count": 0}
+    )
+    glass_vbos: dict[str, int] = dataclasses.field(
+        default_factory=lambda: {"vert": 0, "norm": 0, "tex": 0, "count": 0}
+    )
+
+
+state: AppState = AppState()
 
 
 def expand_mesh(
@@ -76,7 +94,9 @@ def expand_mesh(
     out_n: np.ndarray = np.empty((n_verts, 3), dtype=np.float32)
     out_t: np.ndarray = np.empty((n_verts, 2), dtype=np.float32)
     k: int = 0
+    face: np.ndarray
     for face in face_indices:
+        i: int
         for i in range(3):
             out_v[k] = vertices[face[i]]
             out_n[k] = normals[face[i + 3]]
@@ -130,6 +150,7 @@ def load_cube_map() -> int:
     texture used by draw_sky_box()."""
     tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, tex)
+    p: tuple[Constant, Constant]
     for p in [
         (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
         (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR),
@@ -138,15 +159,25 @@ def load_cube_map() -> int:
         (GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE),
     ]:
         GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, p[0], p[1])
+    i: int
+    fname: str
     for i, fname in enumerate(cube_faces):
         img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
-        h, w = img.shape[:2]
+        shape: tuple[int, ...] = img.shape[:2]
         fmt: Constant = (
             GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         )
         img = np.ascontiguousarray(img, dtype=np.uint8)
         GL.glTexImage2D(
-            cube_targets[i], 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+            cube_targets[i],
+            0,
+            fmt,
+            shape[1],
+            shape[0],
+            0,
+            fmt,
+            GL.GL_UNSIGNED_BYTE,
+            img,
         )
     return tex
 
@@ -191,6 +222,8 @@ def draw_sky_box() -> None:
         ((1, -1, -1), (e, -e, -e)),
     ]
     GL.glBegin(GL.GL_QUADS)
+    tc: tuple[int, int, int]
+    v: tuple[float, float, float]
     for tc, v in faces:
         GL.glTexCoord3f(*tc)
         GL.glVertex3f(*v)
@@ -199,7 +232,7 @@ def draw_sky_box() -> None:
 
 def load_texture(path: str) -> int:
     img: np.ndarray = np.flipud(iio.imread(path))
-    h, w = img.shape[:2]
+    shape: tuple[int, ...] = img.shape[:2]
     fmt: Constant = (
         GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     )
@@ -207,7 +240,15 @@ def load_texture(path: str) -> int:
     tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        GL.GL_TEXTURE_2D,
+        0,
+        fmt,
+        shape[1],
+        shape[0],
+        0,
+        fmt,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
@@ -215,7 +256,6 @@ def load_texture(path: str) -> int:
 
 
 def setup_rc() -> None:
-    global body_vbos, glass_vbos
     f_amb: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 0.0)
     f_diff: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 0.0)
     f_spec: tuple[float, float, float, float] = (0.5, 0.5, 0.5, 0.0)
@@ -226,11 +266,13 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_CULL_FACE)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
-    texture_objects[BODY_TEXTURE] = load_texture(os.path.join(PWD, "body.tga"))
-    texture_objects[GLASS_TEXTURE] = load_texture(
+    state.texture_objects[BODY_TEXTURE] = load_texture(
+        os.path.join(PWD, "body.tga")
+    )
+    state.texture_objects[GLASS_TEXTURE] = load_texture(
         os.path.join(PWD, "glass.tga")
     )
-    texture_objects[CUBE_MAP] = load_cube_map()
+    state.texture_objects[CUBE_MAP] = load_cube_map()
 
     GL.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, f_amb)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, f_amb)
@@ -258,21 +300,21 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_RESCALE_NORMAL)
 
     model: dict[str, np.ndarray] = load_model(PWD)
-    bv, bn, bt = expand_mesh(
+    body_mesh: tuple[np.ndarray, np.ndarray, np.ndarray] = expand_mesh(
         model["face_indices"],
         model["vertices"],
         model["normals"],
         model["textures"],
     )
-    gv, gn, gt = expand_mesh(
+    glass_mesh: tuple[np.ndarray, np.ndarray, np.ndarray] = expand_mesh(
         model["face_indices_glass"],
         model["vertices_glass"],
         model["normals_glass"],
         model["textures_glass"],
     )
 
-    body_vbos = make_vbos(bv, bn, bt)
-    glass_vbos = make_vbos(gv, gn, gt)
+    state.body_vbos = make_vbos(body_mesh[0], body_mesh[1], body_mesh[2])
+    state.glass_vbos = make_vbos(glass_mesh[0], glass_mesh[1], glass_mesh[2])
 
 
 def render_scene() -> None:
@@ -284,7 +326,7 @@ def render_scene() -> None:
     # just paints, then turn 2D back on for the plane.
     GL.glDisable(GL.GL_TEXTURE_2D)
     GL.glEnable(GL.GL_TEXTURE_CUBE_MAP)
-    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, texture_objects[CUBE_MAP])
+    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, state.texture_objects[CUBE_MAP])
     GL.glDisable(GL.GL_LIGHTING)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
     GL.glColor4f(1.0, 1.0, 1.0, 1.0)
@@ -296,8 +338,8 @@ def render_scene() -> None:
 
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -3.0)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     # body.cpp and glass.cpp use different native coordinate systems:
     # body needs -90 X to be drawn upright, glass is already upright
     # and needs a small translate to sit on top of the cockpit.  User
@@ -308,8 +350,8 @@ def render_scene() -> None:
     GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
     GL.glScalef(f_scale, f_scale, f_scale)
     GL.glColor4f(1.0, 1.0, 1.0, 1.0)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[BODY_TEXTURE])
-    draw_vbos(body_vbos)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[BODY_TEXTURE])
+    draw_vbos(state.body_vbos)
     GL.glPopMatrix()
 
     GL.glTranslatef(0.0, 0.132, 0.555)
@@ -317,11 +359,11 @@ def render_scene() -> None:
     GL.glEnable(GL.GL_BLEND)
     GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
     GL.glColor4f(1.0, 1.0, 1.0, 0.5)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[GLASS_TEXTURE])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[GLASS_TEXTURE])
     GL.glFrontFace(GL.GL_CW)
-    draw_vbos(glass_vbos)
+    draw_vbos(state.glass_vbos)
     GL.glFrontFace(GL.GL_CCW)
-    draw_vbos(glass_vbos)
+    draw_vbos(state.glass_vbos)
     GL.glDisable(GL.GL_BLEND)
 
     GL.glPopMatrix()
@@ -339,27 +381,28 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -370,13 +413,11 @@ BTN_ROT_STEP: float = 5.0
 
 
 def _rot_x(d: float) -> None:
-    global x_rot
-    x_rot += d
+    state.x_rot += d
 
 
 def _rot_y(d: float) -> None:
-    global y_rot
-    y_rot += d
+    state.y_rot += d
 
 
 def imgui_menubar() -> None:
@@ -386,10 +427,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))
@@ -404,7 +447,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -415,7 +457,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -427,8 +469,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 

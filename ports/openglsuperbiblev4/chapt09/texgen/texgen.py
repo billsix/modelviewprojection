@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 9
 # Python port of TexGen.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -23,12 +24,20 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
 
-x_rot: float = 0.0
-y_rot: float = 0.0
-to_textures: list[int] = [0, 0]
-i_render_mode: int = 3
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main()
+    window: typing.Any = None
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+    to_textures: list[int] = dataclasses.field(default_factory=lambda: [0, 0])
+    i_render_mode: int = 3
+
+
+state: AppState = AppState()
 
 
 # Torus the texgen modes are demonstrated on -- texgen generates its
@@ -63,7 +72,7 @@ def render_scene() -> None:
     GLU.gluOrtho2D(0.0, 1.0, 0.0, 1.0)
 
     GL.glMatrixMode(GL.GL_MODELVIEW)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, to_textures[1])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.to_textures[1])
     GL.glDisable(GL.GL_TEXTURE_GEN_S)
     GL.glDisable(GL.GL_TEXTURE_GEN_T)
     GL.glDepthMask(GL.GL_FALSE)
@@ -87,13 +96,13 @@ def render_scene() -> None:
     GL.glEnable(GL.GL_TEXTURE_GEN_T)
     GL.glDepthMask(GL.GL_TRUE)
 
-    if i_render_mode != 3:
-        GL.glBindTexture(GL.GL_TEXTURE_2D, to_textures[0])
+    if state.i_render_mode != 3:
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.to_textures[0])
 
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -2.0)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     _primitives.draw_mesh(TORUS)
     GL.glPopMatrix()
 
@@ -110,17 +119,27 @@ def setup_rc() -> None:
     GL.glClearColor(1.0, 1.0, 1.0, 1.0)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
 
+    i: int
+    fname: str
     for i, fname in enumerate(["stripes.tga", "Environment.tga"]):
         img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
-        h, w = img.shape[:2]
+        img_size: tuple[int, ...] = img.shape[:2]
         fmt: Constant = (
             GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         )
         img = np.ascontiguousarray(img, dtype=np.uint8)
-        to_textures[i] = GL.glGenTextures(1)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, to_textures[i])
+        state.to_textures[i] = GL.glGenTextures(1)
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.to_textures[i])
         GL.glTexImage2D(
-            GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+            GL.GL_TEXTURE_2D,
+            0,
+            fmt,
+            img_size[1],
+            img_size[0],
+            0,
+            fmt,
+            GL.GL_UNSIGNED_BYTE,
+            img,
         )
         GL.glTexParameterf(
             GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
@@ -134,7 +153,7 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_TEXTURE_2D)
     GL.glEnable(GL.GL_TEXTURE_GEN_S)
     GL.glEnable(GL.GL_TEXTURE_GEN_T)
-    apply_mode(i_render_mode)
+    apply_mode(state.i_render_mode)
 
 
 def change_size(w: int, h: int) -> None:
@@ -148,45 +167,43 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def _nudge_x(d: float) -> None:
-    global x_rot
-    x_rot += d
+    state.x_rot += d
 
 
 def _nudge_y(d: float) -> None:
-    global y_rot
-    y_rot += d
+    state.y_rot += d
 
 
 def _set_mode(value: int) -> None:
-    global i_render_mode
-    i_render_mode = value
-    apply_mode(i_render_mode)
+    state.i_render_mode = value
+    apply_mode(state.i_render_mode)
 
 
 def imgui_menubar() -> None:
@@ -197,11 +214,15 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Render Mode", True):
+        label: str
+        value: int
         for label, value in [
             ("Object Linear", 1),
             ("Eye Linear", 2),
@@ -211,7 +232,7 @@ def imgui_menubar() -> None:
                 label,
                 "",
                 lambda v=value: _set_mode(v),
-                selected=(i_render_mode == value),
+                selected=(state.i_render_mode == value),
             )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
@@ -224,7 +245,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -235,7 +255,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -246,8 +266,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     glfw.swap_interval(1)
     last_frame: float = time.monotonic()

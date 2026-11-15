@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 10
 # Python port of Nurbt.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -19,8 +20,18 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# glfw window handle
-_window: typing.Any = None  # set in main(); used by the Quit menu item
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main(); used by the Quit menu item
+    window: typing.Any = None
+    # GLU NURBS renderer (gluNewNurbsRenderer)
+    p_nurb: typing.Any = None
+
+
+state: AppState = AppState()
 
 
 ctrl_points: np.ndarray = np.array(
@@ -56,7 +67,6 @@ inside_pts: np.ndarray = np.array(
     [[0.25, 0.25], [0.5, 0.5], [0.75, 0.25], [0.25, 0.25]],
     dtype=np.float32,
 )
-p_nurb: typing.Any = None  # GLU NURBS renderer (gluNewNurbsRenderer)
 
 
 def render_scene() -> None:
@@ -66,25 +76,26 @@ def render_scene() -> None:
     GL.glPushMatrix()
     GL.glRotatef(330.0, 1.0, 0.0, 0.0)
 
-    GLU.gluBeginSurface(p_nurb)
-    GLU.gluNurbsSurface(p_nurb, knots, knots, ctrl_points, GL.GL_MAP2_VERTEX_3)
+    GLU.gluBeginSurface(state.p_nurb)
+    GLU.gluNurbsSurface(
+        state.p_nurb, knots, knots, ctrl_points, GL.GL_MAP2_VERTEX_3
+    )
 
     # Outer trim
-    GLU.gluBeginTrim(p_nurb)
-    GLU.gluPwlCurve(p_nurb, outside_pts, GLU.GLU_MAP1_TRIM_2)
-    GLU.gluEndTrim(p_nurb)
+    GLU.gluBeginTrim(state.p_nurb)
+    GLU.gluPwlCurve(state.p_nurb, outside_pts, GLU.GLU_MAP1_TRIM_2)
+    GLU.gluEndTrim(state.p_nurb)
 
     # Inner trim (triangle hole)
-    GLU.gluBeginTrim(p_nurb)
-    GLU.gluPwlCurve(p_nurb, inside_pts, GLU.GLU_MAP1_TRIM_2)
-    GLU.gluEndTrim(p_nurb)
+    GLU.gluBeginTrim(state.p_nurb)
+    GLU.gluPwlCurve(state.p_nurb, inside_pts, GLU.GLU_MAP1_TRIM_2)
+    GLU.gluEndTrim(state.p_nurb)
 
-    GLU.gluEndSurface(p_nurb)
+    GLU.gluEndSurface(state.p_nurb)
     GL.glPopMatrix()
 
 
 def setup_rc() -> None:
-    global p_nurb
     specular: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
     shine: tuple[float] = (100.0,)
 
@@ -97,9 +108,9 @@ def setup_rc() -> None:
     GL.glMaterialfv(GL.GL_FRONT, GL.GL_SHININESS, shine)
     GL.glEnable(GL.GL_AUTO_NORMAL)
 
-    p_nurb = GLU.gluNewNurbsRenderer()
-    GLU.gluNurbsProperty(p_nurb, GLU.GLU_SAMPLING_TOLERANCE, 25.0)
-    GLU.gluNurbsProperty(p_nurb, GLU.GLU_DISPLAY_MODE, GLU.GLU_FILL)
+    state.p_nurb = GLU.gluNewNurbsRenderer()
+    GLU.gluNurbsProperty(state.p_nurb, GLU.GLU_SAMPLING_TOLERANCE, 25.0)
+    GLU.gluNurbsProperty(state.p_nurb, GLU.GLU_DISPLAY_MODE, GLU.GLU_FILL)
 
 
 def change_size(w: int, h: int) -> None:
@@ -114,11 +125,13 @@ def change_size(w: int, h: int) -> None:
     GL.glTranslatef(0.0, 0.0, -20.0)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -130,15 +143,16 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -150,7 +164,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -161,8 +175,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()

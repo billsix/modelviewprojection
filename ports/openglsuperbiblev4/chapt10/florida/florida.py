@@ -6,6 +6,7 @@
 # OpenGL SuperBible, Chapter 10
 # Python port of Florida.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import typing
@@ -21,8 +22,6 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# glfw window handle
-_window: typing.Any = None  # set in main(); used by the Quit control button
 COAST: np.ndarray = np.array(
     [
         [-70.0, 30.0, 0.0],
@@ -66,16 +65,28 @@ DRAW_LOOPS: int = 0
 DRAW_CONCAVE: int = 1
 DRAW_COMPLEX: int = 2
 
-i_method: int = DRAW_LOOPS
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main(); used by the Quit control button
+    window: typing.Any = None
+    i_method: int = DRAW_LOOPS
+
+
+state: AppState = AppState()
 
 
 def _tess_loops() -> None:
     GL.glColor3f(0.0, 0.0, 0.0)
     GL.glBegin(GL.GL_LINE_LOOP)
+    p: np.ndarray
     for p in COAST:
         GL.glVertex3dv(p)
     GL.glEnd()
     GL.glBegin(GL.GL_LINE_LOOP)
+    p: np.ndarray
     for p in LAKE:
         GL.glVertex3dv(p)
     GL.glEnd()
@@ -91,8 +102,10 @@ def _tess_polygon(contours: list[np.ndarray]) -> None:
         tess, GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_ODD
     )
     GLU.gluTessBeginPolygon(tess, None)
+    contour: np.ndarray
     for contour in contours:
         GLU.gluTessBeginContour(tess)
+        p: np.ndarray
         for p in contour:
             GLU.gluTessVertex(tess, p, p)
         GLU.gluTessEndContour(tess)
@@ -102,9 +115,9 @@ def _tess_polygon(contours: list[np.ndarray]) -> None:
 
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    if i_method == DRAW_LOOPS:
+    if state.i_method == DRAW_LOOPS:
         _tess_loops()
-    elif i_method == DRAW_CONCAVE:
+    elif state.i_method == DRAW_CONCAVE:
         _tess_polygon([COAST])
     else:  # DRAW_COMPLEX
         _tess_polygon([COAST, LAKE])
@@ -129,18 +142,19 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def _set_method(value: int) -> None:
-    global i_method
-    i_method = value
+    state.i_method = value
 
 
 def imgui_menubar() -> None:
@@ -150,11 +164,15 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Florida", True):
+        label: str
+        value: int
         for label, value in [
             ("Line Loops", DRAW_LOOPS),
             ("Concave Polygon", DRAW_CONCAVE),
@@ -164,14 +182,13 @@ def imgui_menubar() -> None:
                 label,
                 "",
                 lambda v=value: _set_method(v),
-                selected=(i_method == value),
+                selected=(state.i_method == value),
             )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -183,7 +200,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -194,8 +211,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()

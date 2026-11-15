@@ -75,7 +75,7 @@ def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
     Azimuth sweeps the x-z plane from +x toward +z; elevation lifts toward +y.
     So the three cardinal directions read off directly:
 
-    >>> def rounded(v):
+    >>> def rounded(v: tuple[float, ...]) -> tuple[float, ...]:
     ...     return tuple(round(c, 6) for c in v)
     >>> rounded(light_dir_ws(0, 0))       # azimuth 0, on the horizon -> +x
     (1.0, 0.0, 0.0)

@@ -6,6 +6,7 @@
 # OpenGL SuperBible, Chapter 11
 # Python port of ThunderBird.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -30,14 +31,26 @@ from _thunderbird_data import load_model  # noqa: E402
 
 PWD: str = os.path.dirname(os.path.abspath(__file__))
 
-_window: typing.Any = None  # glfw window handle; set in main()
+BODY_TEXTURE: int = 0
+GLASS_TEXTURE: int = 1
 
-x_rot: float = 0.0
-y_rot: float = 0.0
-texture_objects: list[int] = [0, 0]
-BODY_TEXTURE, GLASS_TEXTURE = 0, 1
-body_list: int = 0
-glass_list: int = 0
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    window: typing.Any = None  # glfw window handle; set in main()
+
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+    texture_objects: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0]
+    )
+    body_list: int = 0
+    glass_list: int = 0
+
+
+state: AppState = AppState()
 
 GL_TEXTURE_MAX_ANISOTROPY_EXT: int = 0x84FE
 GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: int = 0x84FF
@@ -49,7 +62,9 @@ def draw_body(model: "dict[str, np.ndarray]") -> None:
     norms: np.ndarray = model["normals"]
     texs: np.ndarray = model["textures"]
     GL.glBegin(GL.GL_TRIANGLES)
+    face: np.ndarray
     for face in fi:
+        i: int
         for i in range(3):
             GL.glTexCoord2fv(texs[face[i + 6]])
             GL.glNormal3fv(norms[face[i + 3]])
@@ -63,7 +78,9 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
     norms: np.ndarray = model["normals_glass"]
     texs: np.ndarray = model["textures_glass"]
     GL.glBegin(GL.GL_TRIANGLES)
+    face: np.ndarray
     for face in fi:
+        i: int
         for i in range(3):
             GL.glTexCoord2fv(texs[face[i + 6]])
             GL.glNormal3fv(norms[face[i + 3]])
@@ -73,7 +90,7 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
 
 def load_texture(path: str) -> int:
     img: np.ndarray = np.flipud(iio.imread(path))
-    h, w = img.shape[:2]
+    shape: tuple[int, ...] = img.shape[:2]
     fmt: Constant = (
         GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     )
@@ -81,7 +98,15 @@ def load_texture(path: str) -> int:
     tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        GL.GL_TEXTURE_2D,
+        0,
+        fmt,
+        shape[1],
+        shape[0],
+        0,
+        fmt,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
     try:
         f_largest: float = GL.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
@@ -98,8 +123,6 @@ def load_texture(path: str) -> int:
 
 
 def setup_rc() -> None:
-    global body_list, glass_list
-
     f_amb_light: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 0.0)
     f_diff_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 0.0)
     f_spec_light: tuple[float, float, float, float] = (0.5, 0.5, 0.5, 0.0)
@@ -110,8 +133,10 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_CULL_FACE)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
-    texture_objects[BODY_TEXTURE] = load_texture(os.path.join(PWD, "body.tga"))
-    texture_objects[GLASS_TEXTURE] = load_texture(
+    state.texture_objects[BODY_TEXTURE] = load_texture(
+        os.path.join(PWD, "body.tga")
+    )
+    state.texture_objects[GLASS_TEXTURE] = load_texture(
         os.path.join(PWD, "glass.tga")
     )
 
@@ -143,16 +168,16 @@ def setup_rc() -> None:
 
     # Compile body and glass into display lists
     model: dict[str, np.ndarray] = load_model(PWD)
-    body_list = GL.glGenLists(2)
-    glass_list = body_list + 1
+    state.body_list = GL.glGenLists(2)
+    state.glass_list = state.body_list + 1
 
-    GL.glNewList(body_list, GL.GL_COMPILE)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[BODY_TEXTURE])
+    GL.glNewList(state.body_list, GL.GL_COMPILE)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[BODY_TEXTURE])
     draw_body(model)
     GL.glEndList()
 
-    GL.glNewList(glass_list, GL.GL_COMPILE)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[GLASS_TEXTURE])
+    GL.glNewList(state.glass_list, GL.GL_COMPILE)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[GLASS_TEXTURE])
     draw_glass(model)
     GL.glEndList()
 
@@ -164,8 +189,8 @@ def render_scene() -> None:
 
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -3.0)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
 
     # body.cpp and glass.cpp are authored in DIFFERENT coordinate
     # systems: body needs -90 X to be drawn upright, glass is already
@@ -177,7 +202,7 @@ def render_scene() -> None:
     GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
     GL.glScalef(f_scale, f_scale, f_scale)
     GL.glColor4f(1.0, 1.0, 1.0, 1.0)
-    GL.glCallList(body_list)
+    GL.glCallList(state.body_list)
     GL.glPopMatrix()
 
     # Glass is transparent. C++ draws it twice -- once with CW front-
@@ -189,9 +214,9 @@ def render_scene() -> None:
     GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
     GL.glColor4f(1.0, 1.0, 1.0, 0.5)
     GL.glFrontFace(GL.GL_CW)
-    GL.glCallList(glass_list)
+    GL.glCallList(state.glass_list)
     GL.glFrontFace(GL.GL_CCW)
-    GL.glCallList(glass_list)
+    GL.glCallList(state.glass_list)
     GL.glDisable(GL.GL_BLEND)
 
     GL.glPopMatrix()
@@ -209,27 +234,28 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -240,13 +266,11 @@ BTN_ROT_STEP: float = 5.0
 
 
 def _rot_x(d: float) -> None:
-    global x_rot
-    x_rot += d
+    state.x_rot += d
 
 
 def _rot_y(d: float) -> None:
-    global y_rot
-    y_rot += d
+    state.y_rot += d
 
 
 def imgui_menubar() -> None:
@@ -256,10 +280,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))
@@ -274,7 +300,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -283,7 +308,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -295,8 +320,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 

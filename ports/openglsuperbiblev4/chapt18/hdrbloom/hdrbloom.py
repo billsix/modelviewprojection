@@ -12,6 +12,7 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of hdrbloom.cpp by Benjamin Lipchak
 
+import dataclasses
 import os
 import sys
 import typing
@@ -29,21 +30,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window: typing.Any = (
-    None  # glfw window handle; set in main(), used by the Quit control button
-)
-
-window_width: int = 512
-window_height: int = 512
-fbo_width: int = 512
-fbo_height: int = 512
-
-HDRBALL, GAUSSIAN, COMBINE, SHOW2D = 0, 1, 2, 3
+HDRBALL: int = 0
+GAUSSIAN: int = 1
+COMBINE: int = 2
+SHOW2D: int = 3
 TOTAL_SHADER_SETS: int = 4
 shader_names: list[str] = ["hdrball", "gaussian", "combine", "show2d"]
-v_shader: list[int] = [0] * TOTAL_SHADER_SETS
-f_shader: list[int] = [0] * TOTAL_SHADER_SETS
-prog_obj: list[int] = [0] * TOTAL_SHADER_SETS
 
 ORIG_SCENE: int = 0
 BRIGHT_PASS: int = 1
@@ -63,35 +55,75 @@ stop_point_names: list[str] = [
     "just-afterglow",
     "full",
 ]
-which_stop_point: int = FULL_SCENE
-after_glow_valid: bool = False
 
-texture_id: list[int] = [0] * 7
-framebuffer_id: list[int] = [0] * 5
-renderbuffer_id: int = 0
-pbo_id: int = 0
-max_tex_size: int = 0
-tex_coord_offsets: np.ndarray = np.zeros((4, 5 * 5 * 2), dtype=np.float32)
 
-light_pos_loc: int = -1
-bloom_limit_loc: int = -1
-offsets_loc: int = -1
-star_intensity_loc: int = -1
-after_glow_loc: int = -1
-
-camera_pos: list[float] = [50.0, 50.0, 150.0, 1.0]
 camera_zoom: float = 0.4
 light_pos: np.ndarray = np.array([140.0, 250.0, 140.0, 1.0], dtype=np.float32)
-light_rotation: float = 30.0
-bloom_limit: float = 1.0
-tess: int = 75
-animation_angle: float = 0.0
-angle_increment: float = 4.0
-paused: bool = False
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main(), used by the Quit control button
+    window: typing.Any = None
+
+    window_width: int = 512
+    window_height: int = 512
+    fbo_width: int = 512
+    fbo_height: int = 512
+
+    v_shader: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADER_SETS
+    )
+    f_shader: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADER_SETS
+    )
+    prog_obj: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * TOTAL_SHADER_SETS
+    )
+
+    which_stop_point: int = FULL_SCENE
+    after_glow_valid: bool = False
+
+    texture_id: list[int] = dataclasses.field(default_factory=lambda: [0] * 7)
+    framebuffer_id: list[int] = dataclasses.field(
+        default_factory=lambda: [0] * 5
+    )
+    renderbuffer_id: int = 0
+    pbo_id: int = 0
+    max_tex_size: int = 0
+    tex_coord_offsets: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.zeros((4, 5 * 5 * 2), dtype=np.float32)
+    )
+
+    light_pos_loc: int = -1
+    bloom_limit_loc: int = -1
+    offsets_loc: int = -1
+    star_intensity_loc: int = -1
+    after_glow_loc: int = -1
+
+    camera_pos: list[float] = dataclasses.field(
+        default_factory=lambda: [50.0, 50.0, 150.0, 1.0]
+    )
+    light_rotation: float = 30.0
+    bloom_limit: float = 1.0
+    tess: int = 75
+    animation_angle: float = 0.0
+    angle_increment: float = 4.0
+    paused: bool = False
+    # Empty placeholder mesh; rebuild_sphere() fills it in at import.
+    sphere_mesh: _primitives.Mesh = dataclasses.field(
+        default_factory=lambda: (0, [])
+    )
+
+
+state: AppState = AppState()
 
 
 def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
     out: np.ndarray = np.zeros(3, dtype=np.float32)
+    r: int
     for r in range(3):
         out[r] = (
             m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
@@ -103,8 +135,7 @@ def rebuild_sphere() -> None:
     """Re-tessellate the sphere. Called once at import, then ONLY when the tess
     level changes (UP/DOWN keys) -- the sin/cos work happens on that key event,
     never in the per-frame render path."""
-    global sphere_mesh
-    sphere_mesh = _primitives.build_sphere(50.0, tess, tess)
+    state.sphere_mesh = _primitives.build_sphere(50.0, state.tess, state.tess)
 
 
 rebuild_sphere()
@@ -112,55 +143,57 @@ rebuild_sphere()
 
 def prepare_shader(n: int) -> None:
     name: str = shader_names[n]
+    f: typing.TextIO
     with open(os.path.join(PWD, "shaders", f"{name}.vs")) as f:
         vs_src: str = f.read()
     with open(os.path.join(PWD, "shaders", f"{name}.fs")) as f:
         fs_src: str = f.read()
-    v_shader[n] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
-    f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
-    prog_obj[n] = GL.glCreateProgram()
-    GL.glAttachShader(prog_obj[n], v_shader[n])
-    GL.glAttachShader(prog_obj[n], f_shader[n])
-    GL.glLinkProgram(prog_obj[n])
-    if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
+    state.v_shader[n] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
+    state.f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
+    state.prog_obj[n] = GL.glCreateProgram()
+    GL.glAttachShader(state.prog_obj[n], state.v_shader[n])
+    GL.glAttachShader(state.prog_obj[n], state.f_shader[n])
+    GL.glLinkProgram(state.prog_obj[n])
+    if not GL.glGetProgramiv(state.prog_obj[n], GL.GL_LINK_STATUS):
+        info: bytes = GL.glGetProgramInfoLog(state.prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
 
 def draw_models() -> None:
     GL.glPushMatrix()
-    GL.glRotatef(light_rotation, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.light_rotation, 0.0, 1.0, 0.0)
     mv: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     ).flatten()
     light_pos_eye: np.ndarray = transform_vec3(light_pos, mv)
     GL.glPopMatrix()
-    GL.glUniform3fv(light_pos_loc, 1, light_pos_eye)
+    GL.glUniform3fv(state.light_pos_loc, 1, light_pos_eye)
     GL.glPushMatrix()
-    GL.glRotatef(animation_angle / 5.0, 0.0, 1.0, 0.0)
-    _primitives.draw_mesh(sphere_mesh)
+    GL.glRotatef(state.animation_angle / 5.0, 0.0, 1.0, 0.0)
+    _primitives.draw_mesh(state.sphere_mesh)
     GL.glPopMatrix()
 
 
 def first_pass() -> None:
-    GL.glUseProgram(prog_obj[HDRBALL])
-    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[0])
-    GL.glViewport(0, 0, fbo_width, fbo_height)
+    GL.glUseProgram(state.prog_obj[HDRBALL])
+    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[0])
+    GL.glViewport(0, 0, state.fbo_width, state.fbo_height)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glEnable(GL.GL_DEPTH_TEST)
-    GL.glUniform1f(star_intensity_loc, abs(angle_increment))
+    GL.glUniform1f(state.star_intensity_loc, abs(state.angle_increment))
     draw_models()
     GL.glDisable(GL.GL_DEPTH_TEST)
 
 
 def second_pass() -> None:
-    GL.glUseProgram(prog_obj[GAUSSIAN])
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[1])
+    GL.glUseProgram(state.prog_obj[GAUSSIAN])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[1])
+    i: int
     for i in range(4):
-        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[1 + i])
-        GL.glViewport(0, 0, fbo_width >> i, fbo_height >> i)
-        GL.glUniform2fv(offsets_loc, 25, tex_coord_offsets[i])
+        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[1 + i])
+        GL.glViewport(0, 0, state.fbo_width >> i, state.fbo_height >> i)
+        GL.glUniform2fv(state.offsets_loc, 25, state.tex_coord_offsets[i])
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_BASE_LEVEL, i)
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_LEVEL, i)
         GL.glBegin(GL.GL_QUADS)
@@ -179,15 +212,15 @@ def second_pass() -> None:
 
 def final_pass() -> None:
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
-    GL.glViewport(0, 0, window_width, window_height)
+    GL.glViewport(0, 0, state.window_width, state.window_height)
     GL.glActiveTexture(GL.GL_TEXTURE5)
-    GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pbo_id)
+    GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, state.pbo_id)
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
         0,
         GL.GL_RGB8,
-        fbo_width,
-        fbo_height,
+        state.fbo_width,
+        state.fbo_height,
         0,
         GL.GL_RGB,
         GL.GL_UNSIGNED_BYTE,
@@ -196,24 +229,27 @@ def final_pass() -> None:
     GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, 0)
     GL.glActiveTexture(GL.GL_TEXTURE0)
 
-    if which_stop_point == ORIG_SCENE:
-        GL.glUseProgram(prog_obj[SHOW2D])
-        GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[0])
-    elif which_stop_point in (BRIGHT_PASS, PRE_BLUR):
-        GL.glUseProgram(prog_obj[SHOW2D])
-        GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[1])
-    elif which_stop_point == POST_BLUR:
-        GL.glUseProgram(prog_obj[SHOW2D])
+    if state.which_stop_point == ORIG_SCENE:
+        GL.glUseProgram(state.prog_obj[SHOW2D])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[0])
+    elif state.which_stop_point in (BRIGHT_PASS, PRE_BLUR):
+        GL.glUseProgram(state.prog_obj[SHOW2D])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[1])
+    elif state.which_stop_point == POST_BLUR:
+        GL.glUseProgram(state.prog_obj[SHOW2D])
     else:
-        GL.glUseProgram(prog_obj[COMBINE])
-        if which_stop_point in (JUST_BLOOM, JUST_AFTER_GLOW):
+        GL.glUseProgram(state.prog_obj[COMBINE])
+        if state.which_stop_point in (JUST_BLOOM, JUST_AFTER_GLOW):
             GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
         else:
-            GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[0])
+            GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[0])
         GL.glUniform1i(
-            after_glow_loc,
+            state.after_glow_loc,
             1
-            if (which_stop_point >= JUST_AFTER_GLOW and after_glow_valid)
+            if (
+                state.which_stop_point >= JUST_AFTER_GLOW
+                and state.after_glow_valid
+            )
             else 0,
         )
 
@@ -230,17 +266,18 @@ def final_pass() -> None:
 
 
 def render_scene() -> None:
-    global animation_angle, angle_increment, after_glow_valid
-    if not paused:
-        animation_angle = (animation_angle + angle_increment) % 360.0
-        angle_increment *= 0.99
-        if abs(angle_increment) < 0.01:
-            angle_increment = 0.0
+    if not state.paused:
+        state.animation_angle = (
+            state.animation_angle + state.angle_increment
+        ) % 360.0
+        state.angle_increment *= 0.99
+        if abs(state.angle_increment) < 0.01:
+            state.angle_increment = 0.0
 
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    if window_width > window_height:
-        ar: float = float(window_width) / float(window_height)
+    if state.window_width > state.window_height:
+        ar: float = float(state.window_width) / float(state.window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -250,7 +287,7 @@ def render_scene() -> None:
             1000.0,
         )
     else:
-        ar = float(window_height) / float(window_width)
+        ar = float(state.window_height) / float(state.window_width)
         GL.glFrustum(
             -camera_zoom,
             camera_zoom,
@@ -262,9 +299,9 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
     GLU.gluLookAt(
-        camera_pos[0],
-        camera_pos[1],
-        camera_pos[2],
+        state.camera_pos[0],
+        state.camera_pos[1],
+        state.camera_pos[2],
         0.0,
         0.0,
         0.0,
@@ -274,25 +311,32 @@ def render_scene() -> None:
     )
 
     first_pass()
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[1])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[1])
     GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
     second_pass()
     final_pass()
 
-    GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_id)
+    GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, state.pbo_id)
     GL.glReadPixels(
-        0, 0, fbo_width, fbo_height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, None
+        0,
+        0,
+        state.fbo_width,
+        state.fbo_height,
+        GL.GL_RGB,
+        GL.GL_UNSIGNED_BYTE,
+        None,
     )
     GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
-    after_glow_valid = True
+    state.after_glow_valid = True
     GL.glUseProgram(0)
 
 
 def setup_textures() -> None:
-    global texture_id
-    texture_id = list(GL.glGenTextures(7))
+    state.texture_id = list(GL.glGenTextures(7))
+    i: int
+    p: typing.Any  # GL enum
     for i in range(2):
-        GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[i])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[i])
         for p in (GL.GL_TEXTURE_WRAP_S, GL.GL_TEXTURE_WRAP_T):
             GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_CLAMP_TO_EDGE)
         for p in (GL.GL_TEXTURE_MIN_FILTER, GL.GL_TEXTURE_MAG_FILTER):
@@ -301,8 +345,8 @@ def setup_textures() -> None:
             GL.GL_TEXTURE_2D,
             0,
             GL.GL_RGB16F,
-            fbo_width,
-            fbo_height,
+            state.fbo_width,
+            state.fbo_height,
             0,
             GL.GL_RGB,
             GL.GL_FLOAT,
@@ -310,7 +354,7 @@ def setup_textures() -> None:
         )
     for i in range(2, 7):
         GL.glActiveTexture(GL.GL_TEXTURE1 + i - 2)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[i])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[i])
         for p in (GL.GL_TEXTURE_WRAP_S, GL.GL_TEXTURE_WRAP_T):
             GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_CLAMP_TO_EDGE)
         for p in (GL.GL_TEXTURE_MIN_FILTER, GL.GL_TEXTURE_MAG_FILTER):
@@ -320,8 +364,8 @@ def setup_textures() -> None:
                 GL.GL_TEXTURE_2D,
                 0,
                 GL.GL_RGBA8,
-                fbo_width >> (i - 2),
-                fbo_height >> (i - 2),
+                state.fbo_width >> (i - 2),
+                state.fbo_height >> (i - 2),
                 0,
                 GL.GL_RGBA,
                 GL.GL_UNSIGNED_BYTE,
@@ -332,8 +376,8 @@ def setup_textures() -> None:
                 GL.GL_TEXTURE_2D,
                 0,
                 GL.GL_RGB8,
-                fbo_width,
-                fbo_height,
+                state.fbo_width,
+                state.fbo_height,
                 0,
                 GL.GL_RGB,
                 GL.GL_UNSIGNED_BYTE,
@@ -343,11 +387,8 @@ def setup_textures() -> None:
 
 
 def setup_rc() -> None:
-    global max_tex_size, framebuffer_id, renderbuffer_id, pbo_id
-    global light_pos_loc, bloom_limit_loc, offsets_loc, star_intensity_loc
-    global after_glow_loc
 
-    max_tex_size = min(
+    state.max_tex_size = min(
         GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE),
         GL.glGetIntegerv(GL.GL_MAX_RENDERBUFFER_SIZE),
     )
@@ -356,158 +397,179 @@ def setup_rc() -> None:
     GL.glShadeModel(GL.GL_SMOOTH)
     GL.glHint(GL.GL_GENERATE_MIPMAP_HINT, GL.GL_NICEST)
 
+    i: int
     for i in range(TOTAL_SHADER_SETS):
         prepare_shader(i)
 
-    GL.glUseProgram(prog_obj[HDRBALL])
-    light_pos_loc = GL.glGetUniformLocation(prog_obj[HDRBALL], "lightPos")
-    star_intensity_loc = GL.glGetUniformLocation(
-        prog_obj[HDRBALL], "starIntensity"
+    GL.glUseProgram(state.prog_obj[HDRBALL])
+    state.light_pos_loc = GL.glGetUniformLocation(
+        state.prog_obj[HDRBALL], "lightPos"
     )
-    bloom_limit_loc = GL.glGetUniformLocation(prog_obj[HDRBALL], "bloomLimit")
-    GL.glUniform1f(bloom_limit_loc, bloom_limit)
-    GL.glUseProgram(prog_obj[GAUSSIAN])
-    offsets_loc = GL.glGetUniformLocation(prog_obj[GAUSSIAN], "tc_offset")
-    s: int = GL.glGetUniformLocation(prog_obj[GAUSSIAN], "sampler0")
+    state.star_intensity_loc = GL.glGetUniformLocation(
+        state.prog_obj[HDRBALL], "starIntensity"
+    )
+    state.bloom_limit_loc = GL.glGetUniformLocation(
+        state.prog_obj[HDRBALL], "bloomLimit"
+    )
+    GL.glUniform1f(state.bloom_limit_loc, state.bloom_limit)
+    GL.glUseProgram(state.prog_obj[GAUSSIAN])
+    state.offsets_loc = GL.glGetUniformLocation(
+        state.prog_obj[GAUSSIAN], "tc_offset"
+    )
+    s: int = GL.glGetUniformLocation(state.prog_obj[GAUSSIAN], "sampler0")
     if s != -1:
         GL.glUniform1i(s, 0)
-    GL.glUseProgram(prog_obj[COMBINE])
+    GL.glUseProgram(state.prog_obj[COMBINE])
     for i in range(6):
-        s = GL.glGetUniformLocation(prog_obj[COMBINE], f"sampler{i}")
+        s = GL.glGetUniformLocation(state.prog_obj[COMBINE], f"sampler{i}")
         if s != -1:
             GL.glUniform1i(s, i)
-    after_glow_loc = GL.glGetUniformLocation(prog_obj[COMBINE], "afterGlow")
-    GL.glUseProgram(prog_obj[SHOW2D])
-    s = GL.glGetUniformLocation(prog_obj[SHOW2D], "sampler0")
+    state.after_glow_loc = GL.glGetUniformLocation(
+        state.prog_obj[COMBINE], "afterGlow"
+    )
+    GL.glUseProgram(state.prog_obj[SHOW2D])
+    s = GL.glGetUniformLocation(state.prog_obj[SHOW2D], "sampler0")
     if s != -1:
         GL.glUniform1i(s, 0)
     GL.glUseProgram(0)
 
     setup_textures()
 
-    pbo_id = GL.glGenBuffers(1)
-    GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_id)
+    state.pbo_id = GL.glGenBuffers(1)
+    GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, state.pbo_id)
     # Allocate the PBO at its real size now. change_size only resizes it
     # when the size *changes* from the initial, so at the default size it
     # would stay the old 1-byte placeholder and the after-glow
     # glReadPixels-into-PBO would read past the end -> GL_INVALID_OPERATION
     # on startup. Same pitch as change_size.
-    _pbo_pitch: int = ((fbo_width * 3) + 3) & ~0x3
+    _pbo_pitch: int = ((state.fbo_width * 3) + 3) & ~0x3
     GL.glBufferData(
         GL.GL_PIXEL_PACK_BUFFER,
-        fbo_height * _pbo_pitch,
+        state.fbo_height * _pbo_pitch,
         None,
         GL.GL_STREAM_COPY,
     )
     GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
 
-    renderbuffer_id = GL.glGenRenderbuffers(1)
-    GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbuffer_id)
+    state.renderbuffer_id = GL.glGenRenderbuffers(1)
+    GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, state.renderbuffer_id)
     GL.glRenderbufferStorage(
-        GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, fbo_width, fbo_height
+        GL.GL_RENDERBUFFER,
+        GL.GL_DEPTH_COMPONENT32,
+        state.fbo_width,
+        state.fbo_height,
     )
-    framebuffer_id[:] = list(GL.glGenFramebuffers(5))
-    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[0])
+    state.framebuffer_id[:] = list(GL.glGenFramebuffers(5))
+    GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[0])
     GL.glDrawBuffers(2, [GL.GL_COLOR_ATTACHMENT0, GL.GL_COLOR_ATTACHMENT1])
     GL.glFramebufferRenderbuffer(
         GL.GL_FRAMEBUFFER,
         GL.GL_DEPTH_ATTACHMENT,
         GL.GL_RENDERBUFFER,
-        renderbuffer_id,
+        state.renderbuffer_id,
     )
     GL.glFramebufferTexture2D(
         GL.GL_FRAMEBUFFER,
         GL.GL_COLOR_ATTACHMENT0,
         GL.GL_TEXTURE_2D,
-        texture_id[0],
+        state.texture_id[0],
         0,
     )
     GL.glFramebufferTexture2D(
         GL.GL_FRAMEBUFFER,
         GL.GL_COLOR_ATTACHMENT1,
         GL.GL_TEXTURE_2D,
-        texture_id[1],
+        state.texture_id[1],
         0,
     )
     for i in range(4):
-        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[1 + i])
+        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, state.framebuffer_id[1 + i])
         GL.glFramebufferTexture2D(
             GL.GL_FRAMEBUFFER,
             GL.GL_COLOR_ATTACHMENT0,
             GL.GL_TEXTURE_2D,
-            texture_id[2 + i],
+            state.texture_id[2 + i],
             0,
         )
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height, fbo_width, fbo_height, after_glow_valid
-    orig: tuple[int, int] = (fbo_width, fbo_height)
-    window_width = fbo_width = w
-    window_height = fbo_height = h
-    if fbo_width > max_tex_size:
-        fbo_width = max_tex_size
-    if fbo_height > max_tex_size:
-        fbo_height = max_tex_size
-    if (fbo_width, fbo_height) != orig and pbo_id != 0:
-        GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_id)
-        pitch: int = ((fbo_width * 3) + 3) & ~0x3
+    orig: tuple[int, int] = (state.fbo_width, state.fbo_height)
+    state.window_width = state.fbo_width = w
+    state.window_height = state.fbo_height = h
+    if state.fbo_width > state.max_tex_size:
+        state.fbo_width = state.max_tex_size
+    if state.fbo_height > state.max_tex_size:
+        state.fbo_height = state.max_tex_size
+    if (state.fbo_width, state.fbo_height) != orig and state.pbo_id != 0:
+        GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, state.pbo_id)
+        pitch: int = ((state.fbo_width * 3) + 3) & ~0x3
         GL.glBufferData(
-            GL.GL_PIXEL_PACK_BUFFER, fbo_height * pitch, None, GL.GL_STREAM_COPY
+            GL.GL_PIXEL_PACK_BUFFER,
+            state.fbo_height * pitch,
+            None,
+            GL.GL_STREAM_COPY,
         )
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
-        after_glow_valid = False
-        GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbuffer_id)
+        state.after_glow_valid = False
+        GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, state.renderbuffer_id)
         GL.glRenderbufferStorage(
-            GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, fbo_width, fbo_height
+            GL.GL_RENDERBUFFER,
+            GL.GL_DEPTH_COMPONENT32,
+            state.fbo_width,
+            state.fbo_height,
         )
+        i: int
+        j: int
+        k: int
         for i in range(2):
-            GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[i])
+            GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[i])
             GL.glTexImage2D(
                 GL.GL_TEXTURE_2D,
                 0,
                 GL.GL_RGB16F,
-                fbo_width,
-                fbo_height,
+                state.fbo_width,
+                state.fbo_height,
                 0,
                 GL.GL_RGB,
                 GL.GL_FLOAT,
                 None,
             )
         for i in range(2, 7):
-            GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[i])
+            GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[i])
             GL.glTexImage2D(
                 GL.GL_TEXTURE_2D,
                 0,
                 GL.GL_RGBA8,
-                fbo_width >> (i - 2),
-                fbo_height >> (i - 2),
+                state.fbo_width >> (i - 2),
+                state.fbo_height >> (i - 2),
                 0,
                 GL.GL_RGBA,
                 GL.GL_UNSIGNED_BYTE,
                 None,
             )
         for k in range(4):
-            xi: float = 1.0 / float(fbo_width >> k)
-            yi: float = 1.0 / float(fbo_height >> k)
+            xi: float = 1.0 / float(state.fbo_width >> k)
+            yi: float = 1.0 / float(state.fbo_height >> k)
             for i in range(5):
                 for j in range(5):
-                    tex_coord_offsets[k][((i * 5) + j) * 2 + 0] = (
+                    state.tex_coord_offsets[k][((i * 5) + j) * 2 + 0] = (
                         -2.0 * xi + i * xi
                     )
-                    tex_coord_offsets[k][((i * 5) + j) * 2 + 1] = (
+                    state.tex_coord_offsets[k][((i * 5) + j) * 2 + 1] = (
                         -2.0 * yi + j * yi
                     )
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 def select_stop_point(p: int) -> None:
-    global which_stop_point
-    which_stop_point = p
+    state.which_stop_point = p
+    t: int
+    i: int
     if p == JUST_AFTER_GLOW:
         for t in (1, 2, 3, 4):
             GL.glActiveTexture(GL.GL_TEXTURE0 + t)
@@ -515,13 +577,12 @@ def select_stop_point(p: int) -> None:
     else:
         for i, t in enumerate((1, 2, 3, 4)):
             GL.glActiveTexture(GL.GL_TEXTURE0 + t)
-            GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id[2 + i])
+            GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id[2 + i])
     GL.glActiveTexture(GL.GL_TEXTURE0)
 
 
 def _nudge_light(d: float) -> None:
-    global light_rotation
-    light_rotation += d
+    state.light_rotation += d
 
 
 def imgui_menubar() -> None:
@@ -529,40 +590,50 @@ def imgui_menubar() -> None:
     # and show their key in the shortcut column; hold the key for continuous
     # motion. Tessellation rebuilds the sphere; Bloom limit re-uploads the
     # uniform; Paused freezes the spin animation.
-    global tess, bloom_limit, paused
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
+    i: int
+    name: str
     if imgui.begin_menu("View", True):
         for i, name in enumerate(stop_point_names):
             _common.menu_action(
                 name,
                 "",
                 lambda i=i: select_stop_point(i),
-                selected=(which_stop_point == i),
+                selected=(state.which_stop_point == i),
             )
         imgui.end_menu()
     if imgui.begin_menu("Render", True):
         if imgui.begin_menu("Tessellation", True):
-            changed, tess = imgui.slider_int("##tess", tess, 5, 150)
-            if changed:
+            tess_slider: tuple[bool, int] = imgui.slider_int(
+                "##tess", state.tess, 5, 150
+            )
+            state.tess = tess_slider[1]
+            if tess_slider[0]:
                 rebuild_sphere()
             imgui.end_menu()
         if imgui.begin_menu("Bloom limit", True):
-            changed, bloom_limit = imgui.slider_float(
-                "##bloom", bloom_limit, 0.0, 5.0
+            bloom_slider: tuple[bool, float] = imgui.slider_float(
+                "##bloom", state.bloom_limit, 0.0, 5.0
             )
-            if changed:
-                GL.glUseProgram(prog_obj[HDRBALL])
-                GL.glUniform1f(bloom_limit_loc, bloom_limit)
+            state.bloom_limit = bloom_slider[1]
+            if bloom_slider[0]:
+                GL.glUseProgram(state.prog_obj[HDRBALL])
+                GL.glUniform1f(state.bloom_limit_loc, state.bloom_limit)
                 GL.glUseProgram(0)
             imgui.end_menu()
-        clicked, paused = imgui.menu_item("Paused", "", paused, True)
+        paused_item: tuple[bool, bool] = imgui.menu_item(
+            "Paused", "", state.paused, True
+        )
+        state.paused = paused_item[1]
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
@@ -571,71 +642,75 @@ def imgui_menubar() -> None:
         _common.menu_action(
             "Camera +X",
             "X",
-            lambda: camera_pos.__setitem__(0, camera_pos[0] + 5.0),
+            lambda: state.camera_pos.__setitem__(0, state.camera_pos[0] + 5.0),
         )
         _common.menu_action(
             "Camera -X",
             "Shift+X",
-            lambda: camera_pos.__setitem__(0, camera_pos[0] - 5.0),
+            lambda: state.camera_pos.__setitem__(0, state.camera_pos[0] - 5.0),
         )
         _common.menu_action(
             "Camera +Y",
             "Y",
-            lambda: camera_pos.__setitem__(1, camera_pos[1] + 5.0),
+            lambda: state.camera_pos.__setitem__(1, state.camera_pos[1] + 5.0),
         )
         _common.menu_action(
             "Camera -Y",
             "Shift+Y",
-            lambda: camera_pos.__setitem__(1, camera_pos[1] - 5.0),
+            lambda: state.camera_pos.__setitem__(1, state.camera_pos[1] - 5.0),
         )
         _common.menu_action(
             "Camera +Z",
             "Z",
-            lambda: camera_pos.__setitem__(2, camera_pos[2] + 5.0),
+            lambda: state.camera_pos.__setitem__(2, state.camera_pos[2] + 5.0),
         )
         _common.menu_action(
             "Camera -Z",
             "Shift+Z",
-            lambda: camera_pos.__setitem__(2, camera_pos[2] - 5.0),
+            lambda: state.camera_pos.__setitem__(2, state.camera_pos[2] - 5.0),
         )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, mods: int
+) -> None:
     # Render-option toggles moved to the imgui panel; keys rotate the
     # light and pan the camera only.
-    global light_rotation
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
         return
     if key == glfw.KEY_LEFT:
-        light_rotation -= 5.0
+        state.light_rotation -= 5.0
     elif key == glfw.KEY_RIGHT:
-        light_rotation += 5.0
+        state.light_rotation += 5.0
     elif key == glfw.KEY_X:
-        camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
-        camera_pos[1] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[1] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Z:
-        camera_pos[2] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        state.camera_pos[2] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window: typing.Any = glfw.create_window(  # glfw window handle
-        window_width, window_height, "High Dynamic Range Bloom Demo", None, None
+        state.window_width,
+        state.window_height,
+        "High Dynamic Range Bloom Demo",
+        None,
+        None,
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -649,8 +724,8 @@ def main() -> None:
     print("  LEFT/RIGHT: rotate light   X/Y/Z + shift: pan   Esc: quit")
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()

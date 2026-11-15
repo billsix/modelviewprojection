@@ -3,6 +3,7 @@
 # OpenGL SuperBible, Chapter 8
 # Python port of Toon.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -20,10 +21,21 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main()
+    window: typing.Any = None
+
+    y_rot: float = 0.0
+
+
+state: AppState = AppState()
+
 
 v_light_dir: np.ndarray = np.array([-1.0, 1.0, 1.0], dtype=np.float32)
-y_rot: float = 0.0
 
 
 def invert_matrix44(m: "np.ndarray") -> "np.ndarray":
@@ -74,11 +86,15 @@ def toon_draw_torus(
     major_step: float = 2.0 * math.pi / num_major
     minor_step: float = 2.0 * math.pi / num_minor
 
+    i: int
+    j: int
     for i in range(num_major):
         a0: float = i * major_step
         a1: float = a0 + major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
+        x0: float = math.cos(a0)
+        y0: float = math.sin(a0)
+        x1: float = math.cos(a1)
+        y1: float = math.sin(a1)
 
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
         for j in range(num_minor + 1):
@@ -107,7 +123,7 @@ def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -2.5)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     toon_draw_torus(0.35, 0.15, 50, 25, v_light_dir)
     GL.glPopMatrix()
 
@@ -150,11 +166,13 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -166,10 +184,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     imgui.end_main_menu_bar()
 
 
@@ -177,7 +197,6 @@ Y_ROT_DEG_PER_SEC: float = 15.0
 
 
 def main() -> None:
-    global y_rot, _window
 
     if not glfw.init():
         sys.exit(1)
@@ -190,7 +209,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
@@ -203,8 +222,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 
@@ -215,7 +234,7 @@ def main() -> None:
 
         glfw.poll_events()
         impl.process_inputs()
-        y_rot = (y_rot + Y_ROT_DEG_PER_SEC * dt) % 360.0
+        state.y_rot = (state.y_rot + Y_ROT_DEG_PER_SEC * dt) % 360.0
         render_scene()
         imgui.new_frame()
         imgui_menubar()

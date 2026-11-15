@@ -75,7 +75,7 @@ def is_clockwise(v1: Vector, v2: Vector) -> bool:
     include the zero-cross case, which is how a pixel exactly on an edge gets
     lit no matter which way the triangle is wound:
 
-    >>> pair = (1.0 * e_1, 2.0 * e_1)
+    >>> pair: tuple[Vector, Vector] = (1.0 * e_1, 2.0 * e_1)
     >>> is_clockwise(*pair) and is_counter_clockwise(*pair)
     True
     """
@@ -100,6 +100,12 @@ def is_parallel_and_same_orientation(v1: Vector, v2: Vector) -> bool:
     >>> is_parallel_and_same_orientation(1.0 * e_1, -1.0 * e_1)
     False
     >>> is_parallel_and_same_orientation(1.0 * e_1, 1.0 * e_2)
+    False
+
+    Nearly parallel is not enough: the directions must agree to within the
+    predicate's tolerance (a cosine within ``0.01`` of ``1``):
+
+    >>> is_parallel_and_same_orientation(5.0 * e_2, 0.2 * e_1 + 1.0 * e_2)
     False
 
     A zero-length vector has no direction, so it is treated as matching

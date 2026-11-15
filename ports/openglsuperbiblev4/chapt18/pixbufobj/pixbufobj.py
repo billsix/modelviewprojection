@@ -13,6 +13,7 @@
 # Python port of pixbufobj.cpp by Benjamin Lipchak
 
 import ctypes
+import dataclasses
 import os
 import sys
 import time
@@ -30,34 +31,46 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = (
-    None  # glfw window handle; set in main(); used by the Quit control button
-)
-window_width: int = 512
-window_height: int = 512
-data_width: int = 512
-data_height: int = 512
-data_pitch: int = 512 * 3
-data_offset_x: int = 0
-data_offset_y: int = 0
-
-use_pbos: bool = False
-use_motion_blur: bool = True
-
-pixels: list[Any] = [
-    None,
-    None,
-    None,
-]  # numpy arrays in client mode, None when on GPU
-frame_good: list[bool] = [False, False, False]
-current_frame: int = 0
-angle_increment: float = 1.0
 usage_hint: int = GL.GL_STREAM_COPY
-# PBO buffer-object ids from glGenBuffers (populated in setup_rc). The demo
-# previously bound the pixel-pack buffers by the literal names 1/2/3 WITHOUT
-# ever calling glGenBuffers, which is what tripped glReadPixels with
-# GL_INVALID_OPERATION (1282) on Mesa. Use real generated ids instead.
-pbo_ids: list[int] = []
+
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # glfw window handle; set in main(); used by the Quit control button
+    window: typing.Any = None
+    window_width: int = 512
+    window_height: int = 512
+    data_width: int = 512
+    data_height: int = 512
+    data_pitch: int = 512 * 3
+    data_offset_x: int = 0
+    data_offset_y: int = 0
+
+    use_pbos: bool = False
+    use_motion_blur: bool = True
+
+    pixels: list[Any] = dataclasses.field(
+        default_factory=lambda: [
+            None,
+            None,
+            None,
+        ]
+    )  # numpy arrays in client mode, None when on GPU
+    frame_good: list[bool] = dataclasses.field(
+        default_factory=lambda: [False, False, False]
+    )
+    current_frame: int = 0
+    angle_increment: float = 1.0
+    # PBO buffer-object ids from glGenBuffers (populated in setup_rc). The demo
+    # previously bound the pixel-pack buffers by the literal names 1/2/3 WITHOUT
+    # ever calling glGenBuffers, which is what tripped glReadPixels with
+    # GL_INVALID_OPERATION (1282) on Mesa. Use real generated ids instead.
+    pbo_ids: list[int] = dataclasses.field(default_factory=list)
+
+
+state: AppState = AppState()
 
 
 def _check_gl(label: str) -> None:
@@ -78,7 +91,7 @@ def setup_textures() -> None:
     if img.ndim == 3 and img.shape[2] == 4:
         img = img[:, :, :3]
     img = np.ascontiguousarray(img, dtype=np.uint8)
-    h, w = img.shape[:2]
+    img_shape: tuple[int, ...] = img.shape[:2]
 
     half: np.ndarray = (img.astype(np.uint16) >> 1).astype(np.uint8)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 1)
@@ -86,27 +99,29 @@ def setup_textures() -> None:
         GL.GL_TEXTURE_2D,
         0,
         GL.GL_RGB8,
-        w,
-        h,
+        img_shape[1],
+        img_shape[0],
         0,
         GL.GL_RGB,
         GL.GL_UNSIGNED_BYTE,
         half,
     )
+    p: typing.Any  # GL enum
     for p in (GL.GL_TEXTURE_MAG_FILTER, GL.GL_TEXTURE_MIN_FILTER):
         GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_LINEAR)
     for p in (GL.GL_TEXTURE_WRAP_S, GL.GL_TEXTURE_WRAP_T):
         GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_CLAMP_TO_BORDER)
 
     quarter: np.ndarray = (half.astype(np.uint16) >> 1).astype(np.uint8)
+    i: int
     for i in (2, 3, 4):
         GL.glBindTexture(GL.GL_TEXTURE_2D, i)
         GL.glTexImage2D(
             GL.GL_TEXTURE_2D,
             0,
             GL.GL_RGB8,
-            w,
-            h,
+            img_shape[1],
+            img_shape[0],
             0,
             GL.GL_RGB,
             GL.GL_UNSIGNED_BYTE,
@@ -122,7 +137,7 @@ def setup_textures() -> None:
         GL.glBindTexture(GL.GL_TEXTURE_2D, i + 1)
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_ADD)
         GL.glEnable(GL.GL_TEXTURE_2D)
-    if not use_motion_blur:
+    if not state.use_motion_blur:
         GL.glActiveTexture(GL.GL_TEXTURE2)
         GL.glDisable(GL.GL_TEXTURE_2D)
     GL.glActiveTexture(GL.GL_TEXTURE0)
@@ -130,10 +145,9 @@ def setup_textures() -> None:
 
 
 def render_scene() -> None:
-    global current_frame
-    current_frame = (current_frame + 1) % 3
-    last_frame: int = (current_frame + 2) % 3
-    frame_before_that: int = (current_frame + 1) % 3
+    state.current_frame = (state.current_frame + 1) % 3
+    last_frame: int = (state.current_frame + 2) % 3
+    frame_before_that: int = (state.current_frame + 1) % 3
 
     # Re-assert the per-unit 2D enables each frame. setup_textures enabled
     # GL_TEXTURE_2D on units 0/1/2 once, but the cleanup at the END of
@@ -143,42 +157,45 @@ def render_scene() -> None:
     GL.glActiveTexture(GL.GL_TEXTURE1)
     GL.glEnable(GL.GL_TEXTURE_2D)
     GL.glActiveTexture(GL.GL_TEXTURE2)
-    if use_motion_blur:
+    if state.use_motion_blur:
         GL.glEnable(GL.GL_TEXTURE_2D)
     else:
         GL.glDisable(GL.GL_TEXTURE_2D)
 
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glTranslatef(0.5, 0.5, 0.0)
-    GL.glRotatef(angle_increment, 0.0, 0.0, 1.0)
+    GL.glRotatef(state.angle_increment, 0.0, 0.0, 1.0)
     GL.glTranslatef(-0.5, -0.5, 0.0)
 
-    if not use_motion_blur:
+    if not state.use_motion_blur:
         copied: np.ndarray = GL.glGetFloatv(GL.GL_TEXTURE_MATRIX)
         GL.glActiveTexture(GL.GL_TEXTURE1)
         GL.glLoadMatrixf(copied)
         GL.glBindTexture(GL.GL_TEXTURE_2D, 1)
 
     GL.glBegin(GL.GL_QUADS)
+    verts: tuple[float, float, float, float]
     for verts in [
         (-1.0, -1.0, 0.0, 0.0),
         (-1.0, 1.0, 0.0, 1.0),
         (1.0, 1.0, 1.0, 1.0),
         (1.0, -1.0, 1.0, 0.0),
     ]:
-        x, y, u, v = verts
+        i: int
         for i in range(3):
-            GL.glMultiTexCoord2f(GL.GL_TEXTURE0 + i, u, v)
-        GL.glVertex2f(x, y)
+            GL.glMultiTexCoord2f(GL.GL_TEXTURE0 + i, verts[2], verts[3])
+        GL.glVertex2f(verts[0], verts[1])
     GL.glEnd()
 
-    if use_pbos:
-        GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[current_frame])
+    if state.use_pbos:
+        GL.glBindBuffer(
+            GL.GL_PIXEL_PACK_BUFFER, state.pbo_ids[state.current_frame]
+        )
         GL.glReadPixels(
-            data_offset_x,
-            data_offset_y,
-            data_width,
-            data_height,
+            state.data_offset_x,
+            state.data_offset_y,
+            state.data_width,
+            state.data_height,
             GL.GL_RGB,
             GL.GL_UNSIGNED_BYTE,
             # NOT None: PyOpenGL turns None into a freshly-allocated client
@@ -191,21 +208,21 @@ def render_scene() -> None:
         _check_gl("glReadPixels into PBO")
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
     else:
-        pixels[current_frame] = GL.glReadPixels(
-            data_offset_x,
-            data_offset_y,
-            data_width,
-            data_height,
+        state.pixels[state.current_frame] = GL.glReadPixels(
+            state.data_offset_x,
+            state.data_offset_y,
+            state.data_width,
+            state.data_height,
             GL.GL_RGB,
             GL.GL_UNSIGNED_BYTE,
         )
 
-    frame_good[current_frame] = True
+    state.frame_good[state.current_frame] = True
 
     # Dim the last frame in place. With PBOs we map the buffer for
     # read-write; without, the bytes are already in client memory.
-    if use_pbos:
-        GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pbo_ids[last_frame])
+    if state.use_pbos:
+        GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, state.pbo_ids[last_frame])
         ptr: typing.Any = (
             GL.glMapBuffer(  # mapped-buffer pointer (c_void_p-like)
                 GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_READ_WRITE
@@ -213,30 +230,30 @@ def render_scene() -> None:
         )
         if ptr:
             arr: np.ndarray = np.ctypeslib.as_array(
-                (ctypes.c_uint8 * (data_height * data_pitch)).from_address(
-                    int(ptr)
-                )
+                (
+                    ctypes.c_uint8 * (state.data_height * state.data_pitch)
+                ).from_address(int(ptr))
             )
             arr >>= 2
             GL.glUnmapBuffer(GL.GL_PIXEL_UNPACK_BUFFER)
     else:
-        if pixels[last_frame] is not None:
+        if state.pixels[last_frame] is not None:
             buf: np.ndarray = np.frombuffer(
-                pixels[last_frame], dtype=np.uint8
+                state.pixels[last_frame], dtype=np.uint8
             ).copy()
             buf >>= 2
-            pixels[last_frame] = buf.tobytes()
+            state.pixels[last_frame] = buf.tobytes()
 
     GL.glActiveTexture(GL.GL_TEXTURE1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 2 + last_frame)
-    if use_pbos:
-        if frame_good[last_frame]:
+    if state.use_pbos:
+        if state.frame_good[last_frame]:
             GL.glTexImage2D(
                 GL.GL_TEXTURE_2D,
                 0,
                 GL.GL_RGB8,
-                data_width,
-                data_height,
+                state.data_width,
+                state.data_height,
                 0,
                 GL.GL_RGB,
                 GL.GL_UNSIGNED_BYTE,
@@ -246,17 +263,17 @@ def render_scene() -> None:
                 ctypes.c_void_p(0),
             )
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, 0)
-    elif frame_good[last_frame]:
+    elif state.frame_good[last_frame]:
         GL.glTexImage2D(
             GL.GL_TEXTURE_2D,
             0,
             GL.GL_RGB8,
-            data_width,
-            data_height,
+            state.data_width,
+            state.data_height,
             0,
             GL.GL_RGB,
             GL.GL_UNSIGNED_BYTE,
-            pixels[last_frame],
+            state.pixels[last_frame],
         )
 
     GL.glActiveTexture(GL.GL_TEXTURE2)
@@ -276,9 +293,8 @@ def render_scene() -> None:
 
 
 def toggle_motion_blur() -> None:
-    global use_motion_blur
-    use_motion_blur = not use_motion_blur
-    if use_motion_blur:
+    state.use_motion_blur = not state.use_motion_blur
+    if state.use_motion_blur:
         GL.glActiveTexture(GL.GL_TEXTURE1)
         GL.glLoadIdentity()
         GL.glActiveTexture(GL.GL_TEXTURE2)
@@ -286,37 +302,37 @@ def toggle_motion_blur() -> None:
     else:
         GL.glActiveTexture(GL.GL_TEXTURE2)
         GL.glDisable(GL.GL_TEXTURE_2D)
-    print(f"motion blur: {'ON' if use_motion_blur else 'OFF'}")
+    print(f"motion blur: {'ON' if state.use_motion_blur else 'OFF'}")
 
 
 def toggle_pbos() -> None:
-    global use_pbos
-    use_pbos = not use_pbos
-    if use_pbos:
+    state.use_pbos = not state.use_pbos
+    i: int
+    if state.use_pbos:
         for i in range(3):
-            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
+            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, state.pbo_ids[i])
             data: typing.Any = (
-                pixels[i] if pixels[i] is not None else None
+                state.pixels[i] if state.pixels[i] is not None else None
             )  # pixel data (numpy array or None)
             GL.glBufferData(
                 GL.GL_PIXEL_PACK_BUFFER,
-                data_height * data_pitch,
+                state.data_height * state.data_pitch,
                 data,
                 usage_hint,
             )
-            pixels[i] = None
+            state.pixels[i] = None
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
     else:
         for i in range(3):
-            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
+            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, state.pbo_ids[i])
             buf: np.ndarray = GL.glGetBufferSubData(
-                GL.GL_PIXEL_PACK_BUFFER, 0, data_height * data_pitch
+                GL.GL_PIXEL_PACK_BUFFER, 0, state.data_height * state.data_pitch
             )
-            pixels[i] = bytes(buf)
+            state.pixels[i] = bytes(buf)
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
         # Keep the buffers for the app's lifetime (freed on context destroy);
         # re-enabling re-sizes them via glBufferData above.
-    print(f"PBOs: {'ON' if use_pbos else 'OFF'}")
+    print(f"PBOs: {'ON' if state.use_pbos else 'OFF'}")
 
 
 def setup_rc() -> None:
@@ -327,36 +343,40 @@ def setup_rc() -> None:
     GL.glColor4f(0.0, 0.0, 0.0, 1.0)
     GL.glMatrixMode(GL.GL_TEXTURE)
     # Generate the three ring-buffer PBOs up front (real names, not literals).
-    pbo_ids[:] = [int(b) for b in GL.glGenBuffers(3)]
+    state.pbo_ids[:] = [int(b) for b in GL.glGenBuffers(3)]
     setup_textures()
 
 
 def change_size(w: int, h: int) -> None:
-    global window_width, window_height, data_width, data_height
-    global data_offset_x, data_offset_y, data_pitch
-    window_width = data_width = w
-    window_height = data_height = h
-    data_offset_x = (window_width - data_width) // 2
-    data_offset_y = (window_height - data_height) // 2
-    GL.glViewport(data_offset_x, data_offset_y, data_width, data_height)
-    data_pitch = ((data_width * 3) + 3) & ~0x3
+    state.window_width = state.data_width = w
+    state.window_height = state.data_height = h
+    state.data_offset_x = (state.window_width - state.data_width) // 2
+    state.data_offset_y = (state.window_height - state.data_height) // 2
+    GL.glViewport(
+        state.data_offset_x,
+        state.data_offset_y,
+        state.data_width,
+        state.data_height,
+    )
+    state.data_pitch = ((state.data_width * 3) + 3) & ~0x3
     setup_textures()
+    i: int
     for i in range(3):
-        frame_good[i] = False
-        if not use_pbos:
-            pixels[i] = bytes(data_height * data_pitch)
+        state.frame_good[i] = False
+        if not state.use_pbos:
+            state.pixels[i] = bytes(state.data_height * state.data_pitch)
         else:
-            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
+            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, state.pbo_ids[i])
             GL.glBufferData(
                 GL.GL_PIXEL_PACK_BUFFER,
-                data_height * data_pitch,
+                state.data_height * state.data_pitch,
                 None,
                 usage_hint,
             )
             GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
@@ -364,31 +384,35 @@ def imgui_menubar() -> None:
     # All controls live in the top menubar. This demo has no camera
     # navigation, so there is no separate Controls menu -- just File->Quit
     # plus the render options.
-    global angle_increment
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Options", True):
         # toggle_motion_blur / toggle_pbos flip the global and do the GL
         # state work, so just call them when the item is clicked.
-        if imgui.menu_item("Motion blur", "", use_motion_blur, True)[0]:
+        if imgui.menu_item("Motion blur", "", state.use_motion_blur, True)[0]:
             toggle_motion_blur()
-        if imgui.menu_item("Use PBOs", "", use_pbos, True)[0]:
+        if imgui.menu_item("Use PBOs", "", state.use_pbos, True)[0]:
             toggle_pbos()
         imgui.separator()
-        _, angle_increment = imgui.slider_float(
-            "Animation speed", angle_increment, -10.0, 10.0
+        speed_slider: tuple[bool, float] = imgui.slider_float(
+            "Animation speed", state.angle_increment, -10.0, 10.0
         )
+        state.angle_increment = speed_slider[1]
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     # Render-option toggles moved to the imgui panel; only Esc remains
     # (this demo has no camera navigation).
     if action != glfw.PRESS and action != glfw.REPEAT:
@@ -398,18 +422,21 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window: typing.Any = glfw.create_window(  # glfw window handle
-        window_width, window_height, "Pixel Buffer Object Demo", None, None
+        state.window_width,
+        state.window_height,
+        "Pixel Buffer Object Demo",
+        None,
+        None,
     )
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -423,8 +450,8 @@ def main() -> None:
     print("  Esc: quit")
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     frame_count: int = 0
     last_t: float = time.time()
@@ -441,7 +468,7 @@ def main() -> None:
         if frame_count == 100:
             now: float = time.time()
             fps: float = 100.0 / (now - last_t)
-            label: str = "with PBOs" if use_pbos else "without PBOs"
+            label: str = "with PBOs" if state.use_pbos else "without PBOs"
             glfw.set_window_title(window, f"Draw scene {label} {fps:.1f} fps")
             last_t = now
             frame_count = 0

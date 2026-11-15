@@ -3,6 +3,7 @@
 # OpenGL SuperBible, Chapter 3
 # Python port of Pointsz.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import math
 import os
 import sys
@@ -19,13 +20,21 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# set in main(); used by the Quit menu item
-_window: typing.Any = None  # glfw window handle
-
 GL_PI: float = 3.1415
 
-x_rot: float = 0.0
-y_rot: float = 0.0
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # set in main(); used by the Quit menu item
+    window: typing.Any = None  # glfw window handle
+
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+
+
+state: AppState = AppState()
 
 
 # Per-click step for the menubar rotate items (the keyboard, held, rotates
@@ -34,12 +43,11 @@ BTN_ROT_STEP: float = 5.0
 
 
 def _rot(axis: str, d: float) -> None:
-    # Lambdas can't rebind a module global, so mutate here.
-    global x_rot, y_rot
+    # Lambdas can't assign to a field, so mutate here.
     if axis == "x":
-        x_rot += d
+        state.x_rot += d
     else:
-        y_rot += d
+        state.y_rot += d
 
 
 def imgui_menubar() -> None:
@@ -49,10 +57,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot("x", -BTN_ROT_STEP))
         _common.menu_action(
@@ -72,8 +82,8 @@ def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
     GL.glPushMatrix()
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
 
     sizes: np.ndarray = np.zeros(2, dtype=np.float32)
     GL.glGetFloatv(GL.GL_POINT_SIZE_RANGE, sizes)
@@ -130,34 +140,33 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def main() -> None:
-    global _window
-
     if not glfw.init():
         sys.exit(1)
 
@@ -170,7 +179,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -182,8 +191,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     glfw.swap_interval(1)
     last_frame: float = time.monotonic()

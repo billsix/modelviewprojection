@@ -5,6 +5,7 @@
 # OpenGL SuperBible, Chapter 11
 # Python port of thundergl.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -28,17 +29,32 @@ from _thunderbird_data import load_model  # noqa: E402
 
 PWD: str = os.path.dirname(os.path.abspath(__file__))
 
-_window: typing.Any = None  # glfw window handle; set in main()
+CUBE_MAP: int = 0
+BODY_TEXTURE: int = 1
+GLASS_TEXTURE: int = 2
 
-x_rot: float = 0.0
-y_rot: float = 0.0
 
-CUBE_MAP, BODY_TEXTURE, GLASS_TEXTURE = 0, 1, 2
-texture_objects: list[int] = [0, 0, 0]
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
 
-# Static jet mesh (vertices/normals/faces parsed from body.cpp + glass.cpp).
-# Loaded once in setup_rc; render_scene just replays it in immediate mode.
-jet_model: "dict[str, np.ndarray] | None" = None
+    window: typing.Any = None  # glfw window handle; set in main()
+
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+
+    texture_objects: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0, 0]
+    )
+
+    # Static jet mesh (vertices/normals/faces parsed from body.cpp +
+    # glass.cpp). Loaded once in setup_rc; render_scene just replays it in
+    # immediate mode.
+    jet_model: "dict[str, np.ndarray] | None" = None
+
+
+state: AppState = AppState()
+
 cube_faces: list[str] = [
     "pos_x.tga",
     "neg_x.tga",
@@ -63,7 +79,9 @@ def draw_body(model: "dict[str, np.ndarray]") -> None:
     norms: np.ndarray = model["normals"]
     texs: np.ndarray = model["textures"]
     GL.glBegin(GL.GL_TRIANGLES)
+    face: np.ndarray
     for face in fi:
+        i: int
         for i in range(3):
             GL.glMultiTexCoord2fv(GL.GL_TEXTURE0, texs[face[i + 6]])
             GL.glNormal3fv(norms[face[i + 3]])
@@ -77,7 +95,9 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
     norms: np.ndarray = model["normals_glass"]
     texs: np.ndarray = model["textures_glass"]
     GL.glBegin(GL.GL_TRIANGLES)
+    face: np.ndarray
     for face in fi:
+        i: int
         for i in range(3):
             GL.glTexCoord2fv(texs[face[i + 6]])
             GL.glNormal3fv(norms[face[i + 3]])
@@ -87,7 +107,7 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
 
 def load_2d_texture(path: str) -> int:
     img: np.ndarray = np.flipud(iio.imread(path))
-    h, w = img.shape[:2]
+    shape: tuple[int, ...] = img.shape[:2]
     fmt: Constant = (
         GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     )
@@ -95,7 +115,15 @@ def load_2d_texture(path: str) -> int:
     tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        GL.GL_TEXTURE_2D,
+        0,
+        fmt,
+        shape[1],
+        shape[0],
+        0,
+        fmt,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
@@ -142,6 +170,8 @@ def draw_sky_box() -> None:
         ((1, -1, -1), (e, -e, -e)),
     ]
     GL.glBegin(GL.GL_QUADS)
+    tc: tuple[int, int, int]
+    v: tuple[float, float, float]
     for tc, v in faces:
         GL.glMultiTexCoord3f(GL.GL_TEXTURE1, *tc)
         GL.glVertex3f(*v)
@@ -151,6 +181,7 @@ def draw_sky_box() -> None:
 def load_cube_map() -> int:
     tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, tex)
+    p: tuple[Constant, Constant]
     for p in [
         (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
         (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
@@ -159,9 +190,11 @@ def load_cube_map() -> int:
         (GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE),
     ]:
         GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, p[0], p[1])
+    i: int
+    fname: str
     for i, fname in enumerate(cube_faces):
         img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
-        h, w = img.shape[:2]
+        shape: tuple[int, ...] = img.shape[:2]
         fmt: Constant = (
             GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         )
@@ -170,14 +203,21 @@ def load_cube_map() -> int:
             GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE
         )
         GL.glTexImage2D(
-            cube_targets[i], 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+            cube_targets[i],
+            0,
+            fmt,
+            shape[1],
+            shape[0],
+            0,
+            fmt,
+            GL.GL_UNSIGNED_BYTE,
+            img,
         )
     return tex
 
 
 def setup_rc() -> None:
-    global jet_model
-    jet_model = load_model(PWD)
+    state.jet_model = load_model(PWD)
 
     f_amb: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 0.0)
     f_diff: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 0.0)
@@ -188,11 +228,11 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glEnable(GL.GL_CULL_FACE)
 
-    texture_objects[CUBE_MAP] = load_cube_map()
-    texture_objects[BODY_TEXTURE] = load_2d_texture(
+    state.texture_objects[CUBE_MAP] = load_cube_map()
+    state.texture_objects[BODY_TEXTURE] = load_2d_texture(
         os.path.join(PWD, "body.tga")
     )
-    texture_objects[GLASS_TEXTURE] = load_2d_texture(
+    state.texture_objects[GLASS_TEXTURE] = load_2d_texture(
         os.path.join(PWD, "glass.tga")
     )
 
@@ -233,7 +273,7 @@ def render_scene() -> None:
     GL.glDisable(GL.GL_TEXTURE_2D)
     GL.glActiveTexture(GL.GL_TEXTURE1)
     GL.glEnable(GL.GL_TEXTURE_CUBE_MAP)
-    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, texture_objects[CUBE_MAP])
+    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, state.texture_objects[CUBE_MAP])
     GL.glDisable(GL.GL_TEXTURE_GEN_S)
     GL.glDisable(GL.GL_TEXTURE_GEN_T)
     GL.glDisable(GL.GL_TEXTURE_GEN_R)
@@ -242,25 +282,25 @@ def render_scene() -> None:
 
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -3.0)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
     # body.cpp and glass.cpp use different native coordinate systems:
     # body needs -90 X to be drawn upright, glass is already upright
     # and needs a small translate to sit on top of the cockpit.  User
     # rotations above apply to both as a rigid body; per-mesh fixups
     # are local to each draw block.
 
-    model: dict[str, np.ndarray] | None = jet_model
+    model: dict[str, np.ndarray] | None = state.jet_model
 
     # Body: TU0 = body decal, TU1 = cube map reflection (texgen)
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glEnable(GL.GL_TEXTURE_2D)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[BODY_TEXTURE])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[BODY_TEXTURE])
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
 
     GL.glActiveTexture(GL.GL_TEXTURE1)
     GL.glEnable(GL.GL_TEXTURE_CUBE_MAP)
-    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, texture_objects[CUBE_MAP])
+    GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, state.texture_objects[CUBE_MAP])
     GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
     GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
     GL.glTexGeni(GL.GL_R, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
@@ -283,7 +323,7 @@ def render_scene() -> None:
     GL.glDisable(GL.GL_TEXTURE_CUBE_MAP)
 
     GL.glActiveTexture(GL.GL_TEXTURE0)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[GLASS_TEXTURE])
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_objects[GLASS_TEXTURE])
     GL.glTranslatef(0.0, 0.132, 0.555)
     GL.glScalef(f_scale, f_scale, f_scale)
     GL.glEnable(GL.GL_BLEND)
@@ -309,27 +349,28 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
@@ -340,13 +381,11 @@ BTN_ROT_STEP: float = 5.0
 
 
 def _rot_x(d: float) -> None:
-    global x_rot
-    x_rot += d
+    state.x_rot += d
 
 
 def _rot_y(d: float) -> None:
-    global y_rot
-    y_rot += d
+    state.y_rot += d
 
 
 def imgui_menubar() -> None:
@@ -356,10 +395,12 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))
@@ -374,7 +415,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -385,7 +425,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -397,8 +437,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     last_frame: float = time.monotonic()
 

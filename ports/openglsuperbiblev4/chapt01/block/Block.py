@@ -11,6 +11,7 @@
 #   4  cube with lighting + planar shadow on the floor
 #   5  textured cube with planar shadow on the textured floor
 
+import dataclasses
 import os
 import sys
 import typing
@@ -36,9 +37,6 @@ STAGE_LABELS: tuple[str, ...] = (
 )
 
 
-# Keep track of effects step
-n_step: int = 0
-
 # Lighting data
 light_ambient: tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1.0)
 light_diffuse: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
@@ -54,16 +52,29 @@ ground: list[Vector] = [
     Vector(10.0, -25.0, -10.0),
 ]
 
-textures: list[int] = [0, 0, 0, 0]
-window_width: int = 800
-window_height: int = 600
-
 PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-# set in main(); used by the Controls buttons
-_window: typing.Any = None  # glfw window handle
+
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
+
+    # Keep track of effects step
+    n_step: int = 0
+
+    textures: list[int] = dataclasses.field(
+        default_factory=lambda: [0, 0, 0, 0]
+    )
+    window_width: int = 800
+    window_height: int = 600
+
+    # set in main(); used by the Controls buttons
+    window: typing.Any = None  # glfw window handle
+
+
+state: AppState = AppState()
 
 
 # ---------------------------------------------------------------------------
@@ -95,13 +106,13 @@ def make_planar_shadow_matrix(
     CW winding so w lands positive; mvp's plane_equation uses CCW so
     w lands negative and the shadow gets clipped away. We negate the
     whole matrix when needed to keep w positive."""
-    a, b, c = (
-        plane_normal.coeff_e_1,
-        plane_normal.coeff_e_2,
-        plane_normal.coeff_e_3,
-    )
+    a: float = plane_normal.coeff_e_1
+    b: float = plane_normal.coeff_e_2
+    c: float = plane_normal.coeff_e_3
     d: float = plane_d
-    dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
+    dx: float = -light_pos[0]
+    dy: float = -light_pos[1]
+    dz: float = -light_pos[2]
     sign: float = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
@@ -199,6 +210,8 @@ def draw_wire_cube(size: float) -> None:
         ((-s, -s, s), (-s, s, s)),
     ]
     GL.glBegin(GL.GL_LINES)
+    p1: tuple[float, float, float]
+    p2: tuple[float, float, float]
     for p1, p2 in edges:
         GL.glVertex3f(*p1)
         GL.glVertex3f(*p2)
@@ -216,7 +229,8 @@ def load_tga_texture(path: str) -> int:
         img = np.stack([img, img, img], axis=-1)
     # OpenGL expects bottom-up; imageio returns top-down
     img = np.flipud(img)
-    h, w = img.shape[:2]
+    # (height, width) of the image
+    img_size: tuple[int, ...] = img.shape[:2]
     channels: int = img.shape[2] if img.ndim == 3 else 1
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
@@ -229,7 +243,15 @@ def load_tga_texture(path: str) -> int:
     fmt: Constant = GL.GL_RGBA if channels == 4 else GL.GL_RGB
     internal: Constant = GL.GL_RGBA8 if channels == 4 else GL.GL_RGB8
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, internal, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        GL.GL_TEXTURE_2D,
+        0,
+        internal,
+        img_size[1],
+        img_size[0],
+        0,
+        fmt,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
     return tex
 
@@ -248,10 +270,10 @@ def render_scene() -> None:
 
     # Draw the ground plane (textured at step 5, blue otherwise)
     GL.glDisable(GL.GL_LIGHTING)
-    if n_step == 5:
+    if state.n_step == 5:
         GL.glColor3ub(255, 255, 255)
         GL.glEnable(GL.GL_TEXTURE_2D)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[0])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[0])
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(0.0, 0.0)
         GL.glVertex3f(-100.0, -25.3, -100.0)
@@ -273,7 +295,7 @@ def render_scene() -> None:
 
     GL.glColor3f(1.0, 0.0, 0.0)
 
-    if n_step > 2:
+    if state.n_step > 2:
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glDepthFunc(GL.GL_LEQUAL)
         GL.glEnable(GL.GL_COLOR_MATERIAL)
@@ -290,10 +312,10 @@ def render_scene() -> None:
     # Move the cube slightly forward and to the left
     GL.glTranslatef(-10.0, 0.0, 10.0)
 
-    if n_step == 0:
+    if state.n_step == 0:
         # Wireframe cube
         draw_wire_cube(50.0)
-    elif n_step == 1:
+    elif state.n_step == 1:
         # Wireframe cube with hidden-line removal simulated by drawing
         # only the front three faces' edges
         GL.glBegin(GL.GL_LINES)
@@ -325,11 +347,11 @@ def render_scene() -> None:
         GL.glVertex3f(25.0, -25.0, -25.0)
         GL.glVertex3f(25.0, -25.0, 25.0)
         GL.glEnd()
-    elif n_step == 2:
+    elif state.n_step == 2:
         draw_solid_cube(50.0)
-    elif n_step == 3:
+    elif state.n_step == 3:
         draw_solid_cube(50.0)
-    elif n_step == 4:
+    elif state.n_step == 4:
         # Lit cube + planar shadow
         cube_transform: np.ndarray = GL.glGetFloatv(  # noqa: F841
             GL.GL_MODELVIEW_MATRIX
@@ -340,21 +362,24 @@ def render_scene() -> None:
         GL.glDisable(GL.GL_LIGHTING)
         GL.glPushMatrix()
 
-        plane_normal, plane_d = plane_equation(ground[0], ground[1], ground[2])
+        # (unit normal, signed offset d)
+        plane: tuple[Vector, float] = plane_equation(
+            ground[0], ground[1], ground[2]
+        )
         shadow_mat: np.ndarray = make_planar_shadow_matrix(
-            plane_normal, plane_d, v_light_pos
+            plane[0], plane[1], v_light_pos
         )
         GL.glMultMatrixf(shadow_mat)
 
         GL.glTranslatef(-10.0, 0.0, 10.0)
         GL.glColor3f(0.0, 0.0, 0.0)
         draw_solid_cube(50.0)
-    elif n_step == 5:
+    elif state.n_step == 5:
         # Textured cube + planar shadow on textured floor
         GL.glColor3ub(255, 255, 255)
 
         # Front face
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[1])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[1])
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(1.0, 1.0)
         GL.glVertex3f(25.0, 25.0, 25.0)
@@ -367,7 +392,7 @@ def render_scene() -> None:
         GL.glEnd()
 
         # Top face
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[2])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[2])
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(0.0, 0.0)
         GL.glVertex3f(25.0, 25.0, 25.0)
@@ -380,7 +405,7 @@ def render_scene() -> None:
         GL.glEnd()
 
         # Right face
-        GL.glBindTexture(GL.GL_TEXTURE_2D, textures[3])
+        GL.glBindTexture(GL.GL_TEXTURE_2D, state.textures[3])
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(1.0, 1.0)
         GL.glVertex3f(25.0, 25.0, -25.0)
@@ -397,10 +422,8 @@ def render_scene() -> None:
         GL.glDisable(GL.GL_TEXTURE_2D)
 
         GL.glPushMatrix()
-        plane_normal, plane_d = plane_equation(ground[0], ground[1], ground[2])
-        shadow_mat = make_planar_shadow_matrix(
-            plane_normal, plane_d, v_light_pos
-        )
+        plane = plane_equation(ground[0], ground[1], ground[2])
+        shadow_mat = make_planar_shadow_matrix(plane[0], plane[1], v_light_pos)
         GL.glMultMatrixf(shadow_mat)
 
         GL.glTranslatef(-10.0, 0.0, 10.0)
@@ -414,10 +437,10 @@ def setup_rc() -> None:
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
-    textures[0] = load_tga_texture(os.path.join(PWD, "floor.tga"))
-    textures[1] = load_tga_texture(os.path.join(PWD, "Block4.tga"))
-    textures[2] = load_tga_texture(os.path.join(PWD, "Block5.tga"))
-    textures[3] = load_tga_texture(os.path.join(PWD, "Block6.tga"))
+    state.textures[0] = load_tga_texture(os.path.join(PWD, "floor.tga"))
+    state.textures[1] = load_tga_texture(os.path.join(PWD, "Block4.tga"))
+    state.textures[2] = load_tga_texture(os.path.join(PWD, "Block5.tga"))
+    state.textures[3] = load_tga_texture(os.path.join(PWD, "Block6.tga"))
 
 
 def change_size(w: int, h: int) -> None:
@@ -446,25 +469,25 @@ def change_size(w: int, h: int) -> None:
     GL.glRotatef(330.0, 0.0, 1.0, 0.0)
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
-    global window_width, window_height
-    window_width, window_height = w, h
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
+    state.window_width = w
+    state.window_height = h
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
-    global n_step
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
     elif key == glfw.KEY_SPACE and action == glfw.PRESS:
-        n_step += 1
-        if n_step > 5:
-            n_step = 0
+        state.n_step += 1
+        if state.n_step > 5:
+            state.n_step = 0
 
 
 def _set_step(i: int) -> None:
-    global n_step
-    n_step = i
+    state.n_step = i
 
 
 def imgui_menubar() -> None:
@@ -474,24 +497,27 @@ def imgui_menubar() -> None:
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Demo", True):
+        i: int
+        label: str
         for i, label in enumerate(STAGE_LABELS):
             _common.menu_action(
                 label,
                 "SPACE" if i == 0 else "",
                 lambda i=i: _set_step(i),
-                selected=(n_step == i),
+                selected=(state.n_step == i),
             )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
 
@@ -504,7 +530,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -516,8 +542,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -533,7 +559,7 @@ def main() -> None:
         glfw.swap_buffers(window)
 
     impl.shutdown()
-    GL.glDeleteTextures(textures)
+    GL.glDeleteTextures(state.textures)
     glfw.terminate()
 
 

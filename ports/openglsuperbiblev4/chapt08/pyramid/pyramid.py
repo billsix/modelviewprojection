@@ -4,6 +4,7 @@
 # OpenGL SuperBible, Chapter 8
 # Python port of Pyramid.cpp by Richard S. Wright Jr.
 
+import dataclasses
 import os
 import sys
 import time
@@ -25,23 +26,31 @@ PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window: typing.Any = None  # glfw window handle; set in main()
 
-x_rot: float = 0.0
-y_rot: float = 0.0
-extra_radius: float = 0.0
-texture_id: int = 0
+@dataclasses.dataclass
+class AppState:
+    """The app's mutable state; the one instance is ``state`` below."""
 
-env_mode_idx: int = 0  # 0=Modulate, 1=Replace
-min_filter_idx: int = 0  # 0=Linear, 1=Nearest
-mag_filter_idx: int = 0  # 0=Linear, 1=Nearest
+    # glfw window handle; set in main()
+    window: typing.Any = None
+
+    x_rot: float = 0.0
+    y_rot: float = 0.0
+    extra_radius: float = 0.0
+    texture_id: int = 0
+
+    env_mode_idx: int = 0  # 0=Modulate, 1=Replace
+    min_filter_idx: int = 0  # 0=Linear, 1=Nearest
+    mag_filter_idx: int = 0  # 0=Linear, 1=Nearest
+
+
+state: AppState = AppState()
 
 
 def load_texture() -> None:
-    global texture_id
     img: np.ndarray = iio.imread(os.path.join(PWD, "stone.tga"))
     img = np.flipud(img)
-    h, w = img.shape[:2]
+    img_size: tuple[int, ...] = img.shape[:2]
     fmt: Constant = (
         GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     )
@@ -49,10 +58,18 @@ def load_texture() -> None:
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
-    texture_id = GL.glGenTextures(1)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id)
+    state.texture_id = GL.glGenTextures(1)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, state.texture_id)
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, internal, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        GL.GL_TEXTURE_2D,
+        0,
+        internal,
+        img_size[1],
+        img_size[0],
+        0,
+        fmt,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
@@ -78,9 +95,9 @@ def render_scene() -> None:
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glPushMatrix()
-    GL.glTranslatef(0.0, -0.25, -4.0 - extra_radius)
-    GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
+    GL.glTranslatef(0.0, -0.25, -4.0 - state.extra_radius)
+    GL.glRotatef(state.x_rot, 1.0, 0.0, 0.0)
+    GL.glRotatef(state.y_rot, 0.0, 1.0, 0.0)
 
     GL.glColor3f(1.0, 1.0, 1.0)
     GL.glBegin(GL.GL_TRIANGLES)
@@ -101,6 +118,7 @@ def render_scene() -> None:
     GL.glVertex3f(*corners[4])
 
     # Front, left, back, right faces -- normal computed via mathutils
+    tri: tuple[Vector, Vector, Vector]
     for tri in [
         (corners[0], corners[4], corners[3]),
         (corners[0], corners[1], corners[4]),
@@ -151,58 +169,54 @@ def change_size(w: int, h: int) -> None:
     GL.glLoadIdentity()
 
 
-def on_framebuffer_size(_window, w: int, h: int) -> None:
+def on_framebuffer_size(_window: typing.Any, w: int, h: int) -> None:
     change_size(w, h)
 
 
 ROT_DEG_PER_SEC: float = 90.0
 
 
-def handle_special_keys(window, dt: float) -> None:
-    global x_rot, y_rot
+def handle_special_keys(window: typing.Any, dt: float) -> None:
     step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= step
+        state.x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += step
+        state.x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= step
+        state.y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += step
+        state.y_rot += step
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def on_key(
+    window: typing.Any, key: int, _scancode: int, action: int, _mods: int
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def _nudge_x(d: float) -> None:
-    global x_rot
-    x_rot += d
+    state.x_rot += d
 
 
 def _nudge_y(d: float) -> None:
-    global y_rot
-    y_rot += d
+    state.y_rot += d
 
 
 def _set_env(idx: int) -> None:
-    global env_mode_idx
-    env_mode_idx = idx
+    state.env_mode_idx = idx
     modes: list[Constant] = [GL.GL_MODULATE, GL.GL_REPLACE]
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, modes[idx])
 
 
 def _set_min(idx: int) -> None:
-    global min_filter_idx
-    min_filter_idx = idx
+    state.min_filter_idx = idx
     f: list[Constant] = [GL.GL_LINEAR, GL.GL_NEAREST]
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, f[idx])
 
 
 def _set_mag(idx: int) -> None:
-    global mag_filter_idx
-    mag_filter_idx = idx
+    state.mag_filter_idx = idx
     f: list[Constant] = [GL.GL_LINEAR, GL.GL_NEAREST]
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, f[idx])
 
@@ -211,19 +225,25 @@ def imgui_menubar() -> None:
     # All controls live in the top menubar. The combos become radio menu
     # items; the slider lives inside its own menu. Movement items show
     # their key (hold the key for continuous rotation).
-    global extra_radius
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
         _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+            "Quit",
+            "Esc",
+            lambda: glfw.set_window_should_close(state.window, True),
         )
         imgui.end_menu()
-    _common.draw_view_menu(_window)
+    _common.draw_view_menu(state.window)
     if imgui.begin_menu("Texture Env Mode", True):
+        i: int
+        label: str
         for i, label in enumerate(["Modulate", "Replace"]):
             _common.menu_action(
-                label, "", lambda v=i: _set_env(v), selected=(env_mode_idx == i)
+                label,
+                "",
+                lambda v=i: _set_env(v),
+                selected=(state.env_mode_idx == i),
             )
         imgui.end_menu()
     if imgui.begin_menu("Min Filter", True):
@@ -232,7 +252,7 @@ def imgui_menubar() -> None:
                 label,
                 "",
                 lambda v=i: _set_min(v),
-                selected=(min_filter_idx == i),
+                selected=(state.min_filter_idx == i),
             )
         imgui.end_menu()
     if imgui.begin_menu("Mag Filter", True):
@@ -241,13 +261,14 @@ def imgui_menubar() -> None:
                 label,
                 "",
                 lambda v=i: _set_mag(v),
-                selected=(mag_filter_idx == i),
+                selected=(state.mag_filter_idx == i),
             )
         imgui.end_menu()
     if imgui.begin_menu("Camera", True):
-        _, extra_radius = imgui.slider_float(
-            "Extra Radius", extra_radius, -4.0, 100.0
+        radius_slider: tuple[bool, float] = imgui.slider_float(
+            "Extra Radius", state.extra_radius, -4.0, 100.0
         )
+        state.extra_radius = radius_slider[1]
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate Up", "Up", lambda: _nudge_x(-2.0))
@@ -259,7 +280,6 @@ def imgui_menubar() -> None:
 
 
 def main() -> None:
-    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -272,7 +292,7 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
+    state.window = window
 
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -284,8 +304,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
 
     setup_rc()
-    w, h = glfw.get_framebuffer_size(window)
-    change_size(w, h)
+    size: tuple[int, int] = glfw.get_framebuffer_size(window)
+    change_size(size[0], size[1])
 
     glfw.swap_interval(1)
     last_frame: float = time.monotonic()
