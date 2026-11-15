@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
+# Copyright (c) 2026 William Emerison Six
+#
 # Run both Code-the-Classics behaviour gates on every game (or the games named
-# as arguments, e.g. `boing bunner`) against a git ref (default: master):
+# as arguments, e.g. `boing bunner`) against a git ref (REF=..., default
+# master). Use it after a change that touches every game at once, such as an
+# edit to the shared engine modules in src/modelviewprojection/pgzero_gl/:
 #   1. tools/ctc_verify_game.sh -- frame-180 pixel identity (attract mode);
 #   2. tools/ctc_state_trace.py on the ref's copy and the working tree, with
 #      one scripted key sequence, compared by tools/ctc_compare_traces.py.
 # Prints one PASS/FAIL line per gate per game and exits non-zero if any failed.
 # Needs `Xvfb :99` and the nested localhost/modelviewprojection image. Run from
-# anywhere; the repo root is derived from this script's path.
+# anywhere; the repo root is derived from this script's path. A capture that
+# times out on the UNCHANGED baseline is a flake (seen once, avenger,
+# 2026-11-15): re-run that game alone.
 set -u
-cd "$(dirname "${BASH_SOURCE[0]}")/../../.." || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 ref="${REF:-master}"
 frames=300
 # Start a game, then move, fire and pause: each game reads some of these keys.

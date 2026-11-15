@@ -136,6 +136,9 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   graph per frame for a diff (the input-path complement; the frame gate only
   sees the attract mode). Both need the sandbox's Xvfb on `:99` and the nested
   image. Details: `tasks/reference/code-the-classics-tightening.md` §5.
+  `tools/ctc_gate_all.sh [game ...]` runs both gates on all 11 game files against `REF`
+  (default `master`) — for a change that touches every game, such as the shared `pgzero_gl`
+  modules.
 - **Render gate for a demo / visualization / assignment** (2026-09-09):
   `tools/verify_render.sh <script> [frames] [png] [hold-keys] [--allow-blank]`
   + `tools/render_probe.py`. Drives the script for N frames in the project

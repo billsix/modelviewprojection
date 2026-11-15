@@ -1,163 +1,78 @@
-# Step 3 — re-extract a library that actually makes sense
+# Step 3 — re-extract the shared engine library from the Code-the-Classics games (done 2026-11-15)
 
-**Status:** in progress — un-parked by William Emerison Six <billsix@gmail.com>, 2026-11-15, as an authorized batch (branch `pgzero-gl-step3-reextract-library`, commits by the agent). Steps 1 (inline) & 2 (strip/restructure) and the tightening pass (`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`) are done; this step takes their output as input.
-**Priority:** 4
-**Difficulty:** 6
-**Part of:** `tasks/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Depends on:** `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`
+**Part of:** `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Followed:**
+`tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md` and the tightening pass
+`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`
+**Branch:** `pgzero-gl-step3-reextract-library` (authorized batch: the agent committed; the maintainer merges).
+**Durable record:** `tasks/reference/code-the-classics-tightening.md` §9 (what is shared, what stays per game,
+why) and `tasks/reference/notable-subsystems.md` §4a (the modules).
 
-## BLUF
+## What was done
 
-With 11 stripped, restructured, loop-owning game files in hand, factor back out **only** what is genuinely
-shared across them *in the same shape* — the real library the borrowed pgzero_gl framework was standing in for.
-This is the payoff of the whole initiative; the risk the umbrella names is that this step never happens, leaving
-11 divergent copies. What stays per-game duplicated is a feature (the house "teach once, then share is optional"
-rule), not a failure.
+The eleven game files under `ports/codetheclassics/vol{1,2}/` stopped carrying their own copies of the code
+that is the same in every game, and now import it from `src/modelviewprojection/pgzero_gl/`:
 
-## Context
-
-- **Read first:** the umbrella `tasks/pgzero-gl-inline-strip-reextract.md` (holds the re-extraction criterion)
-  and `tasks/reference/library-not-framework-authorship-style.md` (the extracted library must be *called by* the
-  games, never a loop that calls them — do not re-introduce the inversion we just removed).
-- Input is the 11 step-2 outputs. Only start once enough of them exist to see the real commonality (boing +
-  a few others is enough to begin; you don't need all 11 before looking).
-
-## The re-extraction criterion (decide before extracting, not after)
-
-A thing earns a shared home **only if**: (a) **≥ N games use it in the same shape** after step 2 (N to be set
-when we see the copies — likely a majority, not just 2), AND (b) **sharing it does not re-introduce the framework
-inversion** — a shared *function/class the game calls down into* is fine; a shared *loop/runner that calls the
-game's update/draw* is exactly the thing step 2 removed and must not come back. When unsure, leave it duplicated.
-
-## Work
-
-1. Diff the 11 step-2 files for genuinely-identical, same-shape units (renderer, resource loading, the input
-   poll, the audio mixer — the audio mixer in particular is heavy and identical, a strong shared-library
-   candidate; the loop is NOT — each game now owns its own).
-2. Extract those into a small library the games import and **call down into**, per the criterion.
-3. Decide the fate of the old `src/modelviewprojection/pgzero_gl/`: does the new extracted library replace it,
-   or does it stay for the demos while the games use the new one? Resolve explicitly.
-4. Re-run every game's headless + differential-trace check after extraction — extraction must be
-   behavior-preserving too.
-
-## Input from the tightening analysis (2026-09-05)
-
-The inlined engines are byte-identical within three families (cavern ≡ myriapod; eggzy ≡
-beatstreets ≡ leadingedge; kinetix/avenger/soccer/bunner the same text with different alias
-lines) — `tasks/reference/code-the-classics-tightening.md` §3. The tightening pass
-(`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`) runs BEFORE this step and produces one tightened engine
-per family, spliced into the siblings; those tightened copies are this step's input, and the
-per-game exceptions (only leadingedge uses the mixer fades, only avenger builds `mixer.Sound`,
-only bunner/soccer use `Sound.play(-1)`) are the first data for criterion (a).
-
-## Feasibility assessment (2026-11-05)
-
-Requested by William Emerison Six <billsix@gmail.com>: now that both Code the Classics volumes are ported, is
-extracting a library feasible, and would it cut duplication? **Yes, partially.** These are static measurements,
-made with an AST comparison of the engine half of each game file (everything above `# ===== game code`); no
-game was run.
-
-**Where things stand:**
-
-- The 11 files under `ports/codetheclassics/vol{1,2}/` total 29,341 lines. Every game owns its loop (e.g.
-  `boing.py`, `# ===== main loop =====`) and none imports `pgzero_gl`.
-- The engine halves total 12,842 lines. Their top-level definitions total 9,418 lines but only 3,929 distinct
-  lines, so **about 5,500 lines are verbatim copies** of a definition in another file.
-- **Identical in all 11:** `Image`, `_Loader`, `_key_cb`, `shutdown_audio`. **Identical in 10** (all but
-  `boing_gl1`): the GL helpers `_compile`, `_link_program`, `_make_buffer`, `GLBuffer`, `Uniforms`,
+- `audio.py` — `Sound`, `Music(root)`, `shutdown_audio()`: the one-device miniaudio mixer. It is the union
+  of the per-game variants (avenger/leadingedge's voices with looping, fade-in, fade-out and per-play
+  volume; leadingedge's `Music.fadeout`). With no fade active the gain is `1.0 * volume`, the same float the
+  simpler mixers computed.
+- `resources.py` — `Image` (CPU pixels, lazy GL texture) and `Loader[T](root, subdir, extns, make)`; each
+  game builds `images`/`sounds` from its own `ASSET_ROOT`.
+- `gl.py` — `link_program(vertex_source, fragment_source)`, `compile_shader`, `make_buffer`, `GLBuffer`,
   `ortho_pixels`.
-- **Subset variants, where the largest copy is the union:** `_Engine` (4 variants), `Sound` (4), `_Music` (5),
-  `_Voice` (4), `Actor` (4 variants, in 9 games, ≤32 lines differ), `Rect`, `Keyboard`, `blit`.
-- **Divergent:** `Renderer` (8 variants, 87–203 lines) and `SpriteRenderer` (9 variants; copied per file on
-  purpose, `tasks/reference/code-the-classics-tightening.md` §1 item 6).
 
-| Group | Lines saved by sharing | Library size |
-|---|---|---|
-| Audio (`_Voice`, `_Engine`, `Sound`, `_Music`, `shutdown_audio`) | ~2,770 | ~340 |
-| Assets (`Image`, `_Loader`, `_decode`) | ~1,030 | ~100 |
-| GL helpers (the six above) | ~660 | ~75 |
-| `Actor` / `Rect` / keyboard | ~1,690 | ~235 |
-| `Renderer` / `SpriteRenderer` | ~1,280 | ~255 |
+Each game kept its loop, `Renderer`, `SpriteRenderer`, shaders, `Uniforms`, `MODEL`, `Actor`, `Rect`,
+`Keyboard`, gamepad code and `Surface`. The game files went from 29,341 to 23,905 lines; the four package
+modules are 683 lines. The 2026-09 PyGame Zero facade modules that nothing imported (`runner`, `actor`,
+`screen`, `input`, …) were deleted from `pgzero_gl/`.
 
-**Library, not framework: easy here.** The games already own their loops, so nothing would call back into a
-game. A sketch of the API: `Sound.load(path)`, `sound.play(loops=0, volume=1.0)`, `music.play(name)` /
-`music.fadeout(ms)`, `shutdown_audio()`, `load_image(root, name) -> Image` (CPU decode, lazy GL upload),
-`compile_program(vs, fs)`, `make_buffer(...)`, `ortho_pixels(w, h)`.
-
-**Risks:**
-
-- It gives up part of "read one game file top to bottom", the step-1 choice recorded in the umbrella.
-- A shared mixer carries leadingedge/avenger's fade and loop paths that boing dropped.
-- **Licence:** the games are BSD-2 (`ports/codetheclassics/LICENSE`); the mvp package is GPL-2+. So the library
-  must live under `ports/codetheclassics/` with a BSD-2 header, **not** under `src/modelviewprojection/`.
-- Audio is never covered by `tools/ctc_verify_game.sh` / `ctc_state_trace.py`, so audio changes need a
-  play-test.
-- **Book:** no `doc-region` markers in `ports/`, and no `.rst` mentions these games.
-
-**Two things that predate this assessment:**
-
-- `src/modelviewprojection/pgzero_gl/` (18 files, 3,262 lines, LGPL-2.1) is dead. No code imports it. Its
-  only references are `tests/test_ctc_actor_field_collisions.py` (which AST-reads `pgzero_gl/actor.py`), a
-  comment in `tools/ctc_capture_frame.py`, `entrypoint/format.sh`, and ruff ignores in `pyproject.toml`.
-- `ports/codetheclassics/README.md` is stale. It says the games import the shared shim, and that upstream has
-  no licence file.
-
-## Recommendation (2026-11-05)
-
-Extract partially, in three steps:
-
-1. **Clean up first.** Delete `src/modelviewprojection/pgzero_gl/`, point the actor-field test at a game file,
-   clean the `format.sh` / `pyproject.toml` / `ctc_capture_frame.py` references, and fix the README. This
-   answers open question 2.
-2. **Extract only the code that teaches nothing and is the same shape everywhere:** audio, asset loading, GL
-   helpers. Put them in one called-down module, e.g. `ports/codetheclassics/ctc_engine.py` (BSD-2). That is
-   about 520 library lines replacing about 4,450 duplicated lines (~15% of the tree). Convert one game at a
-   time; after each, run the pixel-identity gate (`tools/ctc_verify_game.sh`) and the trace gates
-   (`ctc_state_trace.py`, `ctc_compare_traces.py`), then play-test the audio.
-3. **Keep per game:** the loop, `Actor`, `Rect`, `Keyboard`, `Renderer`, `SpriteRenderer`. They form the
-   teaching gradient from boing (rawest) to beatstreets (richest). An N=7 threshold would admit `Actor` /
-   `Rect` / `Renderer`; they are excluded on teaching grounds, not by count.
-
-`cayley_gl` should **not** share this library: different stack (imgui + matrix stack vs. a 2D sprite renderer
-+ mixer), different licence, and `ports/` stays independent of the package. Its own library-ification (done 2026-11-12) is
-`tasks/archive/2026/11/12/cayley-gl-caller-owned-loop.md`.
+Also changed: `tests/test_ctc_actor_field_collisions.py` checks each game's own `Actor` (it had read the
+deleted `pgzero_gl/actor.py`); the ruff per-file ignores and comments in `pyproject.toml`,
+`entrypoint/format.sh` and `tools/ctc_capture_frame.py`; both licence texts; the game docstrings;
+CLAUDE.md, the ports README and the reference docs. The all-games gate driver was promoted to
+`tools/ctc_gate_all.sh`.
 
 ## Decisions (William Emerison Six <billsix@gmail.com>, 2026-11-15)
 
-1. **N = 7 of 11, plus the teaching exclusion.** Extract only audio, asset loading and the GL helpers;
-   the loop, `Actor`, `Rect`, `Keyboard`, `Renderer` and `SpriteRenderer` stay per game.
-2. **The shim directory is the library's home.** Do NOT delete `src/modelviewprojection/pgzero_gl/`:
-   put the extracted code there and have the ports import it, so it is part of the mvp package. (This
-   reverses the assessment's "must live under `ports/`" licence point; see Implementation notes for the
-   licence handling.)
-3. **Un-park and do the whole step now**, not only the clean-up.
-4. **Import mechanism: nothing to do.** The games import `modelviewprojection.pgzero_gl` like any other
-   package module; the editable install in the image puts it on the path.
-5. **Single-file rule relaxed.** CLAUDE.md's "each ONE self-contained file" becomes "self-contained apart
-   from the shared `pgzero_gl` engine modules".
+1. **Criterion:** extract a unit only if at least 7 of the 11 files carry it in the same shape AND it teaches
+   nothing about the game. That admitted audio, asset loading and the GL helpers; `Actor`/`Rect`/`Renderer`
+   pass the count but stay per game as the teaching gradient from boing to beatstreets.
+2. **Home:** the existing `src/modelviewprojection/pgzero_gl/` directory, so the code is part of the mvp
+   package (this overrode the 2026-11-05 assessment, which had put it under `ports/` for licence reasons).
+3. **Scope:** the whole step at once, not only the dead-code clean-up.
+4. **Imports:** plain `from modelviewprojection.pgzero_gl.audio import …`; the editable install puts the
+   package on the path, so no `sys.path` handling.
+5. **CLAUDE.md:** "one self-contained file" became "self-contained apart from the shared engine modules".
 
-Process (same instruction): gpg signing off for the repo while the agent commits, one branch, commit per
-step, archive, then hand the branch to the maintainer to merge.
+Agent judgment calls, made under the batch go-ahead:
 
-## Implementation notes (agent judgment calls, 2026-11-15)
+- **Shaders, `Uniforms` and `MODEL` stayed in the games.** The shader text belongs next to the renderer that
+  uploads to it, so `link_program` takes the two sources as arguments.
+- **Licence:** the new modules carry the directory's LGPL-2.1 (the code is the maintainer's own engine code,
+  previously BSD-2-Clause inside each game). The games stay BSD-2-Clause and import an LGPL library, as the
+  upstream games import pygame. `ports/codetheclassics/LICENSE` and `pgzero_gl/LICENSE` say so.
+- **Pre-existing stale docs fixed in passing:** the ports README (the retired facade, a `PGZERO_GL` backend
+  switch and `PGZERO_GL_INFO` that no game has, two deleted task docs) and the "upstream has no licence"
+  claim (the game code is BSD-2-Clause per the Debian packaging); a `pyproject.toml` comment listing
+  ignore rules removed 2026-09-09; a ty-diagnostic citation of a deleted file in
+  `tasks/reference/python-coding-standard-mvp.md`.
 
-- **Union, not intersection.** Each extracted class is the superset variant: `_Voice`/`_Engine`/`Sound`
-  from avenger/leadingedge (looping, fade-in, fade-out, per-play volume), `_Music` from leadingedge
-  (`fadeout`). With no fade active, the superset mixer's gain is `1.0 * volume`, the same float the
-  simpler mixers compute, so the games that never fade mix identically.
-- **Asset roots are parameters.** The inlined loaders read the game's module-level `ASSET_ROOT`; the
-  library's `Loader` and `Music` take the root as a field, and each game constructs its own `images`,
-  `sounds` and `music` with its `ASSET_ROOT`.
-- **Shaders, `Uniforms` and `MODEL` stay in each game** next to its `Renderer`: the shader source is what
-  the GPU runs, and `Uniforms` names that shader's locations. The library's `link_program` takes the two
-  shader sources as arguments.
-- **Old shim modules replaced.** The 2026-09 shim modules nothing imports (the pgzero facade `__init__`,
-  `runner`, `actor`, `screen`, …) are deleted; `audio.py` and `resources.py` are rewritten from the games'
-  engines and `gl.py` is added. Git history keeps the old facade.
-- **Licence.** The directory stays LGPL-2.1 (its `LICENSE`); the extracted code is the maintainer's own
-  engine code, so it takes the directory's licence. The games stay BSD-2-Clause and import an LGPL
-  library, the same relationship the upstream games had with pygame. `ports/codetheclassics/LICENSE`
-  says so.
+## Verification
 
-## Open questions
+- Per game, against `master` (`tools/ctc_gate_all.sh`): frame-180 pixel identity (`tools/ctc_verify_game.sh`,
+  AE=0) and a 300-frame scripted-input state trace (`tools/ctc_state_trace.py` + `ctc_compare_traces.py`;
+  start, arrows, z, a, pause). All 11 identical; every traced frame was a distinct state, so the trace covered
+  play rather than an idle screen. One capture timed out on the unchanged avenger baseline and passed on
+  re-run (13 s); the script's header records it as a flake.
+- `make check-format`, `make type-check` (ty + the annotation checker over `src`, `tests`, `ports/**`) and
+  `make test` (66 passed) green on the branch. The book was not touched (no `doc-region` markers in `ports/`
+  or `pgzero_gl/`).
+- The codemod plus `ruff format` left a zero diff on a second run.
+- **Not verified: audio and gamepad.** Neither is gated; they need a play-test on real hardware, the
+  fading/looping games first (leadingedge, avenger, bunner, soccer).
 
-None; all five were answered 2026-11-15 (Decisions above).
+## Scripts
+
+`tasks/adhoc/pgzero-gl-step3-reextract-library/` held `engine_defs.py` (the per-definition variant table;
+its output `data/engine-defs-before.txt` was the worklog) and `use_library.py` (the codemod). Both were
+one-shot and were removed in the archive commit; see that commit's parent for their text.
