@@ -30,22 +30,20 @@ first-run issues (2026-04-28 list; strike items as Bill verifies):
 2. **`chapt04/transform` rotation direction** — `rotation_matrix_about_axis`
    is standard Rodrigues; if rotation looks reversed, transpose (sign
    convention varies).
-3. **`chapt03/single`** — on the maintainer's host the single-buffered window
-   showed nothing (2026-11-15), so the port is now double-buffered and redraws
-   the current pass's points each tick (verified headless). Confirm the spiral
-   grows on host GL.
-4. **`chapt01/block` step 5 draws only front/top/right faces** — faithful to
+3. **`chapt01/block` step 5 draws only front/top/right faces** — faithful to
    the C++; looks incomplete on purpose.
-5. **`glRotatef` argument types** — wrap angles in `float()` if PyOpenGL
+4. **`glRotatef` argument types** — wrap angles in `float()` if PyOpenGL
    raises `TypeError`.
-6. **`glLightfv` buffer types** — tuples work elsewhere; switch to numpy
+5. **`glLightfv` buffer types** — tuples work elsewhere; switch to numpy
    arrays if PyOpenGL complains.
+
+**Verified on host GL so far** (William Emerison Six <billsix@gmail.com>, 2026-11-15): the
+chapt01 and chapt02 demos, chapt03/single, chapt06/motionblur, chapt18/hdrbloom, chapt18/texfloat,
+chapt18/pixbufobj (2026-08-31) and chapt21/fonts. The four 2026-11-15 fixes (single,
+motionblur, hdrbloom, fonts) are recorded in `tasks/reference/gl-and-imgui-gotchas.md`.
 
 ## Remaining open questions (for Bill)
 
-- `chapt21/fonts` crashed on host 2026-11-15 (imgui-bundle 1.92 removed
-  `set_window_font_scale`); now fixed with `push_font` and verified headless.
-  Confirm it renders on host GL.
 - The chapt20/chapt22 "skip entirely" plan became print-a-notice **stubs**
   instead; fine as-is?
 
