@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026 William Emerison Six
 #
-# Deterministically capture frame N of a pgzero_gl game to a PNG, for the
-# frame-identity proof that the inline (step 1) changed no behavior.
+# Deterministically capture frame N of a Code-the-Classics game to a PNG, for
+# the frame-identity gate (tools/ctc_verify_game.sh) that a refactor changed no
+# behavior.
 #
 # It seeds `random` BEFORE the game runs (games don't self-seed, so both the
 # original and the inlined copy then take the identical RNG path), and

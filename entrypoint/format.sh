@@ -31,9 +31,9 @@ run ruff format tests
 run ruff format ports
 run ty check src
 run ty check tests
-# The Code-the-Classics pygame compatibility shim now lives IN the package
-# (src/modelviewprojection/pgzero_gl), so `ty check src` above covers it;
-# these are the typed game ports that import it.
+# The engine modules the Code-the-Classics games share live in the package
+# (src/modelviewprojection/pgzero_gl), so `ty check src` above covers them;
+# these are the typed game ports that import them.
 run ty check ports/codetheclassics/vol1
 run ty check ports/codetheclassics/vol2
 
