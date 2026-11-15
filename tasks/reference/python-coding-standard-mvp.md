@@ -94,8 +94,7 @@ rule, not its opposite (William Emerison Six <billsix@gmail.com>, 2026-10-12). T
 ## OpenGL / PyOpenGL typing and matrix conventions
 
 A GL concern for annotation specifically: **a GL enum is a PyOpenGL `Constant`, not an
-`int`** — do not annotate `GL.GL_TRUE` etc. as `int` (the live `ty` diagnostic at
-`pgzero_gl/runner.py:72` is this); the uninitialised-uniform sentinel is `-1`; matrices
+`int`** — do not annotate `GL.GL_TRUE` etc. as `int`; the uninitialised-uniform sentinel is `-1`; matrices
 upload **row-major with `GL_TRUE`**; winding is CCW. These, plus import order and the
 GL-resource registry, are in `tasks/reference/gl-and-imgui-gotchas.md` (§7 conventions,
 §§1–6 failure modes).

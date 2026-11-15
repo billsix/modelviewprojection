@@ -219,8 +219,8 @@ Consequence for method: **the engine half of a family is produced by a script, f
 and the key names the game reads; cavern was built that way and myriapod reused it. Only the game
 halves were hand-tightened. The family engine carries the UNION of its games' needs (e.g.
 `Actor.anchor`'s setter is myriapod's, not cavern's) — that union is exactly what step 3 of
-`tasks/pgzero-gl-inline-strip-reextract.md` (re-extract the shared library; parked) will find
-shared: what is "genuinely shared in the same shape" is already visible per family. Both splice
+`tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` (re-extract the shared library, §9)
+found shared: what is "genuinely shared in the same shape" is already visible per family. Both splice
 scripts were one-shot and were removed 2026-09-06 when the umbrella's scripts were archived (git
 history has them); the flag lists in §6 are what they recorded.
 
@@ -378,7 +378,8 @@ geometricalgebra the same day (`to_matrix_template` / `MatrixTemplate`, gacalc 0
 `tasks/archive/2026/09/06/matrix-template-compile-once.md`) and mvp adopted it 2026-09-06 when it
 pinned 0.0.20 (`tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md`); the one-shot codemods were removed and the harnesses
 live in `tools/` (`ctc_verify_game.sh`, `ctc_capture_frame.py`, `ctc_state_trace.py`,
-`ctc_compare_traces.py`, `ctc_profile_update.py`). Step 3 of the inline initiative stays parked.
+`ctc_compare_traces.py`, `ctc_profile_update.py`). Step 3 of the inline initiative extracted the shared
+engine modules on 2026-11-15 (§9).
 
 ## 8. The rule-set, the gacalc dialect, composition style, and frozen vectors
 
@@ -410,6 +411,32 @@ Code-the-Classics; kept verbatim here so nothing points at a cut section.
   catches `v.x = …` but NOT `v.x += …`**, so a grep for `\.(x|y|z)\s*[-+*/]?=` is part of any
   audit. Immutability retired the old aliasing hazard (shared defaults are safe; the defensive
   copies were removed 2026-07-25 — `tasks/reference/design-decisions.md` › Ports).
+
+## 9. The shared engine modules (step 3, 2026-11-15)
+
+The games import three modules from `src/modelviewprojection/pgzero_gl/` (LGPL-2.1) and call down
+into them; nothing there calls a game back:
+
+- `audio` — `Sound`, `Music(ASSET_ROOT)`, `shutdown_audio()`: the one-device mixer, the UNION of the
+  per-game variants (avenger/leadingedge's voices with looping, fade-in, fade-out and a per-play
+  volume; leadingedge's `Music.fadeout`). A game that never fades mixes exactly as before.
+- `resources` — `Image` and `Loader[T](root, subdir, extns, make)`; each game builds `images` and
+  `sounds` from its own `ASSET_ROOT`. `Surface` (kinetix, beatstreets, leadingedge) stays in the game
+  and subclasses the imported `Image`.
+- `gl` — `link_program(vertex_source, fragment_source)`, `compile_shader`, `make_buffer`, `GLBuffer`,
+  `ortho_pixels`.
+
+**What stays per game, and why.** The rule (William Emerison Six <billsix@gmail.com>, 2026-11-15):
+extract a unit only if at least 7 of the 11 files carry it in the same shape AND it teaches nothing
+about the game. So the loop, `Renderer`, `SpriteRenderer`, the shaders, `Uniforms` and `MODEL`,
+`Actor`, `Rect`/`IntRect`, `Keyboard` and the gamepad code stay in each file: they are the teaching
+gradient from boing (rawest) to beatstreets (richest), and the shader text belongs next to the
+renderer that uploads to it. Each game's `# ===== engine: audio =====` section is now a short
+comment plus `music: Music = Music(ASSET_ROOT)`.
+
+**Effect:** the eleven files went from 29,341 to 23,905 lines (−5,436); the four modules are 683
+lines. Every game was gated against the pre-extraction tree: frame-180 pixel identity and a
+300-frame scripted-input state trace, all identical. Audio is not gated.
 
 ## Related
 

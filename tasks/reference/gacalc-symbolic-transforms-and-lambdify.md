@@ -90,8 +90,8 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
 
 ## Where this could go next (options, not decisions)
 
-1. **Renderer model matrix via lambdify** — viable and *faster*; rollout touches the shim renderer
-   + the 10 inlined game copies (or lands via step 3 re-extract). Owned by
+1. **Renderer model matrix via lambdify** — viable and *faster*; rollout touches the 10 per-game
+   renderers (the renderer stayed per game when the shared engine modules were extracted). Owned by
    `tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md`.
 2. **A named, exact, fast quarter turn** — DONE in gacalc 0.0.20 as `g2.rotate_90_degrees()`
    (an `InvertibleFunction[Vector]`, the generated closed form of `v * e_12`, exact — no lambdify

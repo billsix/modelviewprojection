@@ -100,7 +100,7 @@ imports work solely via `pythonpath = src` in `pytest.ini`.
   recorder; no GL required.
 - **`tests/test_ctc_actor_field_collisions.py`** — a pure-AST guard: scans
   every CtC game's Actor-rooted dataclass field names against the property
-  names of `pgzero_gl/actor.py`. Exists because a dataclass field named like a
+  names of that game's own `Actor` class. Exists because a dataclass field named like a
   base-class property picks up the *property object* as its default — and it
   only exploded for some field orders ("bunner survived by luck while cavern
   and avenger crashed", 2026-07-09). This is why those fields are `spawn_pos`.

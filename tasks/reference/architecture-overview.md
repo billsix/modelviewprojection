@@ -55,7 +55,7 @@ Small, focused, individually-documented modules the demos import: `axes.py` (uni
 ### `ports/` — faithful ports from external graphics sources
 Not part of the installed package; kept in mvp's style for teaching and as porting source material.
 - **`ports/openglsuperbiblev4/`** — ~104 Python ports of the *OpenGL SuperBible v4* examples, organized by chapter (`chapt01 … chapt22`). The main source Bill draws demos from; some are already slotted into the numbered demos (`axes3d`→demo19a, `atom`→19b, `solar`→19c, `sphereworld`→19e, `Block`→demo22 — see `CLAUDE.md` › "SuperBible port plan").
-- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge), each **one self-contained file** (its own inlined, tightened engine on GLFW + OpenGL 3.3 core; since 2026-09-05 — `tasks/reference/code-the-classics-tightening.md`). The old shared shim source, `src/modelviewprojection/pgzero_gl/`, stays in the package unused until step 3 of `tasks/pgzero-gl-inline-strip-reextract.md` (parked) decides its fate.
+- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge), each **one file** that owns its loop and inlines its tightened engine on GLFW + OpenGL 3.3 core (since 2026-09-05 — `tasks/reference/code-the-classics-tightening.md`), importing only the shared audio mixer, image loading and GL helpers from `src/modelviewprojection/pgzero_gl/` (since 2026-11-15, §9 there).
 
 ---
 
