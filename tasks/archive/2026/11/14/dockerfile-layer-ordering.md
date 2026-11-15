@@ -66,8 +66,11 @@ stay cached. The built package set is unchanged. The layer order and its two rul
 - **Cache behaviour:** with a marker line appended to `entrypoint/04-install-emacs.sh`, steps 1–24
   (through the Spyder layer) were `Using cache` and the Emacs `COPY`/`RUN` onward reran. With
   `USE_SPYDER=1`, steps 1–22 were cached and the Spyder layer reran.
-- **Flag permutations:** `tools/verify_dockerfile_permutations.sh` (all-off = the `MINIMAL_IMAGE=1`
-  content, every feature but docs, docs only) — see the work commit message for the result.
+- **Flag permutations:** `tools/verify_dockerfile_permutations.sh` — p1 (all off, the
+  `MINIMAL_IMAGE=1` content) and p2 (every feature but docs, Spyder included) PASS: each group's
+  representative package is user-installed exactly when its flag is on. p3 (docs only) was stopped
+  unfinished because each build took ~40 minutes under storage-lock contention; the docs-on path is
+  covered by the default `make image` above, whose package set matched the old image's.
 - **Gates** against the new image: the `make format`, `make type-check` and `make test` recipes all
   exit 0; offline pulled-image path (`--network=none`, no mount, editable reinstall + `pytest`):
   57 passed. The `save`/`load` export round trip was not re-run (this change does not touch it).
