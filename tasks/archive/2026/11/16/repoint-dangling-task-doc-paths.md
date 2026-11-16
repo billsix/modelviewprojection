@@ -66,7 +66,8 @@ green afterwards.
 
 ## Scripts
 
-All under `tasks/adhoc/repoint-dangling-task-doc-paths/`:
+All of these were in `tasks/adhoc/repoint-dangling-task-doc-paths/`. They were one-shot, so the
+archive commit `git rm`'d them; they last exist in commit 66974484.
 - `discover.sh` lists the dangling paths. It excludes this doc and its own directory, which quote
   dangling paths on purpose.
 - `repoint.py` (`report` or `apply`) handles group 1.
@@ -75,4 +76,5 @@ All under `tasks/adhoc/repoint-dangling-task-doc-paths/`:
 - `data/` holds the snapshots: `dangling-before.txt`, `dangling-after-group1.txt`,
   `dangling-after.txt`, `report.txt`, `cross-repo-report.txt` and `keep.txt`.
 
-All of them are one-shot: they get `git rm`'d in the archive commit.
+To re-check the repo later, recover `discover.sh` with
+`git show 66974484:tasks/adhoc/repoint-dangling-task-doc-paths/discover.sh`.
