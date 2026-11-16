@@ -3,7 +3,7 @@
 **Status:** DONE + ARCHIVED 2026-09-05 — frame 180 AE=0 vs HEAD, 1500-frame input trace structurally identical (two levels, a game over, a second game), ruff + ty clean, 104 tests; staged (maintainer commits). Audio and gamepad unverified by harness — play-test.
 **Priority:** 5
 **Difficulty:** 5
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md` (vol2 engine) · **Next:** `tasks/codetheclassics-tighten-leadingedge.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md` (vol2 engine) · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-leadingedge.md`
 **Engine family:** vol2 — `eggzy.py:56–2671` ≡ `beatstreets.py:55–2670` ≡ `leadingedge.py:59–2674`. Splice kinetix's tightened engine; eggzy's alias line 54 (`_text = audio = gldraw = joystick`) means `surface`/`transform`/`mask` are already unreachable here.
 
 ## BLUF

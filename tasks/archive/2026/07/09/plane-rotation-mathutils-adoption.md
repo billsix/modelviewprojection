@@ -54,7 +54,7 @@ book TODOs, format.sh coverage). Archived.
   identity-default hoists in nbplotutils, one E501 wrap), **every step
   of the gate is green across assignments+src+tests+ports for the first
   time** — ruff, format --check, and all five ty targets. 60 pytest.
-- New task from Bill: `tasks/assignments-review.md` (modernize the
+- New task from Bill: `tasks/archive/2026/09/09/assignments-review.md` (modernize the
   exercises relative to the demos); CLAUDE.md/README now describe
   `assignments/`.
 **Created:** 2026-07-09 (relocated from geometricalgebra

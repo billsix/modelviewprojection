@@ -22,7 +22,7 @@ see `tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`).
 ## What was established 2026-08-02 (the useful part for resuming)
 
 **C++ ground truth** (verified; full trace in the source repo's
-`tasks/reference/chapt18-advanced-buffers.md`, github.com/billsix/OpenGLSuperBibleV4Code):
+`tasks/reference/chapt18-advanced-buffers.md`, github.com/billsix/OpenGLSuperbibleV4Code):
 one full-window quad; `useMotionBlur = GL_TRUE`, `usePBOs = GL_FALSE` by default; rotation is
 applied to **unit 0 only** and accumulates; the "trail" is a 3-frame feedback ring
 (readback → attenuate ÷4 → re-upload to units 1/2, which keep identity texcoords). With blur
@@ -71,4 +71,4 @@ non-interactive headless run doesn't reach.
 - `tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md` — the PBO crash and the texfloat startup crash (both fixed).
 - `tasks/reference/superbible-ports-guide.md` › "Port fidelity" — the running list of ports
   that don't match the C++.
-- C++ reference set: github.com/billsix/OpenGLSuperBibleV4Code `tasks/reference/`.
+- C++ reference set: github.com/billsix/OpenGLSuperbibleV4Code `tasks/reference/`.

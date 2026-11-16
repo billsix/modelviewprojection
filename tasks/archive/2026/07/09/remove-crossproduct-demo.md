@@ -20,7 +20,7 @@ mvp's copy is now redundant. Remove it.
 
 - **`src/modelviewprojection/mathdemos/crossproduct.py`** — the demo itself
   (1,317 lines). Deleting it also removes **76 of the 79** `ty check src`
-  diagnostics tracked in tasks/src-ty-diagnostics-after-ty-bump.md, shrinking
+  diagnostics tracked in tasks/archive/2026/07/09/src-ty-diagnostics-after-ty-bump.md, shrinking
   that task to 3 findings in nbplotutils/plotsforbook/notebooksrc.
 - **`mathdemos/_labels.py` + `billboard.vert`/`billboard.frag`** — used only
   by the crossproduct demo (verify no other consumer). The improved copy
@@ -29,10 +29,10 @@ mvp's copy is now redundant. Remove it.
   **`tests/test_crossproduct.py`** — same question: delete or keep? (the
   notebook/test may cover math that predates the demo).
 - **Task docs that die or change with it:**
-  - `tasks/crossproduct-tex-billboard-labels.md` (in-progress; its remaining
+  - `tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md` (in-progress; its remaining
     items are refinements to the demo being deleted) → archive as
     superseded-by-mvm.
-  - `tasks/math-demos-section-crossproduct-and-proof.md` (proposed; its
+  - `tasks/archive/2026/07/09/math-demos-section-crossproduct-and-proof.md` (proposed; its
     first demo WAS the crossproduct port) → re-scope or archive.
   - `tasks/backport-labels-fixes-from-mvm.md` → **deleted 2026-07-08 per
     Bill** (no backports; the demo is leaving).

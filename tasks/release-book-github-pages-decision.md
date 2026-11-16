@@ -2,7 +2,7 @@
 
 **Status:** needs maintainer decision (a cold-start question for William Emerison Six
 <billsix@gmail.com>, who asked to learn what GitHub Pages is before deciding; raised 2026-09-19). Split
-out of `tasks/release-standalone-book-assets.md`. No work until you pick an option below.
+out of `tasks/archive/2026/11/04/release-standalone-book-assets.md`. No work until you pick an option below.
 **Priority:** 6
 **Difficulty:** 3 (a small deploy workflow if yes)
 
@@ -54,7 +54,7 @@ a make target; only the Pages upload/deploy is the GitHub-specific YAML). If C, 
 
 ## Related
 
-- `tasks/release-standalone-book-assets.md` — the approved standalone-assets work (HTML zip lives there;
+- `tasks/archive/2026/11/04/release-standalone-book-assets.md` — the approved standalone-assets work (HTML zip lives there;
   this task decides the online-Pages question).
 - `tasks/github-actions-release-ci.md` — the release workflow a Pages deploy would sit alongside.
 - The book HTML output that would be published: `output/modelviewprojection/html/` (built by `make book`;

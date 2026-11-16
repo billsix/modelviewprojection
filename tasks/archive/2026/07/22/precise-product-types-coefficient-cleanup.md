@@ -14,7 +14,7 @@ Created 2026-07-21. Unblocked by gacalc 0.0.12 (on PyPI + GitHub) carrying the o
 - **`find_normal`** (`mathutils.py`): annotated `bivector: Bivector3` (the wedge of two `Vector3`
   subtractions types precisely as `Bivector3` now); added `Bivector3` to the `gacalc.g3` import. The
   `n = bivector.dual()` + `n.coefficient(Vector3.e_*)` reads **stay** — `dual()` isn't grade-precise
-  yet; that residual is `tasks/dual-coefficient-cleanup.md` (gated on gacalc 0.0.13).
+  yet; that residual is `tasks/archive/2026/07/22/dual-coefficient-cleanup.md` (gated on gacalc 0.0.13).
 - **Verified**: `ty` clean + doctests pass on both files (via a venv-style resolution matching the
   container gate). A re-scan found no `.coefficient()` sites beyond the documented ones.
 
@@ -33,7 +33,7 @@ installed gacalc.
 ## Context
 
 gacalc's generated graded types now type their **operators** precisely via `@typing.overload`
-(gacalc `tasks/.../typed-product-helper-functions.md`, 2026-07-21): `v1 ^ v2 : Bivector2`,
+(github.com/billsix/geometricalgebra `tasks/archive/2026/07/21/typed-product-helper-functions.md`): `v1 ^ v2 : Bivector2`,
 `v1 * v2 : Rotor2`, etc. — instead of the old unsound `-> Self` that mistyped `v1 ^ v2` as
 `Vector2`.
 
@@ -63,7 +63,7 @@ and lets the checker verify the grade actually exists.
    `ARG GACALC_VERSION` in the Dockerfile, which drives the docs-source copy).
 2. Checker: **mvp's gate already runs `ty`** (`entrypoint/format.sh`), which accepts the
    overloads — so the gate is fine. (Interactive pyright-in-emacs is a separate concern; see
-   `tasks/switch-typechecker-pyright-to-ty.md`.)
+   `tasks/archive/2026/08/23/switch-typechecker-pyright-to-ty.md`.)
 
 ## Verify
 

@@ -2,7 +2,7 @@
 
 **Status:** complete
 **Completed:** 2026-07-22 (gacalc 0.0.13 released, mvp pin bumped, `find_normal` simplified). Follow-on
-to `tasks/precise-product-types-coefficient-cleanup.md` (the one site that task had to leave alone).
+to `tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md` (the one site that task had to leave alone).
 
 ## Outcome (what shipped, 2026-07-22)
 
@@ -79,4 +79,4 @@ builds, and the `find_normal` doctests still pass. Confirm `bivector.dual().coef
 ## Relationships
 
 - gacalc `tasks/archive/2026/07/22/precise-dual-typing.md` (the upstream typing change + its release step).
-- `tasks/precise-product-types-coefficient-cleanup.md` (this is its deferred residual).
+- `tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md` (this is its deferred residual).

@@ -11,7 +11,7 @@
 > Bill is frustrated after many failed iterations and asked for a fresh-eyes
 > restart. Full handoff + Bill's complaints + what was tried + the correct
 > reference (the undo phases & the original) in
-> **`tasks/crossproduct-relative-coordinates-rendering.md`**. The demo's
+> **`tasks/archive/2026/06/14/crossproduct-relative-coordinates-rendering.md`**. The demo's
 > `crossproduct.py` is left in its current (still-wrong) state on purpose.
 
 **Status:** Phases 1-3 DONE + rotor/Cayley-graph refactor DONE + animation-faithful
@@ -43,7 +43,7 @@ Written 2026-06-14 from a read of `multivariate-math/src/crossproduct/` and
   style: orbit camera + imgui + cayley_gl world axes + a/b/(a x b) as live colored
   vectors, recomputed via `cross_product`. GL imports are local so the math import
   stays headless. **Visuals unverified (display = Bill's).**
-- Related gacalc task filed: `geometricalgebra/tasks/show-mult-expand-numerators-not-denominators.md`.
+- Related gacalc task filed: github.com/billsix/geometricalgebra `tasks/archive/2026/06/15/show-mult-expand-numerators-not-denominators.md`.
 
 ## Rigor: what is *proven* vs. *verified*
 

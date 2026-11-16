@@ -45,7 +45,7 @@ thousand vector ops per frame (leadingedge: 9k `__sub__` calls in 900 frames; ga
 sympy.simplify(sympify(a) - sympify(b)) == 0` per coefficient, so two vectors that *differ* pay
 `sympy.simplify` (~60 µs). beatstreets compares `target != self.vpos` per fighter per frame: 1189
 comparisons = 71 ms of its 173 ms. Still only 0.4% of the budget today, but it is the wrong place
-for the cost and it is gacalc's to fix — filed as `tasks/fast-numeric-equality.md` in the gacalc repo
+for the cost and it is gacalc's to fix — filed as `tasks/archive/2026/09/09/fast-numeric-equality.md` in the gacalc repo (github.com/billsix/geometricalgebra)
 (short-circuit when both coefficients are plain numbers). Not a reason to change the point type: the
 comparison is between two `Vector`s regardless.
 

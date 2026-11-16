@@ -7,7 +7,7 @@ light-space/shadow path) and `mvpvisualization/coordinatesystems.py` ("looks fin
 cylinder frames through the converted cross) on host GL via the `make shell-exec` display
 route. The "full gate green" clause of the original done-state was DECOUPLED: the format
 gate's ty half is red from unrelated toolchain drift, tracked in
-`tasks/ty-0072-strictness-sweep.md` — not this task's gate.
+`tasks/archive/2026/09/06/ty-0072-strictness-sweep.md` — not this task's gate.
 Verification so far: containerized `make test` 104 green (against installed gacalc 0.0.18);
 `make check-regions` green (book anchors resolve against the 0.0.18 sdist); ruff green;
 mathutils+shading doctests green (three `-0.0` repr expectations updated — the closed form
@@ -16,7 +16,7 @@ converted sites proven numerically identical to `np.cross` in-container (500 ran
 cylinder builder + the demo22 line replicated); sign identity `(a∧b).dual() == cross(a,b)`
 proven symbolically. NOTE: `make format`'s ty half fails with 74 errors that are **toolchain
 drift** (the rebuilt image pulled the stricter ty 0.0.72), not from this change — tracked
-separately in `tasks/ty-0072-strictness-sweep.md`.
+separately in `tasks/archive/2026/09/06/ty-0072-strictness-sweep.md`.
 **Priority:** 3
 **Difficulty:** 4
 **Created:** 2026-08-31

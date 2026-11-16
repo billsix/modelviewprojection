@@ -12,7 +12,7 @@ learned during the port live in `tasks/reference/gl-and-imgui-gotchas.md`.
 
 A full, verified map of the upstream C++ (framework, build, per-chapter, chapt18 deep-dive)
 now lives in the source repo itself:
-**github.com/billsix/OpenGLSuperBibleV4Code** under `tasks/reference/`.
+**github.com/billsix/OpenGLSuperbibleV4Code** under `tasks/reference/`.
 
 ---
 

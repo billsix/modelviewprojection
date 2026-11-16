@@ -139,7 +139,7 @@ priced yet and may dominate option 4 — measure it before defaulting to the pla
 
 ## Related
 
-`tasks/ctc-game-main-guard-and-clean-exit.md` proposes the identical change for the
+`tasks/archive/2026/08/23/ctc-game-main-guard-and-clean-exit.md` proposes the identical change for the
 Code-the-Classics ports. Same transformation, same motivation — worth doing in one sweep
 or two deliberately consistent ones. The ports are **not** book-excerpted, so they have
 none of the `:dedent:` complication.

@@ -178,8 +178,8 @@ Out of this task's scope — worth a quick sweep/fix if Bill wants.
 5. Bill verifies visually (needs a display).
 
 ## Relationship to existing plans (coordinate, don't duplicate)
-- [`../tasks/ports-replace-cli-with-imgui.md`](../tasks/ports-replace-cli-with-imgui.md) — Phase 3
+- `tasks/archive/2026/06/14/ports-replace-cli-with-imgui.md` — Phase 3
   "replace CLI args with imgui". This task is the keyboard-options analogue; likely the same effort.
-- [`../tasks/ports-keyboard-standardization.md`](../tasks/ports-keyboard-standardization.md) —
+- `tasks/archive/2026/06/14/ports-keyboard-standardization.md` —
   Phase 3 "one keyboard convention". Decide which keys *remain* (nav) here.
 - [`../tasks/ports-ux-pass.md`](../tasks/ports-ux-pass.md) — umbrella; this fits its Phase 3.

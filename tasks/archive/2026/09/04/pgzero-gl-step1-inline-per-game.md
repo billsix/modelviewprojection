@@ -3,7 +3,7 @@
 **Status:** DONE — all 10 games inlined & proven behavior-preserving 2026-09-04 (staged; maintainer commits)
 **Priority:** 4
 **Difficulty:** 4
-**Part of:** `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Next:** `tasks/pgzero-gl-step2-strip-and-restructure.md`
+**Part of:** `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Next:** `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`
 
 ## Result (2026-09-04)
 

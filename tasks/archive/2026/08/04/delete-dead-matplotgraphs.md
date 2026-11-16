@@ -1,7 +1,7 @@
 # Delete the dead module: plotutils/matplotgraphs.py
 
 **Status:** done (2026-08-03) — deleted (`git rm`) as part of the gacalc plot-transforms
-rewrite; staged, not committed. See `tasks/rewrite-book-plot-transforms-with-gacalc.md` and the
+rewrite; staged, not committed. See `tasks/archive/2026/08/04/rewrite-book-plot-transforms-with-gacalc.md` and the
 harvested rationale in `tasks/reference/design-decisions.md`.
 **Priority:** 5
 **Difficulty:** 1

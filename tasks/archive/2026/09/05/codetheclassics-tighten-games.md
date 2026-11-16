@@ -52,12 +52,12 @@ record.
   shapes — **this task is the deliberate, maintainer-approved exception** (a modernization sweep, like
   the one-time 2026-07-18 pass), so restructuring existing game code is in-scope here.
 - **This FOLDS IN two existing tasks (maintainer confirmed 2026-09-05) — subsumed, not duplicated:**
-  - `tasks/remove-pygame-comments-from-ctc.md` (P4/D5) — strip the misleading pygame/PyGame-Zero
+  - `tasks/archive/2026/09/05/remove-pygame-comments-from-ctc.md` (P4/D5) — strip the misleading pygame/PyGame-Zero
     **comments & docstrings** (~987 mentions; **comments only, NEVER identifiers**; pygame's influence
     stays acknowledged where true — only the "this IS pygame" framing goes). Do this **as part of each
     game's pass** here; use its detail as the per-game comment-concern checklist, and archive it as
     subsumed once every game's comments are done.
-  - `tasks/code-the-classics-round3-types.md` (blocked, P7) — "add more types." Tighter/precise typing
+  - `tasks/archive/2026/09/05/code-the-classics-round3-types.md` (blocked, P7) — "add more types." Tighter/precise typing
     is part of "as tight as possible," so absorb its intent per-game (its own open questions —
     which games / annotations-vs-new-types — get answered by Fable's per-game analysis).
   - **Boundary, as first drawn:** the GL-resource classes (`Renderer`, `Image`) belonged to a separate

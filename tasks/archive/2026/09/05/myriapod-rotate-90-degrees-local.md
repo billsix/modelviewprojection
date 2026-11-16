@@ -20,7 +20,7 @@ Byte-identical to the prior `* e_12` loop.
 - The maintainer wanted a **named** form too ("I like named functions", and "students should know
   `* e_12` rotates 90°"). Both are served by a named local function whose body is `* e_12`.
 - **Decided LOCAL, not in gacalc.** A gacalc `rotate_90_degrees` was researched and **parked** —
-  geometricalgebra `tasks/add-quarter-turn-to-g2.md` — because it would serve a single downstream
+  github.com/billsix/geometricalgebra `tasks/archive/2026/09/06/add-quarter-turn-to-g2.md` — because it would serve a single downstream
   use and gacalc's generate→test→release cycle is heavy for a 4-line function; a local definition is
   trivial and shows the primitive at the use site. (A g2-only gacalc version stays viable on its own
   merits if broad reuse ever emerges — that task stands alone.)
@@ -59,5 +59,5 @@ Byte-identical to the prior `* e_12` loop.
 ## Related
 
 - `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — the `* e_12` this builds on.
-- geometricalgebra `tasks/add-quarter-turn-to-g2.md` — the (parked, standalone) gacalc alternative.
+- github.com/billsix/geometricalgebra `tasks/archive/2026/09/06/add-quarter-turn-to-g2.md` — the (parked, standalone) gacalc alternative.
 - `tasks/reference/gacalc-symbolic-transforms-and-lambdify.md` — the wider gacalc-transforms study.

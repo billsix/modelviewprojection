@@ -32,7 +32,7 @@ is inlined into each game — and 143 in the shim). **Comments/docstrings only �
   companion to step 2 (make-specific per game); do it before or alongside step 3 (re-extract).
 - **Overlaps the licensing pass — do NOT double-handle:** the file-header block
   (*"clean-room reimplementation of the pygame / PyGame Zero APIs … LGPL"*) is rewritten by
-  `tasks/codetheclassics-licensing-after-shim-inline.md` (the approved **BSD-2-Clause** header pass).
+  `tasks/archive/2026/09/05/codetheclassics-licensing-after-shim-inline.md` (the approved **BSD-2-Clause** header pass).
   Coordinate: let the licensing pass own the headers; this task owns the *body* comments/docstrings.
 
 ## Scope and judgment calls (this is not a blind find-replace)

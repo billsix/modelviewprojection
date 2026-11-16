@@ -17,7 +17,7 @@ the full book-catch-up scope).
 > slices moved out of mvp into gacalc. Reconciling chapter prose + slices is
 > pedagogy, so **talk through the strategy with Bill before editing chapters**
 > (it was flagged "highest risk — needs a Bill decision"). See the Phase 4 section
-> below and the book-drift audits `tasks/book-code-drift-ch7-15.md` /
+> below and the book-drift audits `tasks/archive/2026/08/02/book-code-drift-ch7-15.md` /
 > `ch16-21.md` for input.
 
 ## Progress log
@@ -285,7 +285,7 @@ in ch05/ch14. A type switch re-opens exactly that material.
 **STILL OPEN (non-blocking for mvp; gacalc-side):**
 3. **Phase G module shape** — new `gacalc/animation.py` housing an enriched
    `InvertibleFunction`, vs. enriching `transforms.py`. gacalc-architect call;
-   tracked in `/geometricalgebra/tasks/port-animation-layer-from-mvp.md`.
+   tracked in github.com/billsix/geometricalgebra `tasks/archive/2026/06/08/port-animation-layer-from-mvp.md`.
 
 **Informational:**
 4. **`scale_non_uniform` protocol** — gacalc's version uses

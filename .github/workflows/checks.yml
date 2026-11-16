@@ -1,4 +1,4 @@
-# Check-only CI (phase 1 of tasks/github-actions-format-ci.md), on every push + PR.
+# Check-only CI (phase 1 of tasks/archive/2026/10/22/github-actions-format-ci.md), on every push + PR.
 #
 # Governing principle: CI is a THIN WRAPPER over the make/Dockerfile system.
 # Each job is just `checkout` -> `make <target>`; all logic lives in the Makefile.

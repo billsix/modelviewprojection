@@ -14,7 +14,7 @@ they put `chapt11/` on `sys.path` instead of the tree root; chapt03/single is si
 and never swaps, so `tools/render_probe.py`, which counts frames on `glfw.swap_buffers`, never
 ends it and never photographs it. Done means: all four render under the probe, the full v4
 sweep is 96 of 99 (the other three, texfloat, hdrbloom and motionblur, stay with
-`tasks/ports-pbo-floattex-runtime-crashes.md`), and the v4 gates are green.
+`tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`), and the v4 gates are green.
 
 ## Context (cold start)
 
@@ -52,7 +52,7 @@ sweep is 96 of 99 (the other three, texfloat, hdrbloom and motionblur, stay with
   still render (their swaps are counted, their flushes ignored).
 - Gates: ruff clean; the annotation checker clean; full v4 sweep 96 of 99 with
   `MVP_GLFW_X11=1` + `MVP_CONTROLS_WINDOW=1`; the three left are texfloat, hdrbloom and
-  motionblur (`tasks/ports-pbo-floattex-runtime-crashes.md`, unchanged).
+  motionblur (`tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`, unchanged).
 - Recorded in `headless-verification.md` §3 (the flush rule).
 
 ## Open questions

@@ -92,7 +92,7 @@ that while the local copy cleared to black. It makes the assignment match every 
 If it is unwanted the revert is to keep a local copy of that helper — but then the duplication is
 back, so the honest fix would be a parameter on the shared one.
 
-**Not done, and deliberately:** `tasks/graphing-calculator-2d-3d.md` still wants to *grow* this
+**Not done, and deliberately:** `tasks/archive/2026/11/03/graphing-calculator-2d-3d.md` still wants to *grow* this
 file's `plot()` into a graphing calculator, and its open question 1 ("grow assignment1 in place, or
 a new standalone program?") is untouched by the above — the cleanup neither helps nor blocks it.
 Answer that there.
@@ -185,5 +185,5 @@ new code automatically.
 
 - `tasks/archive/2026/09/09/assignments-review.md` — the parent task; assignment 3's record and the
   method to copy.
-- `tasks/graphing-calculator-2d-3d.md` — overlaps assignment 1 directly (question 1).
+- `tasks/archive/2026/11/03/graphing-calculator-2d-3d.md` — overlaps assignment 1 directly (question 1).
 - `tasks/reference/demo-chapter-inventory.md` §5 — which assignments the book publishes.

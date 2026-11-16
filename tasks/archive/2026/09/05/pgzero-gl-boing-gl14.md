@@ -30,7 +30,7 @@ boing frame 180. Awaiting maintainer play-test (input/audio, which the frame tra
   2. `Renderer1x`'s own docstrings keep their "same interface as the 3.3 `Renderer`" design notes
      (intentional cross-references, not stale).
   3. `boing_gl1.py` inherits `boing.py`'s current (interim) LGPL header — the license cleanup is
-     deliberately deferred to `tasks/codetheclassics-licensing-after-shim-inline.md`.
+     deliberately deferred to `tasks/archive/2026/09/05/codetheclassics-licensing-after-shim-inline.md`.
 - **Open for maintainer:** play-test input/audio/gameplay (frame trace covers the no-input path
   only); then this task can be archived.
 

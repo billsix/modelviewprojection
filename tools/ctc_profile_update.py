@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026 William Emerison Six
 #
-# Whole-game measurement for tasks/pointlike-type-study.md: how long a game's
+# Whole-game measurement for tasks/archive/2026/09/06/pointlike-type-study.md: how long a game's
 # update() takes per frame, and how much of that is gacalc vector work. Runs a
 # game the way tools/ctc_state_trace.py does (as __main__, loop disabled, audio
 # stubbed, keys scripted) but times N frames of update() instead of dumping

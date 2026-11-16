@@ -32,7 +32,7 @@ just the games. Nine pure deletions, each behavior-preserving (a path nothing ru
 study wrongly flagged as dead are corrected here to KEEP** — the verification caught them. Duplication in the
 games is intentional pedagogy and is untouched; this task removes only *dead* code, never *duplicated* code.
 Rationale + full per-file evidence: `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md`.
-This is the extraction of Group 1 from `tasks/pgzero-gl-de-abstraction-options.md`.
+This is the extraction of Group 1 from `tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md`.
 
 ## Context (read first)
 

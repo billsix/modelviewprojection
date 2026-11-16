@@ -1,6 +1,6 @@
 # Remove the dead Code-the-Classics smoke test (`ports/codetheclassics/_smoketest.py`)
 
-**Status:** DONE + ARCHIVED 2026-09-06 — go-ahead from William Emerison Six <billsix@gmail.com> 2026-09-05 ("sure if you recommend to"); `git rm ports/codetheclassics/_smoketest.py`, README's two mentions replaced with the `tools/ctc_*` usage, `notable-subsystems.md` and `tests-and-gates.md` entries rewritten as removed (EGL lore kept). `tasks/adhoc/pgzero-gl-inline/context_to_class.sh` and `tasks/pgzero-gl-de-abstraction-options.md` still name it historically — left as is.
+**Status:** DONE + ARCHIVED 2026-09-06 — go-ahead from William Emerison Six <billsix@gmail.com> 2026-09-05 ("sure if you recommend to"); `git rm ports/codetheclassics/_smoketest.py`, README's two mentions replaced with the `tools/ctc_*` usage, `notable-subsystems.md` and `tests-and-gates.md` entries rewritten as removed (EGL lore kept). `tasks/adhoc/pgzero-gl-inline/context_to_class.sh` and `tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md` still name it historically — left as is.
 **Priority:** 6
 **Difficulty:** 2
 

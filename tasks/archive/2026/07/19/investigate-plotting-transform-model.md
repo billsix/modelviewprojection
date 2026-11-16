@@ -174,7 +174,7 @@ changes until Bill picks an option.**
 
 ## Related
 
-- `tasks/apply-python-coding-standard.md` — the naming pass already touched these files
+- `tasks/archive/2026/10/12/apply-python-coding-standard.md` — the naming pass already touched these files
   (`mapMatplotlibData` -> `map_matplotlib_data`, `scaleX`/`scaleY` -> `scale_x`/`scale_y`).
-- `tasks/doctests-everywhere.md` — `mpltransformations.py` holds 2 of the repo's only
+- `tasks/archive/2026/07/19/doctests-everywhere.md` — `mpltransformations.py` holds 2 of the repo's only
   doctests; any rewrite must keep them meaningful.

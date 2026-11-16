@@ -4,7 +4,7 @@
 commits mid-work; play-test audio (mixer stripped to no-arg plays + looping music) when convenient.
 **Priority:** 2
 **Difficulty:** 4
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** the boing pilot's depth read · **Next:** `tasks/codetheclassics-tighten-myriapod.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** the boing pilot's depth read · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-myriapod.md`
 **Engine family:** vol1-minimal — `cavern.py:1-1936` is byte-identical to `myriapod.py:1-1936` bar the game name in 5 doc lines. **Tighten this engine half once and splice it into myriapod** (reference doc §3).
 
 ## BLUF

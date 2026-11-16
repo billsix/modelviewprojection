@@ -158,7 +158,7 @@ Two independent porting projects, both kept under `ports/` (not in the curriculu
 - **Known gacalc costs** (measured 2026-09-06): vector ops are 0.1–0.4 µs and a game's whole
   `update()` is ~1% of the 60 Hz budget, but `Vector.__eq__` falls into `sympy.simplify` when two
   plain floats *differ* (~48 µs; beatstreets compares targets every frame) — a gacalc fix is filed
-  (geometricalgebra `tasks/fast-numeric-equality.md`).
+  (github.com/billsix/geometricalgebra `tasks/archive/2026/09/09/fast-numeric-equality.md`).
 
 **Licensing gotcha (real).** The game code is BSD-2-Clause (© Eben Upton), per Raspberry Pi's Debian packaging, reproduced in `ports/codetheclassics/LICENSE`; the upstream GitHub repos ship no licence file. The graphics and audio are © Raspberry Pi Press, included for educational use on Bill's authorization (2026-06-24); every file carries an attribution header. **If this tree is ever published, confirm redistribution of the assets with Raspberry Pi Press first.** The shared `pgzero_gl` engine modules are Bill's own LGPL-2.1 code; the games' inlined engine code is his, BSD-2-Clause.
 

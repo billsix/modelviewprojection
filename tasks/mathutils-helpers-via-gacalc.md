@@ -120,7 +120,7 @@ still builds (`api.html` regenerates); spot-check a graph-paper figure that uses
 
 ## Related
 
-- gacalc `tasks/archive/2026/08/24/area-volume-content.md` — the measure work these named functions
+- gacalc (github.com/billsix/geometricalgebra) `tasks/archive/2026/08/24/area-volume-content.md` — the measure work these named functions
   came from (`area`/`signed_area`/`volume`/`content`); the durable notes are gacalc's
   `tasks/reference/content-area-volume.md`.
 - `tasks/archive/2026/05/26/shading-use-vector3d.md` — the earlier pass that made `_face_normal`

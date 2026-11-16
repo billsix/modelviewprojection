@@ -4,7 +4,7 @@
 (mixer stripped to no-arg plays + looping music) when convenient.
 **Priority:** 3
 **Difficulty:** 4
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-cavern.md` (same engine family) · **Next:** `tasks/codetheclassics-tighten-bunner.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-cavern.md` (same engine family) · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-bunner.md`
 **Engine family:** vol1-minimal — `myriapod.py:1-1936` ≡ `cavern.py:1-1936` (only lines 8, 25, 36, 41–42, 1512, 1918–1922 differ, all doc text). **Engine: `python tasks/adhoc/codetheclassics-tighten-games/splice_vol1_engine.py myriapod Myriapod <keys>`; hand-tighten only the game half.**
 
 ## BLUF
@@ -18,7 +18,7 @@ RNG-bearing constructors that must not be reordered.
 
 - Shape (HEAD 2026-09-05): banners at the same lines as cavern (52 … 1881); game code from 1937;
   `__main__` at 3005; alias line 50. `update()` takes no `dt`.
-- Related: `tasks/swap-myriapod-rotate90-to-gacalc.md` — myriapod's local `rotate_90_degrees`
+- Related: `tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md` — myriapod's local `rotate_90_degrees`
   (`InvertibleFunction`) is a deliberate temporary duplication of a gacalc feature; **leave it**.
 
 ## Analysis
@@ -59,7 +59,7 @@ history → banner.
 - **Engine:** `splice_vol1_engine.py myriapod Myriapod left,right,up,down,space 480x800` (the script
   gained a window-size parameter for this game; cavern's output is unchanged). The game's gacalc
   imports (`e_12`, `InvertibleFunction`/`identity`/`inverse`) are taken from the file verbatim; the
-  local `rotate_90_degrees` stays (`tasks/swap-myriapod-rotate90-to-gacalc.md`).
+  local `rotate_90_degrees` stays (`tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md`).
 - **Classes:** `Explosion`/`Player`/`Bullet`/`Segment` → `slots=True` (all attributes were already
   declared); `FlyingEnemy` and `Rock` stay plain (RNG/side-effect constructors, comments say why)
   and get `__slots__`; **`Game` → dataclass** with `player: Player | None`, `grid` built in

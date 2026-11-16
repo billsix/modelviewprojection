@@ -152,6 +152,6 @@ you don't need.
 
 ## Also queued (separate, not this bug)
 
-`tasks/crossproduct-tex-billboard-labels.md` — TeX billboard vector labels via
+`tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md` — TeX billboard vector labels via
 texExpToPng; decisions locked, runtime-conditional generation; texExpToPng already
 has new `--bg/--fg` flags (staged in /billopt/texExpToPng). Not started.

@@ -83,7 +83,7 @@ classes; the rest is gacalc's:
   gacalc-invariance class** (22 `compose` no-matching-overload, 11 `to_matrix`/`create_graphs`
   invalid-argument-type, 3 `uniform_scale` invalid-assignment).
 - **The 36 are blocked on gacalc 0.0.19** — task filed AND being implemented:
-  `github.com/billsix/geometricalgebra` `tasks/ty-invariance-transform-factories-bind-v.md`. When
+  `github.com/billsix/geometricalgebra` `tasks/archive/2026/09/06/ty-invariance-transform-factories-bind-v.md`. When
   that ships, bump the mvp pin and the 36 clear; then `make format` is fully green and this task
   archives.
 

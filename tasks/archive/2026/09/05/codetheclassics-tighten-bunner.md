@@ -4,7 +4,7 @@
 (looping river/traffic ambience with distance volume, plus one-shot effects) when convenient.
 **Priority:** 3
 **Difficulty:** 5
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** the boing depth read · **Next:** `tasks/codetheclassics-tighten-soccer.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** the boing depth read · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-soccer.md`
 **Engine family:** vol1-rich (with soccer): the vol1-minimal engine **plus** `surface` 1476, `draw` 1634, `text` 1684 and a richer `Screen`/`_Mixer`. Tighten this engine once; soccer shares it.
 
 ## BLUF

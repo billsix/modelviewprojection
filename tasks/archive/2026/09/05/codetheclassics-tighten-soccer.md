@@ -4,7 +4,7 @@
 (looping crowd, the 1-second music fade-out on game start, one-shot effects) when convenient.
 **Priority:** 4
 **Difficulty:** 5
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-bunner.md` (same engine family) · **Next:** `tasks/codetheclassics-tighten-kinetix.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-bunner.md` (same engine family) · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md`
 **Engine family:** vol1-rich (with bunner): `_types geometry context audio resources renderer surface draw text screen actor input __init__`; no mask/transform/joystick. Splice bunner's tightened engine.
 
 ## BLUF

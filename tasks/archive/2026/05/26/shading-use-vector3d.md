@@ -64,7 +64,7 @@ Options (pick with Bill):
 ## Out of scope but noticed (related)
 - `demo22`'s planar-shadow path (`FLOOR_PLANE`, line 755-757) could use
   `mathutils.plane_equation` / `distance_to_plane` — but that belongs with
-  `tasks/planar-shadow-matrix.md`, not here.
+  `tasks/archive/2026/08/03/planar-shadow-matrix.md`, not here.
 - `set_mvp_uniforms` extraction is still deferred (variant question).
 
 ## Recommendation

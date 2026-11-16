@@ -6,7 +6,7 @@
 # book/docs/mvp_dict.pws, and exits nonzero if any unknown word remains. Unlike the
 # old `aspell check` (which opened a curses UI and was a prerequisite of every Sphinx
 # target), this needs no TTY -- so `make html`/`docs` builds headless, and spellcheck
-# runs as its own step. See tasks/non-interactive-spellcheck.md.
+# runs as its own step. See tasks/archive/2026/10/22/non-interactive-spellcheck.md.
 #
 # aspell has no reStructuredText mode, so a small sed pre-filter drops the markup that
 # is not prose (inline literals ``...``, interpreted-text roles :role:`...`, and the

@@ -57,7 +57,7 @@ points at reference docs, moving nothing that isn't already captured or captured
   `notable-subsystems.md`, `notebook-sphinx-integration.md`,
   `pgzero-gl-design-for-a-personal-learning-library.md`, `point-type-decision.md`,
   `superbible-ports-guide.md`, `tests-and-gates.md`.
-- Also relevant: `tasks/apply-python-coding-standard.md` (31 KB task doc) already holds the
+- Also relevant: `tasks/archive/2026/10/12/apply-python-coding-standard.md` (31 KB task doc) already holds the
   coding-standard detail; the coding-standard section in `CLAUDE.md` largely duplicates it
   and the sibling geometricalgebra repo's copy.
 
@@ -75,7 +75,7 @@ points at reference docs, moving nothing that isn't already captured or captured
 | `## Code-the-Classics ports` | 7,182 | MOVE | `tasks/reference/code-the-classics-tightening.md`, `tests-and-gates.md`, `point-type-decision.md`, `notable-subsystems.md`, `gacalc-transforms-in-the-renderer.md` (ALL exist and cover this). Keep ~5 lines: what CtC is, "read `code-the-classics-tightening.md` before editing any game", the gate scripts by name, and the frozen-vector `+=` grep gotcha. The fidelity-gotchas list + gacalc-cost measurements → confirm in `notable-subsystems.md`, then cut |
 | `## Assignments` | 2,042 | TRIM | CLAUDE.md keeps ~3 lines (assignments are format-covered; three carry deliberate holes — leave them; `tools/verify_render.sh` to check render). The review history + "where solutions live is undecided" → a reference doc (fold into `architecture-overview.md` or a short `tasks/reference/assignments.md`) |
 | `## The book includes code by MARKER…` | 5,671 | MOVE | `tasks/reference/book-and-docs-pipeline.md` §3 (exists). Keep the core rule (~4 lines: book includes by `doc-region` marker with `:lineno-match:`, so editing source never breaks line numbers — check "is this text inside a published region?", not "did line numbers move?"). The gacalc-sdist docs-only pipeline, region-split mechanics, and "how to bump the shown version" → reference doc |
-| `## Coding standard (Python)` | 10,073 | MOVE | Biggest single item. (a) ruff-enforced list and (b) generic judgment calls duplicate `tasks/apply-python-coding-standard.md` and geometricalgebra → propose `tasks/reference/python-coding-standard.md` (or point at the existing task doc). Keep in CLAUDE.md: ~6 lines — "green `make format` = the mechanical tier is done; `line-length=80` because the book is a PDF; judgment calls in <ref>." The (c) mvp-specific GL gotchas (import order, GL constants not int, `-1` sentinel, row-major + `GL_TRUE`, CCW winding, VAO-always-bound, shader dir) → `tasks/reference/gl-and-imgui-gotchas.md` (exists); keep a 1-line pointer |
+| `## Coding standard (Python)` | 10,073 | MOVE | Biggest single item. (a) ruff-enforced list and (b) generic judgment calls duplicate `tasks/archive/2026/10/12/apply-python-coding-standard.md` and geometricalgebra → propose `tasks/reference/python-coding-standard.md` (or point at the existing task doc). Keep in CLAUDE.md: ~6 lines — "green `make format` = the mechanical tier is done; `line-length=80` because the book is a PDF; judgment calls in <ref>." The (c) mvp-specific GL gotchas (import order, GL constants not int, `-1` sentinel, row-major + `GL_TRUE`, CCW winding, VAO-always-bound, shader dir) → `tasks/reference/gl-and-imgui-gotchas.md` (exists); keep a 1-line pointer |
 | `## Tasks` | 7,221 | MOVE/TRIM | Duplicates `tasks/` (which the section itself calls authoritative) and carries a "Cross-repo (done)" gacalc-bump changelog that is pure history. Convention: CLAUDE.md is not a task log. Keep ~3 lines (active work in `tasks/`, one file per task; `tasks/reference/` for durable knowledge; archive under `tasks/archive/`). The gacalc-bump history → `tasks/reference/design-decisions.md` (much already there) |
 
 ## Projected result
@@ -93,7 +93,7 @@ points at reference docs, moving nothing that isn't already captured or captured
 ## Open questions (for the maintainer)
 1. Coding-standard detail — should the judgment-calls / ruff-tier detail move into a **new
    `tasks/reference/python-coding-standard.md`**, or just point `CLAUDE.md` at the existing
-   `tasks/apply-python-coding-standard.md` (31 KB) that already holds it? Recommendation:
+   `tasks/archive/2026/10/12/apply-python-coding-standard.md` (31 KB) that already holds it? Recommendation:
    new short reference doc, since that task doc will archive on completion whereas a
    reference doc is permanent.
 2. Target leanness — is **~13–15 KB** the right target, or do you want it more aggressive

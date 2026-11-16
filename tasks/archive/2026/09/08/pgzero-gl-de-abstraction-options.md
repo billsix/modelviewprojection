@@ -118,7 +118,7 @@ No abstraction added — these remove hand-rolled component arithmetic in favor 
 - **Merging the two renderers** — the GL 1.x / GL 3.3 split is a deliberate teaching artifact.
 - **Turning `geometry.Rect` corner/edge pairs into Vectors** — pygame contract; the games rely on tuple return.
 - **The renderer's `uModel` matrices** — matrix-based on purpose (`glUniformMatrix4fv` boundary); that question
-  is `tasks/gacalc-transforms-for-rotate-translate.md`, not this task.
+  is `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md`, not this task.
 
 ## Open questions — RESOLVED (maintainer, 2026-09-04: "I go with your recommendations on all 3")
 
