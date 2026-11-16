@@ -60,9 +60,9 @@ green afterwards.
    github.com/billsix/runClaudeInContainer, so its stale `tasks/annotate-all-local-variables.md`
    citation was left alone here. The canonical already cites the archived path (since 2026-11-15);
    mvp's copy is an older version.
-   - Re-copying it is filed as runClaudeInContainer
-     `tasks/recopy-check-local-annotations-to-vendored-copies.md`, together with the stale copies
-     in methodfinder, spimulator and impo.
+   - It was re-copied on 2026-11-16 by github.com/billsix/runClaudeInContainer
+     `tasks/archive/2026/11/16/recopy-check-local-annotations-to-vendored-copies.md`, together with the stale
+     copies in methodfinder, spimulator and impo.
 
 ## Scripts
 
