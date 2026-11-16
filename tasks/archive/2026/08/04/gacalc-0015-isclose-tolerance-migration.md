@@ -30,7 +30,7 @@ no attribute 'is_close'`, and (if the name is naively renamed) as 9 zero-toleran
 floating-point comparison failures in the rotate/perspective/round-trip tests.
 
 This is **independent of the `Vector2.e_1` → `e_1` sweep** done 2026-08-04
-(`tasks/unqualify-graded-basis-imports.md`): that sweep touched no test file and no
+(`tasks/archive/2026/08/04/unqualify-graded-basis-imports.md`): that sweep touched no test file and no
 `src/` code that calls `is_close`. It was merely *discovered* while running the suite to
 verify the sweep.
 

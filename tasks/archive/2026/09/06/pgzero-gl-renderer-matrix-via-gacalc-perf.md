@@ -1,6 +1,6 @@
 # Can the renderer build its GPU matrix from gacalc transforms? (perf investigation)
 
-**Status:** DONE + ARCHIVED 2026-09-06 (Fable, overnight, on the maintainer's "execute") — investigated and measured: `to_matrix` per draw is 514 µs (161× today's 3.19 µs, gacalc 0.0.19), but **defining the transform in gacalc once with sympy symbols and compiling the fill is 0.47 µs — 7× faster than today's hand-built numpy**. Findings and the pattern: `tasks/reference/gacalc-transforms-in-the-renderer.md`; the adoption decision is the maintainer's, filed as `tasks/renderer-model-matrix-from-gacalc.md`.
+**Status:** DONE + ARCHIVED 2026-09-06 (Fable, overnight, on the maintainer's "execute") — investigated and measured: `to_matrix` per draw is 514 µs (161× today's 3.19 µs, gacalc 0.0.19), but **defining the transform in gacalc once with sympy symbols and compiling the fill is 0.47 µs — 7× faster than today's hand-built numpy**. Findings and the pattern: `tasks/reference/gacalc-transforms-in-the-renderer.md`; the adoption decision is the maintainer's, filed as `tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md`.
 **Priority:** 5
 **Difficulty:** 4
 
@@ -18,7 +18,7 @@ until then, **the renderer keeps its hand-built numpy matrices.**
 
 ## Context (read first)
 
-- **Where this came from:** `tasks/gacalc-transforms-for-rotate-translate.md` — the maintainer's
+- **Where this came from:** `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md` — the maintainer's
   wish to use his own gacalc math (and its `to_matrix` conversion) to build the renderer's GPU
   matrix, so there's one source of truth. He approved doing it "if you can use my math and my
   conversions" and asked for this perf task if there were performance implications. There are.
@@ -60,7 +60,7 @@ until then, **the renderer keeps its hand-built numpy matrices.**
 
 ## Related
 
-- `tasks/gacalc-transforms-for-rotate-translate.md` — the parent study (crux: `to_matrix` exists +
+- `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md` — the parent study (crux: `to_matrix` exists +
   is correct; this task owns the perf half).
 - `tasks/archive/2026/11/15/pgzero-gl-step3-reextract-library.md` — where a renderer change would actually roll out.
 - `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md` — the renderer design.

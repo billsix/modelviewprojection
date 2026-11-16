@@ -10,7 +10,7 @@ The transforms (`translate`, `rotate`, `rotate_around`, `scale_non_uniform_2d`,
 `uniform_scale`, …) are **module-level functions** returning `InvertibleFunction`s
 (`mathutils.py`). Several chapters call them "methods" — leftover from an earlier
 API where they may have hung off `Vector`. (ch05's version of this is already in
-`tasks/archive/ch05-translate-section-fixes.md`; this plan covers ch08–16.)
+`tasks/archive/2026/05/26/ch05-translate-section-fixes.md`; this plan covers ch08–16.)
 
 ## Edits (verify exact lines; they may shift)
 - `ch08.rst:65` — "making a **method** to rotate" → "function".

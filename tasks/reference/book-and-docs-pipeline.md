@@ -228,6 +228,7 @@ listing. (`tasks/archive/2026/09/08/dangling-book-code-includes.md`)
 - Known residuals from the gacalc-listing migration: `Vector2D`-era naming
   drift in some prose, and the basis-vector listings were dropped (gacalc
   doesn't mark `Vector.e_1` — post-class assignments; recoverable only via a
-  future gacalc release — filed as `tasks/mark-basis-constants-for-doc-regions.md`).
+  future gacalc release — filed as github.com/billsix/geometricalgebra
+  `tasks/archive/2026/11/04/mark-basis-constants-for-doc-regions.md`).
   (`tasks/archive/2026/09/08/dangling-book-code-includes.md`,
   `tasks/book-rotate-prose-update.md`)

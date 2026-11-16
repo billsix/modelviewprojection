@@ -8,7 +8,7 @@
    src/modelviewprojection/mathutils` → `…/mathutils.py`.
 2. **Line 184 — wrong name.** "through the `modelspace_to_ndc` method" — the
    FunctionStack method is **`modelspace_to_ndc_fn`**. → handled in
-   `tasks/archive/fix-method-vs-function-wording.md` (done); listed here for completeness.
+   `tasks/archive/2026/05/26/fix-method-vs-function-wording.md` (done); listed here for completeness.
 3. **Line 231 — `camera_space_to_ndc_space_fn`** vs mathutils
    **`cs_to_ndc_space_fn`** → also in the method-vs-function plan (verify whether
    a local wrapper uses the long name before changing).
@@ -17,7 +17,7 @@
    the sentence / fix spacing. Confirm intended wording with Bill.
 
 ## Related (other plans)
-- e_1/e_2/e_3 used but unexplained in ch16 → ✅ done, see `tasks/archive/book-explain-natural-basis.md`.
+- e_1/e_2/e_3 used but unexplained in ch16 → ✅ done, see `tasks/archive/2026/05/26/book-explain-natural-basis.md`.
 
 ## Verification
 `grep -n "modelspace_to_ndc\b\|mathutils$" book/docs/ch16.rst`; read line 267 in

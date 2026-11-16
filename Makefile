@@ -15,7 +15,7 @@ USE_SPYDER ?= 0
 USE_X_WINDOWS ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
 # ePiX (the book's LaTeX-native figure toolchain) built from source into the
 # image.  Default on; Dockerfile default is 0, so this build-arg is what turns it
-# on.  See tasks/replace-book-figures-with-epix.md.
+# on.  See tasks/archive/2026/10/12/replace-book-figures-with-epix.md.
 USE_EPIX ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
 
 CONTAINER_CMD ?= $(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
@@ -121,8 +121,9 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 	rm -rf output/*
 
 # --- shell / shell-exec share ONE container invocation, defined here so the two
-# targets can never drift. Scoped to this pair ONLY. See runClaudeInContainer
-# tasks/add-shell-exec-target.md for the design.
+# targets can never drift. Scoped to this pair ONLY. See
+# github.com/billsix/runClaudeInContainer
+# tasks/archive/2026/08/29/add-shell-exec-target.md for the design.
 SHELL_RUN_FLAGS = \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \

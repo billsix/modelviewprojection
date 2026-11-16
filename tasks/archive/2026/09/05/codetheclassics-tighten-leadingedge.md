@@ -3,7 +3,7 @@
 **Status:** DONE + ARCHIVED 2026-09-05 — frame 180 AE=0 vs HEAD, 1500-frame input trace structurally identical, ruff + ty clean, 104 tests; staged (maintainer commits). **One deliberate visible deviation: the title-screen fade now fades** (see the work record). Audio (engine-note crossfades, skid loop) and gamepad unverified by harness — play-test.
 **Priority:** 5
 **Difficulty:** 6
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md` (vol2 engine) · **Next:** `tasks/codetheclassics-tighten-beatstreets.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md` (vol2 engine) · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-beatstreets.md`
 **Engine family:** vol2 (≡ eggzy/beatstreets engine, +3 line offset). Widest alias line (57): `_text = audio = gldraw = joystick = surface = transform`. **The only game that uses `Sound.play(loops=…, fade_ms=…)`, `Sound.fadeout/set_volume/stop`** (3581–3621, 3306) and `transform.scale` (via `SCALE_FUNC` 2741) — restore the mixer's fade/loop paths and `transform.scale` here. Also the only game with **`update(delta_time)`** (4934; the loop passes `_dt` 5128).
 
 ## BLUF

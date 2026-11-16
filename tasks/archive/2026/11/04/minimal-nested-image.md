@@ -50,5 +50,5 @@ silently downgraded the runCrush client; see runClaudeInContainer
 ## Related
 
 - runClaudeInContainer `tasks/reference/minimal-nested-images.md` — the standard + the fleet row.
-- runClaudeInContainer `tasks/minimal-image-for-nested-podman-standard.md` — the umbrella this was a
+- github.com/billsix/runClaudeInContainer `tasks/archive/2026/11/15/minimal-image-for-nested-podman-standard.md` — the umbrella this was a
   per-project child of.

@@ -10,7 +10,7 @@ ergonomics (x/y/z properties, quotient `/`) in 0.0.8. The background notes
 below predate all of that and are stale.
 **Created:** 2026-06-28
 **Area:** `ports/codetheclassics/`
-**Related:** `tasks/gacalc-math-migration.md` (the mvp-core precedent), `tasks/codetheclassics-types-and-docstrings.md` (just-completed Phase 0/1 typed the shim — do this *after*, on the typed baseline)
+**Related:** `tasks/archive/2026/07/09/gacalc-math-migration.md` (the mvp-core precedent), `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md` (just-completed Phase 0/1 typed the shim — do this *after*, on the typed baseline)
 
 ## Goal
 

@@ -3,7 +3,7 @@
 **Status:** complete
 **Completed:** 2026-05-27 — fix + regression test `test_vec2_is_clockwise`; committed `5f38f18`.
 **Type:** code bug (mathutils).
-**Source finding:** `tasks/book-code-drift-ch1-6.md` item A1.
+**Source finding:** `tasks/archive/2026/05/27/book-code-drift-ch1-6.md` item A1.
 
 ## Context
 While auditing ch1–6 for doc/code drift I found a real code defect unrelated to

@@ -19,7 +19,7 @@ python source in this repo has static types, all local variables, everything."
 
 ## Context
 
-- **Signatures were already done.** `tasks/apply-python-coding-standard.md` drove the
+- **Signatures were already done.** `tasks/archive/2026/10/12/apply-python-coding-standard.md` drove the
   parameter+return sweep to 0 across `src/` and wired `ty check` (src/tests/ports) into
   `entrypoint/format.sh`. This task added the next layer — local variables — which that sweep did
   not touch.
@@ -99,5 +99,5 @@ contiguous typing block, one commit per package.
 
 ## See also
 
-- `tasks/apply-python-coding-standard.md` — the signature (param/return) sweep this extends.
+- `tasks/archive/2026/10/12/apply-python-coding-standard.md` — the signature (param/return) sweep this extends.
 - `~/.claude/reference/python-coding-standard.md` — the shared standard ("annotate generously").

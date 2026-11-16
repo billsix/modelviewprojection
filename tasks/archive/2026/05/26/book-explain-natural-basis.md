@@ -10,7 +10,7 @@ addition via `__add__`).
 Verified: doc-region integrity clean across ch01–21, `pytest` 47/47.
 **Type:** book prose + mathutils doc-region markers.
 **Effort:** medium (writing, in Bill's voice). **Headline drift item.**
-**Source finding:** `tasks/book-code-drift-ch1-6.md` item B2; `TODO.org` line 1
+**Source finding:** `tasks/archive/2026/05/27/book-code-drift-ch1-6.md` item B2; `TODO.org` line 1
 ("make code explannations for e_1, e_2, e_3").
 
 ## Context
@@ -35,7 +35,7 @@ ch05/06 — `e_1`/`e_2`/`e_3` are used unexplained in essentially every demo
 through ch18 (ch07, ch10–12, ch16–18 all confirmed). Introducing the 2D basis in
 ch05/06 (below) resolves the bulk; add the 3D `e_3` introduction at the ch16 jump
 to 3D. This single plan closes the "natural basis" omission listed in all three
-drift trackers (`tasks/book-code-drift-ch1-6.md`, `…-ch7-15.md`, `…-ch16-21.md`).
+drift trackers (`tasks/archive/2026/05/27/book-code-drift-ch1-6.md`, `…-ch7-15.md`, `…-ch16-21.md`).
 
 ## Changes
 

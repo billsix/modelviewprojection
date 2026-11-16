@@ -36,7 +36,7 @@ for actual light sources."*
 - SB4 lit/shadow family (reference `tasks/reference/superbible-ports-guide.md`): Block, litjet, shadow,
   shinyjet, the sphereworlds, pyramid, fogged, multisample, SphereWorld32; **chapt05 = the lighting
   chapter** — likely where the "directional far away" demo lives. Edition = **v4 / 4th ed. (Wright,
-  2007)**; upstream at `github.com/billsix/OpenGLSuperBibleV4Code`.
+  2007)**; upstream at `github.com/billsix/OpenGLSuperbibleV4Code`.
 - Adjacent active: `ports-ux-pass.md`, `superbible-full-port.md`.
 
 ## Plan (draft — after questions)

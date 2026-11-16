@@ -1,0 +1,121 @@
+.github/workflows/checks.yml:1:tasks/github-actions-format-ci.md -> tasks/archive/2026/10/22/github-actions-format-ci.md
+Makefile:18:tasks/replace-book-figures-with-epix.md -> tasks/archive/2026/10/12/replace-book-figures-with-epix.md
+requirements.txt:17:tasks/leadingedge-audio-clunk-and-freeze.md -> tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md
+src/modelviewprojection/framebuffer/softwarerendering.py:211:tasks/is-parallel-ga-semantics.md -> tasks/archive/2026/07/19/is-parallel-ga-semantics.md
+tasks/archive/2026/05/26/book-explain-natural-basis.md:13:tasks/book-code-drift-ch1-6.md -> tasks/archive/2026/05/27/book-code-drift-ch1-6.md
+tasks/archive/2026/05/26/book-explain-natural-basis.md:38:tasks/book-code-drift-ch1-6.md -> tasks/archive/2026/05/27/book-code-drift-ch1-6.md
+tasks/archive/2026/05/26/ch02-ch03-prose-typos.md:6:tasks/book-code-drift-ch1-6.md -> tasks/archive/2026/05/27/book-code-drift-ch1-6.md
+tasks/archive/2026/05/26/ch05-translate-section-fixes.md:6:tasks/book-code-drift-ch1-6.md -> tasks/archive/2026/05/27/book-code-drift-ch1-6.md
+tasks/archive/2026/05/26/ch07-fixes.md:17:tasks/archive/book-explain-natural-basis.md -> tasks/archive/2026/05/26/book-explain-natural-basis.md
+tasks/archive/2026/05/26/ch10-fixes.md:33:tasks/archive/fix-method-vs-function-wording.md -> tasks/archive/2026/05/26/fix-method-vs-function-wording.md
+tasks/archive/2026/05/26/ch14-fixes.md:20:tasks/ch16-fixes.md -> tasks/archive/2026/06/14/ch16-fixes.md
+tasks/archive/2026/05/26/ch14-fixes.md:29:tasks/archive/ch05-translate-section-fixes.md -> tasks/archive/2026/05/26/ch05-translate-section-fixes.md
+tasks/archive/2026/05/26/fix-is-clockwise-recursion.md:6:tasks/book-code-drift-ch1-6.md -> tasks/archive/2026/05/27/book-code-drift-ch1-6.md
+tasks/archive/2026/05/26/fix-method-vs-function-wording.md:13:tasks/archive/ch05-translate-section-fixes.md -> tasks/archive/2026/05/26/ch05-translate-section-fixes.md
+tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md:12:tasks/planar-shadow-matrix.md -> tasks/archive/2026/08/03/planar-shadow-matrix.md
+tasks/archive/2026/05/26/shading-use-vector3d.md:67:tasks/planar-shadow-matrix.md -> tasks/archive/2026/08/03/planar-shadow-matrix.md
+tasks/archive/2026/06/14/ch16-fixes.md:11:tasks/archive/fix-method-vs-function-wording.md -> tasks/archive/2026/05/26/fix-method-vs-function-wording.md
+tasks/archive/2026/06/14/ch16-fixes.md:20:tasks/archive/book-explain-natural-basis.md -> tasks/archive/2026/05/26/book-explain-natural-basis.md
+tasks/archive/2026/06/14/ch17-fixes.md:22:tasks/archive/book-explain-natural-basis.md -> tasks/archive/2026/05/26/book-explain-natural-basis.md
+tasks/archive/2026/06/14/ch17-fixes.md:23:tasks/archive/fix-method-vs-function-wording.md -> tasks/archive/2026/05/26/fix-method-vs-function-wording.md
+tasks/archive/2026/06/14/ch18-fixes.md:3:tasks/archive/ch14-fixes.md -> tasks/archive/2026/05/26/ch14-fixes.md
+tasks/archive/2026/06/14/ch18-fixes.md:19:tasks/archive/book-explain-natural-basis.md -> tasks/archive/2026/05/26/book-explain-natural-basis.md
+tasks/archive/2026/06/14/ch18-fixes.md:19:tasks/ch17-fixes.md -> tasks/archive/2026/06/14/ch17-fixes.md
+tasks/archive/2026/06/14/ch21-fixes.md:15:tasks/archive/fix-demo-code-bugs.md -> tasks/archive/2026/05/26/fix-demo-code-bugs.md
+tasks/archive/2026/06/14/ch21-fixes.md:34:tasks/archive/fix-demo-code-bugs.md -> tasks/archive/2026/05/26/fix-demo-code-bugs.md
+tasks/archive/2026/06/14/crossproduct-relative-coordinates-rendering.md:155:tasks/crossproduct-tex-billboard-labels.md -> tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md
+tasks/archive/2026/07/08/ctc-explicit-star-imports.md:21:tasks/ctc-honest-imports.md -> tasks/archive/2026/07/08/ctc-honest-imports.md
+tasks/archive/2026/07/08/ctc-explicit-star-imports.md:34:tasks/ctc-imports-at-top.md -> tasks/archive/2026/07/08/ctc-imports-at-top.md
+tasks/archive/2026/07/08/unvendor-texexptopng.md:61:tasks/crossproduct-tex-billboard-labels.md -> tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md
+tasks/archive/2026/07/09/codetheclassics-gacalc-math.md:13:tasks/gacalc-math-migration.md -> tasks/archive/2026/07/09/gacalc-math-migration.md  OTHER-REPO?
+tasks/archive/2026/07/09/codetheclassics-gacalc-math.md:13:tasks/codetheclassics-types-and-docstrings.md -> tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md  OTHER-REPO?
+tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md:26:tasks/unvendor-texexptopng.md -> tasks/archive/2026/07/08/unvendor-texexptopng.md  OTHER-REPO?
+tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md:6:tasks/leadingedge-audio-clunk-and-freeze.md -> tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md
+tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md:87:tasks/leadingedge-audio-clunk-and-freeze.md -> tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md
+tasks/archive/2026/07/09/gacalc-math-migration.md:20:tasks/book-code-drift-ch7-15.md -> tasks/archive/2026/08/02/book-code-drift-ch7-15.md
+tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md:165:tasks/ctc-shim-dynamism-audit.md -> tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md
+tasks/archive/2026/07/09/math-demos-section-crossproduct-and-proof.md:14:tasks/crossproduct-relative-coordinates-rendering.md -> tasks/archive/2026/06/14/crossproduct-relative-coordinates-rendering.md
+tasks/archive/2026/07/09/plane-rotation-mathutils-adoption.md:57:tasks/assignments-review.md -> tasks/archive/2026/09/09/assignments-review.md
+tasks/archive/2026/07/09/remove-crossproduct-demo.md:23:tasks/src-ty-diagnostics-after-ty-bump.md -> tasks/archive/2026/07/09/src-ty-diagnostics-after-ty-bump.md
+tasks/archive/2026/07/09/remove-crossproduct-demo.md:32:tasks/crossproduct-tex-billboard-labels.md -> tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md
+tasks/archive/2026/07/09/remove-crossproduct-demo.md:35:tasks/math-demos-section-crossproduct-and-proof.md -> tasks/archive/2026/07/09/math-demos-section-crossproduct-and-proof.md
+tasks/archive/2026/07/09/src-ty-diagnostics-after-ty-bump.md:16:tasks/ctc-more-types.md -> tasks/archive/2026/07/09/ctc-more-types.md
+tasks/archive/2026/07/19/demo-main-guards-and-dedent.md:142:tasks/ctc-game-main-guard-and-clean-exit.md -> tasks/archive/2026/08/23/ctc-game-main-guard-and-clean-exit.md
+tasks/archive/2026/07/19/doctests-everywhere.md:78:tasks/ctc-game-main-guard-and-clean-exit.md -> tasks/archive/2026/08/23/ctc-game-main-guard-and-clean-exit.md
+tasks/archive/2026/07/19/investigate-plotting-transform-model.md:177:tasks/apply-python-coding-standard.md -> tasks/archive/2026/10/12/apply-python-coding-standard.md
+tasks/archive/2026/07/19/investigate-plotting-transform-model.md:179:tasks/doctests-everywhere.md -> tasks/archive/2026/07/19/doctests-everywhere.md
+tasks/archive/2026/07/22/dual-coefficient-cleanup.md:5:tasks/precise-product-types-coefficient-cleanup.md -> tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md
+tasks/archive/2026/07/22/dual-coefficient-cleanup.md:82:tasks/precise-product-types-coefficient-cleanup.md -> tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md
+tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md:17:tasks/dual-coefficient-cleanup.md -> tasks/archive/2026/07/22/dual-coefficient-cleanup.md  OTHER-REPO?
+tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md:66:tasks/switch-typechecker-pyright-to-ty.md -> tasks/archive/2026/08/23/switch-typechecker-pyright-to-ty.md
+tasks/archive/2026/07/23/fix-editable-install-system-flag.md:91:tasks/demo01-import-region-empty.md -> tasks/archive/2026/07/23/demo01-import-region-empty.md  OTHER-REPO?
+tasks/archive/2026/07/23/perspective-inlinetex-malformed-directives.md:96:tasks/demo01-import-region-empty.md -> tasks/archive/2026/07/23/demo01-import-region-empty.md
+tasks/archive/2026/07/23/perspective-inlinetex-malformed-directives.md:101:tasks/demo01-import-region-empty.md -> tasks/archive/2026/07/23/demo01-import-region-empty.md
+tasks/archive/2026/08/01/check-doc-regions-empty-slices.md:40:tasks/book-code-drift-ch7-15.md -> tasks/archive/2026/08/02/book-code-drift-ch7-15.md
+tasks/archive/2026/08/01/check-doc-regions-empty-slices.md:101:tasks/planar-shadow-matrix.md -> tasks/archive/2026/08/03/planar-shadow-matrix.md
+tasks/archive/2026/08/04/delete-dead-matplotgraphs.md:4:tasks/rewrite-book-plot-transforms-with-gacalc.md -> tasks/archive/2026/08/04/rewrite-book-plot-transforms-with-gacalc.md  OTHER-REPO?
+tasks/archive/2026/08/04/gacalc-0015-isclose-tolerance-migration.md:33:tasks/unqualify-graded-basis-imports.md -> tasks/archive/2026/08/04/unqualify-graded-basis-imports.md
+tasks/archive/2026/08/04/rewrite-book-plot-transforms-with-gacalc.md:71:tasks/delete-dead-matplotgraphs.md -> tasks/archive/2026/08/04/delete-dead-matplotgraphs.md
+tasks/archive/2026/08/04/unqualify-graded-basis-imports.md:93:tasks/gacalc-0015-isclose-tolerance-migration.md -> tasks/archive/2026/08/04/gacalc-0015-isclose-tolerance-migration.md  OTHER-REPO?
+tasks/archive/2026/08/13/adopt-unsuffixed-gacalc-graded-types.md:14:tasks/defacade-mathutils-gacalc-reexports.md -> tasks/archive/2026/08/13/defacade-mathutils-gacalc-reexports.md  OTHER-REPO?
+tasks/archive/2026/08/13/adopt-unsuffixed-gacalc-graded-types.md:36:tasks/defacade-mathutils-gacalc-reexports.md -> tasks/archive/2026/08/13/defacade-mathutils-gacalc-reexports.md  OTHER-REPO?
+tasks/archive/2026/08/13/defacade-mathutils-gacalc-reexports.md:6:tasks/assignments-review.md -> tasks/archive/2026/09/09/assignments-review.md
+tasks/archive/2026/08/13/defacade-mathutils-gacalc-reexports.md:33:tasks/assignments-review.md -> tasks/archive/2026/09/09/assignments-review.md
+tasks/archive/2026/08/13/defacade-mathutils-gacalc-reexports.md:59:tasks/adopt-unsuffixed-gacalc-graded-types.md -> tasks/archive/2026/08/13/adopt-unsuffixed-gacalc-graded-types.md  OTHER-REPO?
+tasks/archive/2026/08/31/use-gacalc-cross.md:10:tasks/ty-0072-strictness-sweep.md -> tasks/archive/2026/09/06/ty-0072-strictness-sweep.md
+tasks/archive/2026/08/31/use-gacalc-cross.md:19:tasks/ty-0072-strictness-sweep.md -> tasks/archive/2026/09/06/ty-0072-strictness-sweep.md
+tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md:35:tasks/pgzero-gl-de-abstraction-options.md -> tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md
+tasks/archive/2026/09/04/pgzero-gl-step1-inline-per-game.md:6:tasks/pgzero-gl-step2-strip-and-restructure.md -> tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md
+tasks/archive/2026/09/05/codetheclassics-tighten-avenger.md:6:tasks/codetheclassics-tighten-eggzy.md -> tasks/archive/2026/09/05/codetheclassics-tighten-eggzy.md
+tasks/archive/2026/09/05/codetheclassics-tighten-boing.md:8:tasks/codetheclassics-tighten-cavern.md -> tasks/archive/2026/09/05/codetheclassics-tighten-cavern.md
+tasks/archive/2026/09/05/codetheclassics-tighten-boing.md:35:tasks/pgzero-gl-dataclasses-investigation.md -> tasks/archive/2026/09/05/pgzero-gl-dataclasses-investigation.md
+tasks/archive/2026/09/05/codetheclassics-tighten-boing.md:50:tasks/ty-0072-strictness-sweep.md -> tasks/archive/2026/09/06/ty-0072-strictness-sweep.md
+tasks/archive/2026/09/05/codetheclassics-tighten-bunner.md:7:tasks/codetheclassics-tighten-soccer.md -> tasks/archive/2026/09/05/codetheclassics-tighten-soccer.md
+tasks/archive/2026/09/05/codetheclassics-tighten-cavern.md:7:tasks/codetheclassics-tighten-myriapod.md -> tasks/archive/2026/09/05/codetheclassics-tighten-myriapod.md
+tasks/archive/2026/09/05/codetheclassics-tighten-eggzy.md:6:tasks/codetheclassics-tighten-leadingedge.md -> tasks/archive/2026/09/05/codetheclassics-tighten-leadingedge.md
+tasks/archive/2026/09/05/codetheclassics-tighten-games.md:55:tasks/remove-pygame-comments-from-ctc.md -> tasks/archive/2026/09/05/remove-pygame-comments-from-ctc.md
+tasks/archive/2026/09/05/codetheclassics-tighten-games.md:60:tasks/code-the-classics-round3-types.md -> tasks/archive/2026/09/05/code-the-classics-round3-types.md
+tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md:7:tasks/codetheclassics-tighten-avenger.md -> tasks/archive/2026/09/05/codetheclassics-tighten-avenger.md
+tasks/archive/2026/09/05/codetheclassics-tighten-leadingedge.md:6:tasks/codetheclassics-tighten-beatstreets.md -> tasks/archive/2026/09/05/codetheclassics-tighten-beatstreets.md
+tasks/archive/2026/09/05/codetheclassics-tighten-myriapod.md:7:tasks/codetheclassics-tighten-bunner.md -> tasks/archive/2026/09/05/codetheclassics-tighten-bunner.md
+tasks/archive/2026/09/05/codetheclassics-tighten-myriapod.md:21:tasks/swap-myriapod-rotate90-to-gacalc.md -> tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md  OTHER-REPO?
+tasks/archive/2026/09/05/codetheclassics-tighten-myriapod.md:62:tasks/swap-myriapod-rotate90-to-gacalc.md -> tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md  OTHER-REPO?
+tasks/archive/2026/09/05/codetheclassics-tighten-soccer.md:7:tasks/codetheclassics-tighten-kinetix.md -> tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md
+tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md:33:tasks/codetheclassics-licensing-after-shim-inline.md -> tasks/archive/2026/09/05/codetheclassics-licensing-after-shim-inline.md
+tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md:11:tasks/pgzero-gl-step1-inline-per-game.md -> tasks/archive/2026/09/04/pgzero-gl-step1-inline-per-game.md
+tasks/archive/2026/09/05/remove-pygame-comments-from-ctc.md:35:tasks/codetheclassics-licensing-after-shim-inline.md -> tasks/archive/2026/09/05/codetheclassics-licensing-after-shim-inline.md
+tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md:3:tasks/renderer-model-matrix-from-gacalc.md -> tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md  OTHER-REPO?
+tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md:80:tasks/pgzero-gl-de-abstraction-options.md -> tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md
+tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md:3:tasks/renderer-model-matrix-from-gacalc.md -> tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md  OTHER-REPO?
+tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md:21:tasks/gacalc-transforms-for-rotate-translate.md -> tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md  OTHER-REPO?
+tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md:63:tasks/gacalc-transforms-for-rotate-translate.md -> tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md  OTHER-REPO?
+tasks/archive/2026/09/06/pointlike-type-study.md:28:tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md -> tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md  OTHER-REPO?
+tasks/archive/2026/09/06/remove-ctc-smoketest.md:3:tasks/pgzero-gl-de-abstraction-options.md -> tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md
+tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md:3:tasks/ctc-use-gacalc-matrix-template.md -> tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md  OTHER-REPO?
+tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md:121:tasks/gacalc-transforms-for-rotate-translate.md -> tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md  OTHER-REPO?
+tasks/archive/2026/09/09/assignments-1-and-2-review.md:95:tasks/graphing-calculator-2d-3d.md -> tasks/archive/2026/11/03/graphing-calculator-2d-3d.md
+tasks/archive/2026/09/09/assignments-1-and-2-review.md:188:tasks/graphing-calculator-2d-3d.md -> tasks/archive/2026/11/03/graphing-calculator-2d-3d.md
+tasks/archive/2026/09/09/assignments-review.md:7:tasks/assignments-1-and-2-review.md -> tasks/archive/2026/09/09/assignments-1-and-2-review.md
+tasks/archive/2026/09/14/trim-claude-md.md:60:tasks/apply-python-coding-standard.md -> tasks/archive/2026/10/12/apply-python-coding-standard.md
+tasks/archive/2026/09/14/trim-claude-md.md:78:tasks/apply-python-coding-standard.md -> tasks/archive/2026/10/12/apply-python-coding-standard.md  OTHER-REPO?
+tasks/archive/2026/09/14/trim-claude-md.md:96:tasks/apply-python-coding-standard.md -> tasks/archive/2026/10/12/apply-python-coding-standard.md
+tasks/archive/2026/09/17/annotate-all-local-variables.md:22:tasks/apply-python-coding-standard.md -> tasks/archive/2026/10/12/apply-python-coding-standard.md
+tasks/archive/2026/09/17/annotate-all-local-variables.md:102:tasks/apply-python-coding-standard.md -> tasks/archive/2026/10/12/apply-python-coding-standard.md
+tasks/archive/2026/09/17/gacalc-transform-sweep.md:25:tasks/framebuffer-in-perspective.md -> tasks/archive/2026/09/17/framebuffer-in-perspective.md
+tasks/archive/2026/09/17/gacalc-transform-sweep.md:56:tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md -> tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md  OTHER-REPO?
+tasks/archive/2026/09/17/gacalc-transform-sweep.md:80:tasks/framebuffer-in-perspective.md -> tasks/archive/2026/09/17/framebuffer-in-perspective.md
+tasks/archive/2026/10/12/replace-book-figures-with-epix.md:113:tasks/conform-makefile-dockerfile-to-standard-template.md -> tasks/archive/2026/10/22/conform-makefile-dockerfile-to-standard-template.md
+tasks/archive/2026/10/14/v4-four-demos-do-not-render.md:17:tasks/ports-pbo-floattex-runtime-crashes.md -> tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md
+tasks/archive/2026/10/14/v4-four-demos-do-not-render.md:55:tasks/ports-pbo-floattex-runtime-crashes.md -> tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md
+tasks/archive/2026/10/22/non-interactive-spellcheck.md:26:tasks/conform-makefile-dockerfile-to-standard-template.md -> tasks/archive/2026/10/22/conform-makefile-dockerfile-to-standard-template.md
+tasks/archive/2026/10/22/non-interactive-spellcheck.md:45:tasks/conform-makefile-dockerfile-to-standard-template.md -> tasks/archive/2026/10/22/conform-makefile-dockerfile-to-standard-template.md
+tasks/archive/2026/11/03/grapher2d-basis-vector-view.md:34:tasks/graphing-calculator-latex-labels.md -> tasks/archive/2026/11/03/graphing-calculator-latex-labels.md
+tasks/archive/2026/11/14/migrate-unit-tests-to-doctests.md:23:tasks/doctests-everywhere.md -> tasks/archive/2026/07/19/doctests-everywhere.md
+tasks/archive/2026/11/14/superbible-v4-globals-singleton-and-types.md:98:tasks/ports-pbo-floattex-runtime-crashes.md -> tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md
+tasks/release-book-github-pages-decision.md:5:tasks/release-standalone-book-assets.md -> tasks/archive/2026/11/04/release-standalone-book-assets.md
+tasks/release-book-github-pages-decision.md:57:tasks/release-standalone-book-assets.md -> tasks/archive/2026/11/04/release-standalone-book-assets.md
+tools/check_doc_regions.py:36:tasks/dangling-book-code-includes.md -> tasks/archive/2026/09/08/dangling-book-code-includes.md
+tools/check_local_annotations.py:7:tasks/annotate-all-local-variables.md -> tasks/archive/2026/09/17/annotate-all-local-variables.md
+tools/ctc_profile_update.py:4:tasks/pointlike-type-study.md -> tasks/archive/2026/09/06/pointlike-type-study.md
+tools/spellcheck.sh:9:tasks/non-interactive-spellcheck.md -> tasks/archive/2026/10/22/non-interactive-spellcheck.md
+report: 120 sites in 82 files

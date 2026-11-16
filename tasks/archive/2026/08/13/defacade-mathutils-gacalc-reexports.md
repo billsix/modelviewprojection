@@ -3,7 +3,7 @@
 **Status:** DONE (2026-08-13) — executed within the 0.0.16 adoption pass. The 12 SuperBible
 ports now import `Vector` straight from `gacalc.g3`; `mathutils` re-exports **no** gacalc type
 (verified: `grep "mathutils import" ports src tests` returns no gacalc type/transform). The stale
-`assignments/demo02/vec1.py` was left for `tasks/assignments-review.md` as noted. Committed in
+`assignments/demo02/vec1.py` was left for `tasks/archive/2026/09/09/assignments-review.md` as noted. Committed in
 Bill's `18a0f7b2`. Ready to archive alongside the adoption task.
 **Priority:** 5
 **Difficulty:** 2
@@ -30,7 +30,7 @@ import gacalc types from gacalc directly.
 - **1 stale assignment** (`assignments/demo02/vec1.py`) imports `Vector1, InvertibleFunction,
   compose, inverse, translate, uniform_scale` from mathutils — mathutils re-exports **none** of
   those now (no `Vector1` at all), so that file is already broken. It belongs to the separate
-  `tasks/assignments-review.md` (Bill's call); **leave it out of this task.**
+  `tasks/archive/2026/09/09/assignments-review.md` (Bill's call); **leave it out of this task.**
 
 Finishing the de-facade makes mathutils carry zero gacalc types, matching its own docstring.
 
@@ -56,7 +56,7 @@ ports` — the count can drift.)
 ## Relationship to the 0.0.16 adoption
 
 This is **not** a separate execution: under the chosen **direct-import / module-qualify**
-approach (`tasks/adopt-unsuffixed-gacalc-graded-types.md`), mathutils itself switches to
+approach (`tasks/archive/2026/08/13/adopt-unsuffixed-gacalc-graded-types.md`), mathutils itself switches to
 `from gacalc.g3 import Vector` internally, at which point `from mathutils import Vector3` in these
 12 ports **breaks and must be fixed in the same commit**. So these 12 edits happen *inside* the
 adoption pass. This task exists to record the de-facade as a deliberate goal (mathutils ends up

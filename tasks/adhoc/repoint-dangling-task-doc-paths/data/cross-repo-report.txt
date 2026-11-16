@@ -1,0 +1,211 @@
+## tasks/.../typed-product-helper-functions.md
+   found: geometricalgebra:tasks/archive/2026/07/21/typed-product-helper-functions.md
+   tasks/archive/2026/07/22/precise-product-types-coefficient-cleanup.md:36:(gacalc `tasks/.../typed-product-helper-functions.md`, 2026-07-21): `v1 ^ v2 : Bivector2`,
+## tasks/add-quarter-turn-to-g2.md
+   found: geometricalgebra:tasks/archive/2026/09/06/add-quarter-turn-to-g2.md
+   tasks/archive/2026/09/05/myriapod-rotate-90-degrees-local.md:23:  geometricalgebra `tasks/add-quarter-turn-to-g2.md` — because it would serve a single downstream
+   tasks/archive/2026/09/05/myriapod-rotate-90-degrees-local.md:62:- geometricalgebra `tasks/add-quarter-turn-to-g2.md` — the (parked, standalone) gacalc alternative.
+   tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md:34:- **Related:** the gacalc feature task `tasks/add-quarter-turn-to-g2.md`
+## tasks/add-shell-exec-target.md
+   found: runClaudeInContainer:tasks/archive/2026/08/29/add-shell-exec-target.md
+   Makefile:125:# tasks/add-shell-exec-target.md for the design.
+## tasks/archive/2026/06/07/emacs-package-install-strategy.md
+   found: geometricalgebra:tasks/archive/2026/06/07/emacs-package-install-strategy.md (exact)
+   tasks/archive/2026/06/13/update-emacs-packages-target.md:30:- `tasks/archive/2026/06/07/emacs-package-install-strategy.md` — full rationale (why strip `*.elc`
+## tasks/archive/2026/07/08/relicense-to-lgpl.md
+   found: geometricalgebra:tasks/archive/2026/07/08/relicense-to-lgpl.md (exact)
+   tasks/archive/2026/07/08/ctc-vector2-deferral.md:89:      `tasks/archive/2026/07/08/relicense-to-lgpl.md`). gacalc is now
+## tasks/archive/2026/07/08/subclass-preserving-generated-ops.md
+   found: geometricalgebra:tasks/archive/2026/07/08/subclass-preserving-generated-ops.md (exact)
+   tasks/archive/2026/07/08/ctc-vector2-deferral.md:81:      `tasks/archive/2026/07/08/subclass-preserving-generated-ops.md`).
+## tasks/archive/2026/07/09/plane-rotation-pretag-and-mvp-adoption.md
+   found: geometricalgebra:tasks/archive/2026/07/09/plane-rotation-pretag-and-mvp-adoption.md (exact)
+   tasks/archive/2026/07/09/plane-rotation-mathutils-adoption.md:61:`tasks/archive/2026/07/09/plane-rotation-pretag-and-mvp-adoption.md`,
+## tasks/archive/2026/07/18/profile-gacalc-op-mix-in-mvp.md
+   found: geometricalgebra:tasks/archive/2026/07/18/profile-gacalc-op-mix-in-mvp.md (exact)
+   tasks/archive/2026/08/23/ctc-game-main-guard-and-clean-exit.md:29:games needed SIGKILL to stop — see gacalc's `tasks/archive/2026/07/18/profile-gacalc-op-mix-in-mvp.md` (`github.com/billsix/geometricalgebra`))
+## tasks/archive/2026/07/18/release-0-0-10-and-bump-mvp.md
+   found: geometricalgebra:tasks/archive/2026/07/18/release-0-0-10-and-bump-mvp.md (exact)
+   tasks/archive/2026/07/24/make-format-gate-is-red.md:170:them. Tracked in gacalc's `tasks/archive/2026/07/18/release-0-0-10-and-bump-mvp.md` (`github.com/billsix/geometricalgebra`);
+## tasks/archive/2026/07/21/typed-product-helper-functions.md
+   found: geometricalgebra:tasks/archive/2026/07/21/typed-product-helper-functions.md (exact)
+   tasks/archive/2026/08/23/switch-typechecker-pyright-to-ty.md:16:gacalc's `tasks/archive/2026/07/21/typed-product-helper-functions.md` (`github.com/billsix/geometricalgebra`)). **ty accepts these overloads; pyright's
+## tasks/archive/2026/07/22/precise-dual-typing.md
+   found: geometricalgebra:tasks/archive/2026/07/22/precise-dual-typing.md (exact)
+   tasks/archive/2026/07/22/dual-coefficient-cleanup.md:48:With `Bivector3.dual() -> Vector3` (gacalc `tasks/archive/2026/07/22/precise-dual-typing.md`), `n` types as `Vector3`
+   tasks/archive/2026/07/22/dual-coefficient-cleanup.md:65:1. **gacalc must ship precise `dual()`** — `tasks/archive/2026/07/22/precise-dual-typing.md` in
+   tasks/archive/2026/07/22/dual-coefficient-cleanup.md:81:- gacalc `tasks/archive/2026/07/22/precise-dual-typing.md` (the upstream typing change + its release step).
+## tasks/archive/2026/07/22/support-display-math.md
+   found: texExpToPng:tasks/archive/2026/07/22/support-display-math.md (exact)
+   tasks/archive/2026/07/23/perspective-inlinetex-malformed-directives.md:95:  (pixel-verified). See `github.com/billsix/texExpToPng` `tasks/archive/2026/07/22/support-display-math.md`.
+## tasks/archive/2026/07/23/investigate-frozen-generated-classes.md
+   found: geometricalgebra:tasks/archive/2026/07/23/investigate-frozen-generated-classes.md (exact)
+   tasks/archive/2026/07/23/frozen-vectors-rebind-migration.md:66:  `tasks/archive/2026/07/23/investigate-frozen-generated-classes.md`).
+## tasks/archive/2026/08/24/area-volume-content.md
+   found: geometricalgebra:tasks/archive/2026/08/24/area-volume-content.md (exact)
+   tasks/mathutils-helpers-via-gacalc.md:123:- gacalc `tasks/archive/2026/08/24/area-volume-content.md` — the measure work these named functions
+## tasks/archive/2026/09/06/add-quarter-turn-to-g2.md
+   found: geometricalgebra:tasks/archive/2026/09/06/add-quarter-turn-to-g2.md (exact)
+   tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md:5:`tasks/archive/2026/09/06/add-quarter-turn-to-g2.md` in github.com/billsix/geometricalgebra).
+   tasks/reference/gacalc-symbolic-transforms-and-lambdify.md:110:- geometricalgebra `tasks/archive/2026/09/06/add-quarter-turn-to-g2.md` — the record of gacalc's
+## tasks/archive/2026/09/06/matrix-template-compile-once.md
+   found: geometricalgebra:tasks/archive/2026/09/06/matrix-template-compile-once.md (exact)
+   tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md:5:`tasks/archive/2026/09/06/matrix-template-compile-once.md` in `github.com/billsix/geometricalgebra`).
+   tasks/reference/code-the-classics-tightening.md:378:`tasks/archive/2026/09/06/matrix-template-compile-once.md`) and mvp adopted it 2026-09-06 when it
+   tasks/reference/gacalc-transforms-in-the-renderer.md:87:`tasks/archive/2026/09/06/matrix-template-compile-once.md`) — and the ten copies were deleted when
+## tasks/archive/2026/10/14/ports-controls-in-menubar-step-1-superbiblev4.md
+   found: NOWHERE
+   tasks/archive/2026/10/14/v4-four-demos-do-not-render.md:11:(`tasks/archive/2026/10/14/ports-controls-in-menubar-step-1-superbiblev4.md`), four are this
+## tasks/archive/2026/11/04/dockerfile-lean-layers-first.md
+   found: geometricalgebra:tasks/archive/2026/11/04/dockerfile-lean-layers-first.md (exact)
+   tasks/archive/2026/11/14/dockerfile-layer-ordering.md:8:`tasks/archive/2026/11/04/dockerfile-lean-layers-first.md`). Editing `entrypoint/04-install-emacs.sh`
+## tasks/archive/2026/11/13/move-mvp-gl-toolkit-to-gacalc.md
+   found: geometricalgebra:tasks/archive/2026/11/13/move-mvp-gl-toolkit-to-gacalc.md (exact)
+   tasks/archive/2026/11/13/move-mvp-gl-toolkit-to-gacalc-step-5-mvp-switch.md:5:`tasks/archive/2026/11/13/move-mvp-gl-toolkit-to-gacalc.md`. Its "What moved", Decisions and
+## tasks/area-volume-content.md
+   found: geometricalgebra:tasks/archive/2026/08/24/area-volume-content.md
+   tasks/archive/2026/09/08/mathutils-angle-helpers-via-gacalc-measures.md:13:`tasks/area-volume-content.md` / `explicit-symbolic-tests-and-helper-cleanup.md`).
+## tasks/backport-labels-fixes-from-mvm.md
+   found: NOWHERE
+   tasks/archive/2026/07/09/remove-crossproduct-demo.md:37:  - `tasks/backport-labels-fixes-from-mvm.md` → **deleted 2026-07-08 per
+## tasks/codebase-overview.md
+   found: NOWHERE
+   tasks/archive/2026/05/27/book-code-drift-ch1-6.md:98:- See `tasks/codebase-overview.md` for how the build/repo is wired.
+   tasks/archive/2026/06/03/move-mvpvis-demos.md:33:- Also updated live references outside the book: `CLAUDE.md` line 72, `tasks/codebase-overview.md`
+   tasks/archive/2026/06/03/restructure-directories.md:29:- Updated `tasks/codebase-overview.md` tree + `CLAUDE.md`.
+   tasks/archive/2026/06/03/restructure-directories.md:123:- [ ] Update `tasks/codebase-overview.md` tree + `CLAUDE.md` path mentions.
+   tasks/archive/2026/07/30/reference-docs-expansion.md:26:Cleanups: harvest+delete `tasks/codebase-overview.md` (fix 3 inbound pointers),
+   tasks/reference/architecture-overview.md:76:(Relocated from the retired `tasks/codebase-overview.md`; the drift trackers
+## tasks/docstrings-for-sphinx.md
+   found: geometricalgebra:tasks/archive/2026/09/26/docstrings-for-sphinx.md
+   tasks/sphinx-docstrings-google-and-rendering.md:23:- `tasks/docstrings-for-sphinx.md` — the task, incl. the full-Google execution spec and the
+## tasks/drop-graded-type-dimension-suffixes.md
+   found: geometricalgebra:tasks/archive/2026/08/13/drop-graded-type-dimension-suffixes.md
+   tasks/archive/2026/08/13/adopt-unsuffixed-gacalc-graded-types.md:44:`Scalar`, **and the full class `G2`/`G3` → `G`** (its `tasks/drop-graded-type-dimension-suffixes.md`).
+## tasks/emit-doc-region-markers.md
+   found: geometricalgebra:tasks/archive/2026/07/21/emit-doc-region-markers.md
+   tasks/archive/2026/09/08/dangling-book-code-includes.md:225:(`geometricalgebra/tasks/emit-doc-region-markers.md`):
+## tasks/fast-numeric-equality.md
+   found: geometricalgebra:tasks/archive/2026/09/09/fast-numeric-equality.md
+   tasks/archive/2026/09/06/pointlike-type-study.md:3:**Status:** DONE + ARCHIVED 2026-09-06 (Fable, overnight) — decision: keep `PointLike` at the engine boundary; the numbers and rationale are `tasks/reference/point-type-decision.md`. The one real cost found (`
+   tasks/reference/notable-subsystems.md:161:  (geometricalgebra `tasks/fast-numeric-equality.md`).
+   tasks/reference/point-type-decision.md:48:for the cost and it is gacalc's to fix — filed as `tasks/fast-numeric-equality.md` in the gacalc repo
+## tasks/foo.md
+   found: NOWHERE
+   entrypoint/dotfiles/.emacs.d/helm.el:7:;; repository root (tasks/reference/x.md written inside tasks/foo.md); without
+## tasks/generated-dispatch-fast-paths.md
+   found: geometricalgebra:tasks/archive/2026/07/18/generated-dispatch-fast-paths.md
+   tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md:278:   `tasks/generated-dispatch-fast-paths.md`) — attribute routing is the
+## tasks/github-actions-ci.md
+   found: geometricalgebra:tasks/archive/2026/09/26/github-actions-ci.md
+   tasks/github-actions-release-ci.md:121:- `github.com/billsix/geometricalgebra` › `tasks/github-actions-ci.md` — the sibling replication
+## tasks/grapher3d-lit-mesh.md
+   found: geometricalgebra:tasks/grapher3d-lit-mesh.md (exact)
+   tasks/archive/2026/11/03/graphing-calculator-2d-3d.md:10:**Follow-on (still open):** github.com/billsix/geometricalgebra `tasks/grapher3d-lit-mesh.md` (moved from mvp 2026-11-13) — the triangle-mesh,
+   tasks/reference/architecture-overview.md:39:Two run-by-path programs that plot first-class Python functions graphing-calculator style (functions authored in source, not typed at runtime): `grapher2d.py` (`f(x)` over pannable/zoomable axes with grid + ticks) an
+## tasks/mark-basis-constants-for-doc-regions.md
+   found: geometricalgebra:tasks/archive/2026/11/04/mark-basis-constants-for-doc-regions.md
+   tasks/archive/2026/09/08/dangling-book-code-includes.md:30:  geometricalgebra `tasks/mark-basis-constants-for-doc-regions.md` (proposed, 2026-09-08);
+   tasks/reference/book-and-docs-pipeline.md:231:  future gacalc release — filed as `tasks/mark-basis-constants-for-doc-regions.md`).
+## tasks/matrix-template-compile-once.md
+   found: geometricalgebra:tasks/archive/2026/09/06/matrix-template-compile-once.md
+   tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md:3:**Status:** DONE + ARCHIVED 2026-09-06 — all ten GL 3.3 engines define `MODEL` and `ortho_pixels` with gacalc transforms (a `MatrixTemplate` compiled once at import); every frame gate AE=0 vs HEAD
+## tasks/minimal-image-for-nested-podman-standard.md
+   found: runClaudeInContainer:tasks/archive/2026/11/15/minimal-image-for-nested-podman-standard.md
+   tasks/archive/2026/11/04/minimal-nested-image.md:53:- runClaudeInContainer `tasks/minimal-image-for-nested-podman-standard.md` — the umbrella this was a
+## tasks/pgzero-gl-de-abstraction-options.md
+   found: NOWHERE
+## tasks/port-animation-layer-from-mvp.md
+   found: geometricalgebra:tasks/archive/2026/06/08/port-animation-layer-from-mvp.md
+   tasks/archive/2026/07/09/gacalc-math-migration.md:288:   tracked in `/geometricalgebra/tasks/port-animation-layer-from-mvp.md`.
+## tasks/ports-keyboard-standardization.md
+   found: NOWHERE
+   tasks/archive/2026/06/01/ports-render-options-to-imgui.md:183:- [`../tasks/ports-keyboard-standardization.md`](../tasks/ports-keyboard-standardization.md) —
+## tasks/ports-replace-cli-with-imgui.md
+   found: NOWHERE
+   tasks/archive/2026/06/01/ports-render-options-to-imgui.md:181:- [`../tasks/ports-replace-cli-with-imgui.md`](../tasks/ports-replace-cli-with-imgui.md) — Phase 3
+## tasks/reference/approximate-float-equality.md
+   found: geometricalgebra:tasks/reference/approximate-float-equality.md (exact)
+   tasks/reference/design-decisions.md:21:- **gacalc 0.0.15 renamed `is_close` → `isclose` and its tolerances now default to `0.0` (exact); mvp's 36 test callers pass `rel_tol=1e-5, abs_tol=1e-5`.** That's the old numpy default and gacalc's in-tree convention; a 
+## tasks/reference/assignments.md
+   found: NOWHERE
+   tasks/archive/2026/09/14/trim-claude-md.md:76:| `## Assignments` | 2,042 | TRIM | CLAUDE.md keeps ~3 lines (assignments are format-covered; three carry deliberate holes — leave them; `tools/verify_render.sh` to check render). The review history + "where soluti
+## tasks/reference/chapt18-advanced-buffers.md
+   found: NOWHERE
+   tasks/pixbufobj-port-fidelity.md:25:`tasks/reference/chapt18-advanced-buffers.md`, github.com/billsix/OpenGLSuperBibleV4Code):
+## tasks/reference/content-area-volume.md
+   found: geometricalgebra:tasks/reference/content-area-volume.md (exact)
+   tasks/mathutils-helpers-via-gacalc.md:125:  `tasks/reference/content-area-volume.md`.
+## tasks/reference/crush-context-assembly.md
+   found: runCrushInContainer:tasks/reference/crush-context-assembly.md (exact)
+   tasks/archive/2026/09/14/trim-claude-md.md:38:  runCrushInContainer `tasks/reference/crush-context-assembly.md` (geometricalgebra's
+   tasks/archive/2026/09/14/trim-claude-md.md:104:- runCrushInContainer `tasks/reference/crush-context-assembly.md` — measurement + method
+## tasks/reference/doctests-by-default.md
+   found: runClaudeInContainer:tasks/reference/doctests-by-default.md (exact); runCrushInContainer:tasks/reference/doctests-by-default.md (exact)
+   tasks/archive/2026/11/14/migrate-unit-tests-to-doctests.md:69:`tasks/reference/doctests-by-default.md` in github.com/billsix/runClaudeInContainer and copied to
+## tasks/reference/emacs-lsp-setup.md
+   found: geometricalgebra:tasks/reference/emacs-lsp-setup.md (exact)
+   tasks/archive/2026/11/05/emacs-lsp-offline-pyright.md:5:(`tasks/reference/emacs-lsp-setup.md` there), which the maintainer confirmed on 2026-11-05 works as wanted.
+## tasks/reference/generated-docstrings.md
+   found: geometricalgebra:tasks/reference/generated-docstrings.md (exact)
+   tasks/sphinx-docstrings-google-and-rendering.md:25:- `tasks/reference/generated-docstrings.md` — the doctest conventions to follow (explicit unit
+## tasks/reference/gl-toolkit.md
+   found: geometricalgebra:tasks/reference/gl-toolkit.md (exact)
+   CLAUDE.md:15:- **The Cayley-graph engine, the GL toolkit and the graphers live in gacalc** (since 0.1.1): `gacalc.cayley` (`cayleygraph`, `cayleyscene`), `gacalc.gl` (`matrix_stack`, `_pipeline`, `cayley_gl`, `labels`, the shaders at `gacalc.gl.SHADER_DIR`, `g
+   tasks/archive/2026/11/13/move-mvp-gl-toolkit-to-gacalc-step-5-mvp-switch.md:46:  `gl-and-imgui-gotchas.md` (a pointer to gacalc's `tasks/reference/gl-toolkit.md` at §8),
+   tasks/reference/architecture-overview.md:39:Two run-by-path programs that plot first-class Python functions graphing-calculator style (functions authored in source, not typed at runtime): `grapher2d.py` (`f(x)` over pannable/zoomable axes with grid + ticks) an
+   tasks/reference/gl-and-imgui-gotchas.md:259:The graphers, `_pipeline`, `cayley_gl` and `labels` now live in gacalc (`gacalc.gl`, since 0.1.1); the current reference is github.com/billsix/geometricalgebra `tasks/reference/gl-toolkit.md`. §§8–9 keep the history 
+   tasks/reference/notable-subsystems.md:41:**Lives in gacalc since 0.1.1** (github.com/billsix/geometricalgebra: `src/gacalc/cayley/`, `src/gacalc/gl/`; its `tasks/reference/gl-toolkit.md` is the current reference). The file names below are the gacalc modules; m
+## tasks/reference/minimal-nested-images.md
+   found: runClaudeInContainer:tasks/reference/minimal-nested-images.md (exact); runCrushInContainer:tasks/reference/minimal-nested-images.md (exact)
+   CLAUDE.md:47:**`make image` builds the FULL image by default (host or nested); `make image MINIMAL_IMAGE=1` builds a lean export/airgap/CI image** (~4.35 GB vs the full ~6.61 GB). The optional-feature flags carry `?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)`, so
+   Makefile:10:# runClaudeInContainer tasks/reference/minimal-nested-images.md.
+   tasks/archive/2026/11/04/minimal-nested-image.md:26:`tasks/reference/minimal-nested-images.md`). So two things in the original plan were deliberately
+   tasks/archive/2026/11/04/minimal-nested-image.md:52:- runClaudeInContainer `tasks/reference/minimal-nested-images.md` — the standard + the fleet row.
+## tasks/reference/nested-podman-design.md
+   found: runClaudeInContainer:tasks/reference/nested-podman-design.md (exact); runCrushInContainer:tasks/reference/nested-podman-design.md (exact)
+   Makefile:36:# runClaudeInContainer tasks/reference/nested-podman-design.md.
+## tasks/reference/python-coding-standard-gacalc.md
+   found: geometricalgebra:tasks/reference/python-coding-standard-gacalc.md (exact)
+   tasks/apply-2026-11-06-naming-and-scope-rules.md:39:  `tasks/reference/python-coding-standard-gacalc.md`, "Inline once, declare at use, nest and shadow"
+## tasks/reference/python-coding-standard.md
+   found: runClaudeInContainer:tasks/reference/python-coding-standard.md (exact); runCrushInContainer:tasks/reference/python-coding-standard.md (exact)
+   CLAUDE.md:99:The Python coding standard is in two parts, **read both**: the portable rules are the shared cross-project doc **`runClaudeInContainer/tasks/reference/python-coding-standard.md`** (canonical: github.com/billsix/runClaudeInContainer; mounted at `~/
+   tasks/archive/2026/09/14/trim-claude-md.md:11:  `runClaudeInContainer/tasks/reference/python-coding-standard.md` (canonical:
+   tasks/archive/2026/09/14/trim-claude-md.md:78:| `## Coding standard (Python)` | 10,073 | MOVE | Biggest single item. (a) ruff-enforced list and (b) generic judgment calls duplicate `tasks/archive/2026/10/12/apply-python-coding-standard.md` and geometricalgebra
+   tasks/archive/2026/09/14/trim-claude-md.md:86:  Likely new/updated docs: a `tasks/reference/python-coding-standard.md` (or fold into the
+   tasks/archive/2026/09/14/trim-claude-md.md:95:   `tasks/reference/python-coding-standard.md`**, or just point `CLAUDE.md` at the existing
+   tasks/archive/2026/10/12/apply-python-coding-standard.md:21:- the **shared** `runClaudeInContainer/tasks/reference/python-coding-standard.md` — the
+   tasks/reference/python-coding-standard-mvp.md:5:`runClaudeInContainer/tasks/reference/python-coding-standard.md` (canonical:
+## tasks/reference/shell-exec-and-container-template.md
+   found: runClaudeInContainer:tasks/reference/shell-exec-and-container-template.md (exact)
+   tasks/makefile-thin-targets-scripts.md:100:- `runClaudeInContainer/tasks/reference/shell-exec-and-container-template.md` — the `shell-exec`
+## tasks/reference/symbolic-equality.md
+   found: geometricalgebra:tasks/reference/symbolic-equality.md (exact)
+   tasks/sphinx-docstrings-google-and-rendering.md:27:- `tasks/reference/symbolic-equality.md` — the "a value never `==` a bare number" doctest gotcha.
+## tasks/reference/x.md
+   found: NOWHERE
+   entrypoint/dotfiles/.emacs.d/helm.el:7:;; repository root (tasks/reference/x.md written inside tasks/foo.md); without
+   entrypoint/dotfiles/.emacs.d/helm.el:8:;; this, helm prefills tasks/tasks/reference/x.md, which does not exist.
+## tasks/show-mult-expand-numerators-not-denominators.md
+   found: geometricalgebra:tasks/archive/2026/06/15/show-mult-expand-numerators-not-denominators.md
+   tasks/archive/2026/07/09/math-demos-section-crossproduct-and-proof.md:46:- Related gacalc task filed: `geometricalgebra/tasks/show-mult-expand-numerators-not-denominators.md`.
+## tasks/split-python-standard-project-specifics.md
+   found: runClaudeInContainer:tasks/archive/2026/10/12/split-python-standard-project-specifics.md
+   tasks/archive/2026/10/12/apply-python-coding-standard.md:71:  `tasks/split-python-standard-project-specifics.md`.
+## tasks/tasks/reference/x.md
+   found: NOWHERE
+   entrypoint/dotfiles/.emacs.d/helm.el:8:;; this, helm prefills tasks/tasks/reference/x.md, which does not exist.
+## tasks/texexptopng-standalone-display-math.md
+   found: NOWHERE
+   tasks/archive/2026/07/23/demo01-import-region-empty.md:71:  `tasks/texexptopng-standalone-display-math.md`.
+   tasks/archive/2026/07/23/fix-editable-install-system-flag.md:91:  `tasks/texexptopng-standalone-display-math.md`, `tasks/archive/2026/07/23/demo01-import-region-empty.md`.
+## tasks/ty-invariance-transform-factories-bind-v.md
+   found: geometricalgebra:tasks/archive/2026/09/06/ty-invariance-transform-factories-bind-v.md
+   tasks/archive/2026/09/06/ty-0072-strictness-sweep.md:86:  `github.com/billsix/geometricalgebra` `tasks/ty-invariance-transform-factories-bind-v.md`. When
+## tasks/update-emacs-packages-target.md
+   found: spimulator:tasks/archive/2026/06/14/update-emacs-packages-target.md; texExpToPng:tasks/archive/2026/06/14/update-emacs-packages-target.md; multivariate-math:tasks/archive/2026/07/08/update-emacs-packages-target.md
+   tasks/archive/2026/06/13/update-emacs-packages-target.md:10:> vendoring projects (`spimulator/tasks/update-emacs-packages-target.md`,
+   tasks/archive/2026/06/13/update-emacs-packages-target.md:11:> `texExpToPng/tasks/update-emacs-packages-target.md`). So: do mvp → review → replicate.
+## tasks/x.md
+   found: NOWHERE

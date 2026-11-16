@@ -1,0 +1,8 @@
+# file:line:path occurrences repoint.py must leave alone: the archived copies
+# in github.com/billsix/spimulator and github.com/billsix/tex-expression-to-png,
+# which share a basename with this repo's own record.
+tasks/archive/2026/06/13/update-emacs-packages-target.md:10:tasks/archive/2026/06/14/update-emacs-packages-target.md
+tasks/archive/2026/06/13/update-emacs-packages-target.md:11:tasks/archive/2026/06/14/update-emacs-packages-target.md
+# Vendored byte-identical from github.com/billsix/runClaudeInContainer; fix it
+# there and re-copy, never here.
+tools/check_local_annotations.py:7:tasks/annotate-all-local-variables.md

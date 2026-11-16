@@ -3,7 +3,7 @@
 **Status:** complete
 **Completed:** 2026-05-27 — 6 typos fixed (ch02:77,79,189,464; ch03:185,232); `ch02:464` truncated sentence reworded to "…take the inverse of any directed edge that you traverse against its direction."
 **Type:** book prose (editorial).
-**Source finding:** `tasks/book-code-drift-ch1-6.md` item C. All six lines were
+**Source finding:** `tasks/archive/2026/05/27/book-code-drift-ch1-6.md` item C. All six lines were
 read directly and confirmed.
 
 ## Context

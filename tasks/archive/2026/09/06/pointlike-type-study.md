@@ -1,6 +1,6 @@
 # Study: does `PointLike` need to exist, or can gacalc's `Vector` (or a tuple) be the one point type?
 
-**Status:** DONE + ARCHIVED 2026-09-06 (Fable, overnight) — decision: keep `PointLike` at the engine boundary; the numbers and rationale are `tasks/reference/point-type-decision.md`. The one real cost found (`Vector.__eq__` via `sympy.simplify`, ~60 µs per differing comparison) is gacalc's — filed there as `tasks/fast-numeric-equality.md`. The whole-game profiler is promoted to `tools/ctc_profile_update.py`; the micro-benchmark stays one-shot in `tasks/adhoc/pointlike-type-study/` (held until the maintainer says "archive").
+**Status:** DONE + ARCHIVED 2026-09-06 (Fable, overnight) — decision: keep `PointLike` at the engine boundary; the numbers and rationale are `tasks/reference/point-type-decision.md`. The one real cost found (`Vector.__eq__` via `sympy.simplify`, ~60 µs per differing comparison) is gacalc's — filed there (github.com/billsix/geometricalgebra) as `tasks/archive/2026/09/09/fast-numeric-equality.md`. The whole-game profiler is promoted to `tools/ctc_profile_update.py`; the micro-benchmark stays one-shot in `tasks/adhoc/pointlike-type-study/` (held until the maintainer says "archive").
 **Priority:** 5
 **Difficulty:** 4
 
@@ -25,7 +25,7 @@ paths). Deliverable: the decision, the numbers, and the rationale — as a refer
   coordinates that may be sympy expressions; `float(v.x)` appears at float-typed boundaries.
 - Related: mvp `CLAUDE.md` ("The games use `gacalc.g2.Vector` DIRECTLY"), `tasks/reference/design-decisions.md`
   › Ports (the frozen-vector migration and its differential trace),
-  `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md` (an earlier gacalc-vs-numpy perf question in
+  `tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md` (an earlier gacalc-vs-numpy perf question in
   the renderer — same measuring discipline), gacalc at `github.com/billsix/geometricalgebra`.
 
 ## Questions the study answers

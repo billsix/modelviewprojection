@@ -12,7 +12,7 @@ core 3.3-Core concepts the chapter introduces are explained.
 
 ## Work
 1. **Fix the broken demo first** — `demo21/demo21.py` is missing `import sys` /
-   `import os` (see `tasks/archive/fix-demo-code-bugs.md`). The chapter ships
+   `import os` (see `tasks/archive/2026/05/26/fix-demo-code-bugs.md`). The chapter ships
    non-running code until that lands.
 2. **Write prose** for the concepts the includes show, in Bill's voice, connected
    back to ch20:
@@ -31,6 +31,6 @@ core 3.3-Core concepts the chapter introduces are explained.
    ch22 = ch21 + color-as-uniform).
 
 ## Verification
-- demo21 import fix verified per `tasks/archive/fix-demo-code-bugs.md`.
+- demo21 import fix verified per `tasks/archive/2026/05/26/fix-demo-code-bugs.md`.
 - Bill renders via `make html` and reviews the new prose for voice/accuracy.
 </content>

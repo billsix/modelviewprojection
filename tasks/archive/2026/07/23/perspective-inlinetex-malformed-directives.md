@@ -92,13 +92,13 @@ intended math renders. No new warnings.
 
 - The texExpToPng preamble fixes (`standalone[varwidth]` + `xcolor`) are **done**, pushed as
   `67da442`, and pinned in the Dockerfile — they render all *valid* display/colored math
-  (pixel-verified). See `github.com/billsix/texExpToPng` `tasks/archive/2026/07/22/support-display-math.md`.
-- The demo01 empty doc-region warning → `tasks/demo01-import-region-empty.md`.
+  (pixel-verified). See `github.com/billsix/tex-expression-to-png` `tasks/archive/2026/07/22/support-display-math.md`.
+- The demo01 empty doc-region warning → `tasks/archive/2026/07/23/demo01-import-region-empty.md`.
 - The `--system` editable-install bug (clean builds skip SVG regen) → `tasks/archive/2026/07/23/fix-editable-install-system-flag.md`.
 
 ## Relationships
 
-- Sibling book-render findings: `tasks/demo01-import-region-empty.md`,
+- Sibling book-render findings: `tasks/archive/2026/07/23/demo01-import-region-empty.md`,
   `tasks/archive/2026/07/23/fix-editable-install-system-flag.md`.
 - Context: the gacalc-0.0.13 bump whose book-render check surfaced all of this
   (`tasks/archive/2026/07/22/dual-coefficient-cleanup.md`).

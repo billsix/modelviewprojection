@@ -4,7 +4,7 @@
 filed this, was re-synced onto demo18 and gated; the record is "Assignment 3 — done" below. The
 unfinished half — assignments 1 and 2, which each need a *decision* before any code and are not
 mechanical re-syncs the way assignment 3 was — was spun out to
-**`tasks/assignments-1-and-2-review.md`** rather than archived with this doc, so the open questions
+**`tasks/archive/2026/09/09/assignments-1-and-2-review.md`** rather than archived with this doc, so the open questions
 stay visible. `assignments/demo02/vec1.py` needed nothing (already on `mathutils`).
 
 **The verification harness was removed with this archive** (`tasks/adhoc/assignments-review/`,

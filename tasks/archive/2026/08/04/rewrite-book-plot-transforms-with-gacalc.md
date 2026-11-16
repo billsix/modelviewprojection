@@ -68,7 +68,7 @@ Executed and verified.
     same de-coupling — a deliberate deviation from the briefed "convert Geometry.points".
 - `src/modelviewprojection/plotsforbook/plotutils/matplotgraphs.py` — **`git rm`** (dead:
   no importers, not a console script, not in the book — see
-  `tasks/delete-dead-matplotgraphs.md`).
+  `tasks/archive/2026/08/04/delete-dead-matplotgraphs.md`).
 - `src/modelviewprojection/plotsforbook/plotutils/mpltransformations.py` — **`git rm`**
   (the two files above were its only consumers; now unimported).
 

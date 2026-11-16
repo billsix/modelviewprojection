@@ -11,7 +11,7 @@ rename). Ready to archive once batch 7 is committed.
   module-qualify) + `mathutils.py` via `migrate_mathutils.py` (4-context: code / doctest-input /
   doctest-repr-output / prose-example). Both codemods idempotent (2nd run = no-op).
 - **De-facade:** the 12 SuperBible ports now import `Vector` straight from `gacalc.g3`; mathutils
-  re-exports **no** gacalc type (finishes `tasks/defacade-mathutils-gacalc-reexports.md`).
+  re-exports **no** gacalc type (finishes `tasks/archive/2026/08/13/defacade-mathutils-gacalc-reexports.md`).
 - **Book markers (batch 5):** ch05×2 / ch06×6 / ch14×2 renamed to the **real** 0.0.16 names
   (`Vector declaration`, `Vector __add__/__sub__/__mul__ method`), verified against the 0.0.16
   sdist's baked `g2.py`/`g3.py`; all 10 extract **non-empty** (no silent-empty trap).
@@ -33,7 +33,7 @@ and **rejected** — it re-adds the suffix locally and fights gacalc's "module i
 design, and mathutils is already 96% not-a-facade (only `Vector3` leaks, to 12 ports — see below).
 The half-written `tasks/adhoc/adopt-unsuffixed-gacalc-graded-types/alias_imports.py` is **dead**;
 remove it when this task runs. As part of this pass, finish the de-facade
-(`tasks/defacade-mathutils-gacalc-reexports.md`): make the 12 straggler ports import their gacalc
+(`tasks/archive/2026/08/13/defacade-mathutils-gacalc-reexports.md`): make the 12 straggler ports import their gacalc
 `Vector` directly so mathutils re-exports **no** gacalc type. `mathutils.py` itself switches to
 `from gacalc.g3 import Vector` / `from gacalc.g2 import Vector` internally.
 
@@ -41,7 +41,7 @@ remove it when this task runs. As part of this pass, finish the de-facade
 
 gacalc (`github.com/billsix/geometricalgebra`) is dropping the dimension suffix from **all**
 its generated types — `Vector2`/`Vector3` → `Vector`, likewise `Bivector`/`Trivector`/`Rotor`/
-`Scalar`, **and the full class `G2`/`G3` → `G`** (its `tasks/drop-graded-type-dimension-suffixes.md`).
+`Scalar`, **and the full class `G2`/`G3` → `G`** (its `tasks/archive/2026/08/13/drop-graded-type-dimension-suffixes.md`).
 **API-breaking**, shipping in gacalc **0.0.16**. The idiom becomes **module-qualified**:
 `import gacalc.g2 as g2` → `g2.Vector`, `g2.G`. Adopt against the new release (bump mvp's gacalc
 dependency version first; gated on the release, as with the frozen-types / `plane_rotation`

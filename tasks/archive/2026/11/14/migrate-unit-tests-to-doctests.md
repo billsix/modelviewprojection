@@ -20,7 +20,7 @@ are counted per docstring, so the number of checked examples went up, not down).
   `INTERNALERROR ... SystemExit`. With the exclusion list, `pgzero_gl/` and `graphingcalculator/`
   are now collected too (they import cleanly headless and hold no doctests yet), so a doctest added
   to any library module runs with no config edit. The stale pointer to
-  `tasks/doctests-everywhere.md` went away with the old comment.
+  `tasks/archive/2026/07/19/doctests-everywhere.md` went away with the old comment.
 - **Doctests extended** (each now asserts what the deleted test asserted):
   `find_normal` (a 2x2 triangle's normal has length 4), `plane_equation` (a point on the plane
   satisfies `normal . P + d == 0`), `ortho` (the prism centre maps to the NDC origin; the transform

@@ -31,7 +31,7 @@ source of truth for "multiply a vector by the unit pseudoscalar to turn it a qua
   `InvertibleFunction(func=…, inverse=…, latex_repr=…)` built from released gacalc primitives — it
   works and is play-tested. `inverse(rotate_90_degrees)` gives the −90° turn; the `_rotations` table
   indexes 0/90/180/270 by `in_edge`.
-- **Related:** the gacalc feature task `tasks/add-quarter-turn-to-g2.md`
+- **Related:** the gacalc feature task `tasks/archive/2026/09/06/add-quarter-turn-to-g2.md`
   (github.com/billsix/geometricalgebra); the pin is bumped in mvp per
   `CLAUDE.md` › "Keeping the Dockerfile, Makefile, and dependencies in sync" (bump BOTH
   `requirements.txt`'s `gacalc==` and the Dockerfile's `ARG GACALC_VERSION`).

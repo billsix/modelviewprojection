@@ -30,7 +30,7 @@ book/docs/ch10.rst` passes (ch05 too). **Type:** book prose + doctests.
    the real API — function composition, e.g.
    `compose([scale_non_uniform_2d(...), translate(Vector2D(...))])(v)` — and run
    them to capture true output. This overlaps the "method vs function" framing
-   (`tasks/archive/fix-method-vs-function-wording.md`) but the fix here is rewriting
+   (`tasks/archive/2026/05/26/fix-method-vs-function-wording.md`) but the fix here is rewriting
    executable examples, so keep it in this plan.
 
 3. **Typos.** Line 120 "Imagine you a driving" → "you are driving"; line 131

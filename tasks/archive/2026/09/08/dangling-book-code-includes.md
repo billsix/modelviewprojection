@@ -27,7 +27,7 @@ left open has since closed, verified 2026-09-08:
 - **Known imperfection "basis listings dropped" — the one live residual, and it is gacalc's.**
   ch05/ch14 still name the basis constants in prose rather than showing them, because gacalc
   does not mark its post-class `Cls.e_1 = …` assignments. Filed upstream as
-  geometricalgebra `tasks/mark-basis-constants-for-doc-regions.md` (proposed, 2026-09-08);
+  github.com/billsix/geometricalgebra `tasks/archive/2026/11/04/mark-basis-constants-for-doc-regions.md` (proposed, 2026-09-08);
   when it ships, restore the two listings here and bump the pin + `ARG` together.
 
 **Priority:** 6
@@ -222,7 +222,7 @@ they are fixed.
 
 **Scope grew 2026-07-19 — the checker must assert THREE things, not one.** Two further
 failure modes were found by experiment while designing gacalc's marker scheme
-(`geometricalgebra/tasks/emit-doc-region-markers.md`):
+(github.com/billsix/geometricalgebra `tasks/archive/2026/07/21/emit-doc-region-markers.md`):
 
 1. **Anchor resolves** — the original job; catches the 25 empty listings.
 2. **No anchor is a PREFIX of another in the same file.** Sphinx matches the first line

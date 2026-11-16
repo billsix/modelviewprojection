@@ -37,7 +37,7 @@ file, not these): `demo15.py` (7 regions), `demo16.py` (3), `demo12.py` (1),
 `demo19.py`/`demo20.py` (`of paddle 1`, 1 each), `demo22.py`. These are
 **book-drift** territory (a chapter that should include them, or markers to
 retire), distinct from the orphaned 7 — left untouched pending Bill's call;
-relate to `tasks/book-code-drift-ch7-15.md` / `book-code-drift-ch16-21.md`.
+relate to `tasks/archive/2026/08/02/book-code-drift-ch7-15.md` / `book-code-drift-ch16-21.md`.
 Run `python tools/check_doc_regions.py --report-dead` to see the current list.
 
 **Created:** 2026-07-30
@@ -98,7 +98,7 @@ invisible. Current dead set (verified 2026-07-30; list also in
 - `planar shadow` — `demos/demo22/demo22.py`
 
 **Bill's call per marker:** keep as a future book anchor (plausible for the
-mathutils trio and `planar shadow`, given `tasks/planar-shadow-matrix.md` and
+mathutils trio and `planar shadow`, given `tasks/archive/2026/08/03/planar-shadow-matrix.md` and
 the drift trackers), or delete. Optionally: add a dead-marker *report* mode to
 the checker (not a failure — reuse across files is legitimate and scoped by
 target path, so only truly-unreferenced names should be listed).

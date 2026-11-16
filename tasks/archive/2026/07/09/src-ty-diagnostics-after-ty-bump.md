@@ -13,7 +13,7 @@ The Fedora 44 `ty` package (reinstalled fresh at every `make image`) moved to
 a stricter version, which on 2026-07-08 turned two previously-green
 `format.sh` steps red. The Code-the-Classics half (vol2's ~120 `game`-union
 errors) was fixed the same day (see the resolution in
-tasks/ctc-more-types.md); **this task is the mvp-`src/` half**: `ty check
+tasks/archive/2026/07/09/ctc-more-types.md); **this task is the mvp-`src/` half**: `ty check
 /mvp/src` now reports **79 diagnostics**, though `make format` still exits 0
 because the vol2 check happens to run last in `entrypoint/format.sh` — the
 red step is visible in the output but doesn't fail the script. (Consider

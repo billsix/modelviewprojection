@@ -22,7 +22,7 @@ and behaviour proven unchanged.
 
 - The rule was added to CLAUDE.md › "Central abstraction" on 2026-09-16 (the bullet beginning "If a
   transformation can be expressed with gacalc…"). It was prompted by the framebuffer work
-  (`tasks/framebuffer-in-perspective.md`), where a hand-rolled `np.diag` + translation-column morph
+  (`tasks/archive/2026/09/17/framebuffer-in-perspective.md`), where a hand-rolled `np.diag` + translation-column morph
   reversed with hand-computed factors was converted to `to_matrix(compose([...]))` + `.at()` +
   `inverse()`. That conversion is the model for this sweep.
 - gacalc gives `translate` / `uniform_scale` / `scale_non_uniform` / `rotate(_x/_y/_z)` / `compose`
@@ -53,7 +53,7 @@ Left alone, each with its reason:
   `chapt19/SphereWorld32`, …) — faithful ports of the SuperBible's matrix-based book code;
   converting would betray both port fidelity and the matrix-teaching intent.
 - `src/modelviewprojection/pgzero_gl/renderer.py` `np.identity` — a perf-sensitive CtC render hot
-  path, owned by `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md`.
+  path, owned by `tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md`.
 - `matrix_stack.py` (the stack implementation) and `cayleyscene.to_matrix` (the GL boundary) — the
   rule *expects* these; not violations. `planar_shadow` is deliberately rank-3 (non-invertible).
 - `assignments/` — no hits.
@@ -77,6 +77,6 @@ ratios). Start from `grep -rEn "np\.(identity|diag|array)\(|@ np\.|linalg\.inv" 
 ## See also
 
 - `CLAUDE.md` › "Central abstraction" — the rule this enforces.
-- `tasks/framebuffer-in-perspective.md` — the worked example of the conversion.
+- `tasks/archive/2026/09/17/framebuffer-in-perspective.md` — the worked example of the conversion.
 - `tasks/reference/gacalc-transforms-in-the-renderer.md`, `tasks/reference/architecture-overview.md`
   (§ transform layer).

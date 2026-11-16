@@ -3,7 +3,7 @@
 **Status:** DONE + ARCHIVED 2026-09-05 — frame 180 AE=0 vs HEAD, 1500-frame input trace structurally identical, ruff + ty clean, 104 tests; staged (maintainer commits). Audio (thrust loop fade-in/out, per-shot volume) and gamepad are unverified by harness — play-test.
 **Priority:** 5
 **Difficulty:** 6
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md` (vol2 engine) · **Next:** `tasks/codetheclassics-tighten-eggzy.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** `tasks/archive/2026/09/05/codetheclassics-tighten-kinetix.md` (vol2 engine) · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-eggzy.md`
 **Engine family:** vol2 — splice kinetix's tightened engine; avenger is the **only game that builds `mixer.Sound(...)`** (4196) and uses `Sound.play(loops=-1, fade_ms=200)`, `fadeout`, `set_volume`, `stop` — restore `_MixerSound`, `_pooled_sound`, `mixer.set_num_channels` and the mixer's fade/loop paths here.
 
 ## BLUF

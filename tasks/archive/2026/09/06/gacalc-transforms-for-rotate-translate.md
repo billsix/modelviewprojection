@@ -1,6 +1,6 @@
 # Replace hand-written rotate/translate/scale matrices with gacalc transforms
 
-**Status:** DONE + ARCHIVED 2026-09-06 — the study is complete and harvested to `tasks/reference/gacalc-transforms-in-the-renderer.md`; the 2026-09-06 census found no hand-rolled point transform left in the games (the direct path is entirely gacalc), and the perf half (`pgzero-gl-renderer-matrix-via-gacalc-perf`, archived the same day) found a compile-once path that makes a gacalc-defined `uModel` *faster* than today's numpy — so the earlier "leave the renderer as-is" recommendation is now a taste call, put to the maintainer as `tasks/renderer-model-matrix-from-gacalc.md`.
+**Status:** DONE + ARCHIVED 2026-09-06 — the study is complete and harvested to `tasks/reference/gacalc-transforms-in-the-renderer.md`; the 2026-09-06 census found no hand-rolled point transform left in the games (the direct path is entirely gacalc), and the perf half (`pgzero-gl-renderer-matrix-via-gacalc-perf`, archived the same day) found a compile-once path that makes a gacalc-defined `uModel` *faster* than today's numpy — so the earlier "leave the renderer as-is" recommendation is now a taste call, put to the maintainer as `tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md`.
 **Priority:** 5
 **Difficulty:** 5
 
@@ -77,7 +77,7 @@ would make gacalc the single source of truth for the transform math instead of t
   `from gacalc.transforms import translate, uniform_scale` and apply them to `gacalc.g2`/`g3` `Vector`s directly.
 - **This is a facet of the broader pgzero_gl study** — see
   `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md` (the design study) and
-  `tasks/pgzero-gl-de-abstraction-options.md` (its option menu). That study steers toward **"direct mode for
+  `tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md` (its option menu). That study steers toward **"direct mode for
   actor/game math, leave the renderer's `uModel` matrices as-is"** (the renderer is the `glUniformMatrix4fv`
   boundary the repo `CLAUDE.md` keeps matrix-based) — but this task deliberately leaves that open for discussion.
 

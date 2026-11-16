@@ -208,7 +208,7 @@ class FrameBuffer:
         # a zero-length edge (coincident vertices) or same-direction collinear
         # vertices give a zero-area triangle -- cull it instead of dividing by
         # zero.  (An anti-parallel edge pair is also zero-area but is NOT caught
-        # here; see tasks/is-parallel-ga-semantics.md.)
+        # here; see tasks/archive/2026/07/19/is-parallel-ga-semantics.md.)
         if is_parallel_and_same_orientation(v2 - v1, v3 - v2):
             return  # degenerate triangle
 

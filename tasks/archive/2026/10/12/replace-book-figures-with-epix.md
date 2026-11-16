@@ -110,7 +110,7 @@ Two incidental finds during verification, both unrelated to the figures:
   prerequisite that needs a TTY (dies "Stdin not a terminal" headless). Replaced
   with a non-interactive `tools/spellcheck.sh`; detail and options in
   `tasks/archive/2026/10/22/non-interactive-spellcheck.md`. The broader template drift this exposed is
-  tracked in `tasks/conform-makefile-dockerfile-to-standard-template.md`.
+  tracked in `tasks/archive/2026/10/22/conform-makefile-dockerfile-to-standard-template.md`.
 - **Debugging gotcha (recorded for next time):** the image's *baked* `/entrypoint.sh`
   is stale relative to the live copy that `make html` mounts (`-v
   ./entrypoint/entrypoint.sh`). Running the baked one directly skips the render step,

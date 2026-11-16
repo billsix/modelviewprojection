@@ -20,7 +20,7 @@ Cross-project standard (see the where-logged decision, likely `python-coding-sta
 **Google/napoleon is the maintainer's docstring standard.** gacalc adopted it; this book should too.
 
 gacalc's worked example lives in that repo (github.com/billsix/geometricalgebra):
-- `tasks/docstrings-for-sphinx.md` — the task, incl. the full-Google execution spec and the
+- `tasks/archive/2026/09/26/docstrings-for-sphinx.md` — the task, incl. the full-Google execution spec and the
   session operational notes (how to measure Sphinx warnings, the font facts, etc.).
 - `tasks/reference/generated-docstrings.md` — the doctest conventions to follow (explicit unit
   coefficients, typed comparisons, type-annotations-not-assertions).

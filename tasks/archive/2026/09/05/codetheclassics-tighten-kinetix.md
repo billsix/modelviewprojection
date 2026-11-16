@@ -4,7 +4,7 @@
 and the gamepad path (both outside the harnesses) when convenient.
 **Priority:** 4
 **Difficulty:** 5
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** the boing depth read · **Next:** `tasks/codetheclassics-tighten-avenger.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` · **Depends on:** the boing depth read · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-avenger.md`
 **Engine family:** vol2 (kinetix/avenger/eggzy/leadingedge/beatstreets carry the same 17-section engine; eggzy ≡ beatstreets ≡ leadingedge byte-for-byte modulo a 1–3 line offset, kinetix/avenger the same text one line lower). Tighten the vol2 engine ONCE here (first vol2 game) and splice into the other four, restoring per-game the slices each uses (§3 of the reference doc).
 
 ## BLUF

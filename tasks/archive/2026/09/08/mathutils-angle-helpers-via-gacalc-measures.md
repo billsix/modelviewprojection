@@ -10,7 +10,7 @@ record of the original analysis.
 
 **Status:** proposed — needs go-ahead. Audit done 2026-08-24 (William Emerison Six <billsix@gmail.com>),
 spun out of gacalc's measure work (`github.com/billsix/geometricalgebra`,
-`tasks/area-volume-content.md` / `explicit-symbolic-tests-and-helper-cleanup.md`).
+`tasks/archive/2026/08/24/area-volume-content.md` / `tasks/archive/2026/08/25/explicit-symbolic-tests-and-helper-cleanup.md`).
 **Priority:** 6
 **Difficulty:** 3
 

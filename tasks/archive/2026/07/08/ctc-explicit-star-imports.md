@@ -18,7 +18,7 @@ in-container format.sh exit 0.
 
 Each game's `from pgzero_gl import *` becomes an explicit import of the
 names it actually uses — the natural completion of the 2026-07-08
-honest-imports work (tasks/ctc-honest-imports.md), which already made the
+honest-imports work (tasks/archive/2026/07/08/ctc-honest-imports.md), which already made the
 deeper pygame APIs explicit and shrank the star surface to the shim's
 `__all__` of 12 names: `Actor, Rect, ZRect, keyboard, keys, images, sounds,
 music, screen, go, exit, mixer`.
@@ -31,7 +31,7 @@ music, screen, go, exit, mixer`.
   exported). Typical result: `from pgzero_gl import Actor, Rect, keyboard,
   keys, mixer, music, screen, sounds, go` (one line, sorted).
 - Keep the `# noqa: E402` (the import still follows the `sys.path.insert`
-  dance — until/unless tasks/ctc-imports-at-top.md restructures that);
+  dance — until/unless tasks/archive/2026/07/08/ctc-imports-at-top.md restructures that);
   drop the `F401,F403` parts and the name-list comment (the import line now
   IS the list).
 - **Then remove `F403`/`F405` from pyproject's `ports/**` per-file-ignores**

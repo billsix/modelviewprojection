@@ -75,7 +75,7 @@ library modules: `mathutils.py`, `util/`, `cayley/`, `framebuffer/`, `matrix_sta
 book's source, so indenting them into a guard changes 129 `literalinclude` excerpts
 unless `:dedent:` is added alongside.
 
-Precedent: `tasks/ctc-game-main-guard-and-clean-exit.md` proposes exactly this for the
+Precedent: `tasks/archive/2026/08/23/ctc-game-main-guard-and-clean-exit.md` proposes exactly this for the
 Code-the-Classics ports. Same change, same reason; worth doing as one sweep or two
 consistent ones.
 

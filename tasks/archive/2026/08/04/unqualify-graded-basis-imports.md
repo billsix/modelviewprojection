@@ -90,7 +90,7 @@ independent of this sweep (this sweep touched no test file and no `src/` file th
 `is_close`). A bare rename is *not* equivalent — it turns the AttributeErrors into 9
 zero-tolerance float-comparison failures; the migration needs an explicit tolerance per
 call site, which is Bill's call. Tracked separately in
-`tasks/gacalc-0015-isclose-tolerance-migration.md`.
+`tasks/archive/2026/08/04/gacalc-0015-isclose-tolerance-migration.md`.
 
 ---
 

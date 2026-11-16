@@ -1,59 +1,78 @@
 # Repoint dangling `tasks/…/*.md` paths across the docs
 
-**Status:** proposed — needs go-ahead
-**Priority:** 6
-**Difficulty:** 3
+**Done:** 2026-11-16. **Created:** 2026-11-16 by the session-end sweep of the pgzero-gl step-3
+branch (William Emerison Six <billsix@gmail.com>).
 
-## BLUF
+Of the 130 distinct `tasks/<…>.md` paths in tracked text that did not resolve, 148 citations in 97
+files were fixed. The 53 paths still dangling are all meant to: each cites another repo's doc and
+names that repo, cites a doc that was deleted, or is a placeholder example. The edits are comment
+and prose changes only. `make check-format`, `make type-check` and `make test` (66 passed) were
+green afterwards.
 
-As of 2026-11-16, 130 distinct `tasks/<…>.md` paths cited in the repo's text do not resolve. Most
-are a task cited by its pre-archive `tasks/<slug>.md` path after it moved to
-`tasks/archive/<YYYY>/<MM>/<DD>/`. Done means a re-run of the discovery command below lists only
-the paths that are meant not to resolve here: cross-repo citations that name their repo, and
-placeholder examples.
+## Decision
 
-## Context
-
-- The rule: a path in a doc is a claim the file exists, and archiving a doc means fixing what
-  points at it in the same change. Paths are repo-root-relative. (Sandbox conventions, the
-  communication-conventions reference doc in github.com/billsix/runClaudeInContainer.)
-- Found by the 2026-11-16 session-end sweep of the pgzero-gl step-3 branch. That branch fixed only
-  the two docs it archived itself (commit 6106cadf); everything below predates it.
-- Discovery (run from the repo root; 237 files cite at least one `tasks/` path):
-
-  ```sh
-  bash -c 'git grep -ohE "tasks/[A-Za-z0-9_./-]+\.md" | sort -u | while read p; do [ -e "$p" ] || echo "$p"; done'
-  ```
-
-## The three groups (snapshot 2026-11-16)
-
-1. **75: archived in this repo.** The basename matches exactly one file under `tasks/archive/`
-   (none matched more than one), e.g. `tasks/pgzero-gl-de-abstraction-options.md` →
-   `tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md`. Repoint them mechanically:
-   - Match on the full old path, with a guard so an `archive/…` prefix is not doubled.
-   - Re-check any basename that later matches more than one archive file by hand.
-2. **About 50: another repo's docs.** These cite gacalc (`tasks/add-quarter-turn-to-g2.md`,
-   `tasks/archive/2026/07/22/precise-dual-typing.md`, …) or the sandbox repo
-   (`tasks/reference/nested-podman-design.md`, `tasks/reference/python-coding-standard.md`,
-   `tasks/add-shell-exec-target.md`, …).
-   - Where the citing line or paragraph already names the repo (github.com/billsix/geometricalgebra,
-     github.com/billsix/runClaudeInContainer), leave it.
-   - Otherwise add the repo URL, and the archived path if that task was archived over there.
-   - Read the GitHub URL from each repo's `github` remote, not from the directory name.
-3. **A handful: placeholders and typos.** `tasks/x.md`, `tasks/reference/x.md`, `tasks/foo.md` and
-   `tasks/.../typed-product-helper-functions.md` are examples or elisions, so leave them.
-   - `tasks/tasks/reference/x.md` is the helm double-prefix example, which is deliberate.
-   - Check each one in context before deciding.
-
-## Decisions
-
-- **Scope covers the live docs and the archived task docs** (William Emerison Six
+- **Scope covered the live docs and the archived task docs** (William Emerison Six
   <billsix@gmail.com>, 2026-11-16). Live means `CLAUDE.md`, `README.md`, `tasks/*.md` and
   `tasks/reference/`. A path fix doesn't change what a done-record says, and most of the dangling
-  paths are in archived docs.
+  paths were in archived docs.
+- **Code comments were in scope too:** `Makefile`, `.github/workflows/checks.yml`,
+  `requirements.txt`, `softwarerendering.py` and three `tools/` scripts each cited a task by its
+  pre-archive path.
+
+## What was done
+
+1. **This repo's archived tasks (120 citations, 82 files):** `repoint.py` rewrote each citation
+   whose basename matched exactly one file under `tasks/archive/`.
+   - It skipped any citation preceded by another path component, and the `data/keep.txt` sites.
+   - A second run changed nothing.
+   - The 21 sites it flagged as naming another repo were read in context. All were mvp's own tasks;
+     the flags came from slugs containing "gacalc".
+2. **Other repos' docs (28 hand-reviewed edits):** `locate_cross_repo.py` found where each
+   remaining path lives in the sibling checkouts, and `cross_repo_edits.py` applied an explicit
+   list.
+   - Where the other repo had since archived the task, the path was repointed to that repo's
+     archive path.
+   - Where the citation named the repo only as "gacalc", by a directory path (`/geometricalgebra/…`,
+     `spimulator/tasks/…`) or by a wrong URL (`github.com/billsix/texExpToPng`), the GitHub URL was
+     added or corrected.
+   - A citation that already named its repo by the exact GitHub repo name (geometricalgebra,
+     runClaudeInContainer) was left alone.
+   - The two `../tasks/…` relative links in
+     `tasks/archive/2026/06/01/ports-render-options-to-imgui.md` became repo-root-relative code
+     spans.
+3. **Left dangling on purpose (53 paths):**
+   - Citations of another repo's current doc that name the repo, e.g. runClaudeInContainer
+     `tasks/reference/python-coding-standard.md`, github.com/billsix/geometricalgebra
+     `tasks/reference/gl-toolkit.md`.
+   - Deleted docs, cited as history: `tasks/codebase-overview.md` (retired 2026-07-30),
+     `tasks/backport-labels-fixes-from-mvm.md` (deleted 2026-07-08),
+     `tasks/archive/2026/10/14/ports-controls-in-menubar-step-1-superbiblev4.md` (removed by the
+     maintainer 2026-10-18, commit 877371ac) and `tasks/texexptopng-standalone-display-math.md`
+     (in neither repo's history).
+   - Proposed names in a plan table: `tasks/archive/2026/09/14/trim-claude-md.md` proposed
+     `tasks/reference/assignments.md` and a mvp `tasks/reference/python-coding-standard.md`.
+   - `tasks/reference/chapt18-advanced-buffers.md` is tracked in github.com/billsix/OpenGLSuperbibleV4Code,
+     which the citation names. The maintainer added that checkout's `github` remote on 2026-11-16.
+     It spells the repo with a lowercase "b", so the four mvp citations spelled
+     `OpenGLSuperBibleV4Code` were corrected to match.
+   - Examples: `helm.el`'s `tasks/foo.md`, `tasks/reference/x.md` and `tasks/tasks/reference/x.md`.
+4. **One edit reverted:** `tools/check_local_annotations.py` is vendored from
+   github.com/billsix/runClaudeInContainer, so its stale `tasks/annotate-all-local-variables.md`
+   citation was left alone here. The canonical already cites the archived path (since 2026-11-15);
+   mvp's copy is an older version.
+   - Re-copying it is filed as runClaudeInContainer
+     `tasks/recopy-check-local-annotations-to-vendored-copies.md`, together with the stale copies
+     in methodfinder, spimulator and impo.
 
 ## Scripts
 
-Save the discovery command and the repointing codemod under
-`tasks/adhoc/repoint-dangling-task-doc-paths/` (`discover.sh`, the worklog in `data/`). `git rm`
-them at archive time.
+All under `tasks/adhoc/repoint-dangling-task-doc-paths/`:
+- `discover.sh` lists the dangling paths. It excludes this doc and its own directory, which quote
+  dangling paths on purpose.
+- `repoint.py` (`report` or `apply`) handles group 1.
+- `locate_cross_repo.py` builds the sibling-repo report.
+- `cross_repo_edits.py` holds the group-2 edit list.
+- `data/` holds the snapshots: `dangling-before.txt`, `dangling-after-group1.txt`,
+  `dangling-after.txt`, `report.txt`, `cross-repo-report.txt` and `keep.txt`.
+
+All of them are one-shot: they get `git rm`'d in the archive commit.

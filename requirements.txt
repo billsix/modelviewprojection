@@ -14,7 +14,7 @@ imageio-ffmpeg==0.8.1
 imgui-bundle[glfw]==1.93.0
 isort==9.0.2
 # single-device audio backend (decode + PlaybackDevice); replaced
-# just_playback 2026-07-09 -- see tasks/leadingedge-audio-clunk-and-freeze.md
+# just_playback 2026-07-09 -- see tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md
 miniaudio==1.71
 jupyter==1.1.1
 jupytext==1.19.6

@@ -162,7 +162,7 @@ behaviour (pygame semantics) — keep it — but the causes are elsewhere.
 
 ## Related
 
-- The fade engine + its rationale: `tasks/ctc-shim-dynamism-audit.md`
+- The fade engine + its rationale: `tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md`
   (audio round section) — that task should archive independently; this
   investigation is deliberately split out.
 - Known, separate, graceful gap: `mixer.find_channel()` → None

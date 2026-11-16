@@ -95,7 +95,7 @@ source (no `doc-region` markers under the tree).
 - `chapt18/hdrbloom`: passes `None` as the `glReadPixels` data pointer with a PBO bound
   (`GL_INVALID_OPERATION`); `pixbufobj` fixed the same bug with `ctypes.c_void_p(0)`. Also draws two
   "View" menus (`_common.draw_view_menu` plus its own stop-point menu). Related open task:
-  `tasks/ports-pbo-floattex-runtime-crashes.md`.
+  `tasks/archive/2026/11/15/ports-pbo-floattex-runtime-crashes.md`.
 - `chapt18/texfloat`: no EXR backend for imageio in the image.
 - `chapt21/fonts/font.py`: calls `imgui.set_window_font_scale`, absent from this imgui_bundle.
 - `chapt11` `thunderbird`/`thundergl`/`vbo` bind `PWD` twice (once unannotated).

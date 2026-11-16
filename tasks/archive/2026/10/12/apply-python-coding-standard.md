@@ -68,7 +68,7 @@ The authored rules are no longer in this doc — they were harvested to:
 - **The full split (2026-10-12).** The 2026-09-13 trim had moved mvp's rules *into* the
   shared standard; that was reversed — the shared doc is now portable-only and mvp's rules
   live in `tasks/reference/python-coding-standard-mvp.md`. Tracked in runClaudeInContainer
-  `tasks/split-python-standard-project-specifics.md`.
+  `tasks/archive/2026/10/12/split-python-standard-project-specifics.md`.
 
 ## Hard-won lessons (full detail in `tasks/reference/tests-and-gates.md` §6)
 

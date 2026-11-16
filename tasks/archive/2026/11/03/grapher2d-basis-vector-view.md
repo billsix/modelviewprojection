@@ -31,7 +31,7 @@ menu and cycled by `G`:
 2. **Geometry in plot units** (scales with zoom), mirroring the 3D `draw_axis`, over
    constant-screen-size arrows. Static mesh, no per-frame rescale.
 3. **Bare** in basis mode — origin dot + e₁/e₂ only, no faint axes behind.
-4. **No text labels** — deferred to `tasks/graphing-calculator-latex-labels.md`.
+4. **No text labels** — deferred to `tasks/archive/2026/11/03/graphing-calculator-latex-labels.md`.
 5. **Path B** — flat line+triangle arrows in grapher2d's own pipeline — over reusing the 3D
    cylinder+cone solids.
 6. **`Backdrop` uses `enum.auto()`** (maintainer feedback mid-build): the member values carry no

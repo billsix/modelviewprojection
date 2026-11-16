@@ -58,7 +58,7 @@ manage.
 3. **CLAUDE.md** — rewrite the "vendored texExpToPng" bullet + the
    "replicate changes into the vendored copy" contract to describe the
    pinned-clone scheme instead (update the SHA when the tool changes).
-4. **`tasks/crossproduct-tex-billboard-labels.md`** — its locked 2026-06-14
+4. **`tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md`** — its locked 2026-06-14
    decision "BUILD IT INTO THE MVP IMAGE from the vendored copy" is
    superseded by this task (still built into the image, just from the pinned
    clone).

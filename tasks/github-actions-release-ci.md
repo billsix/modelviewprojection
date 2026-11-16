@@ -118,5 +118,5 @@ to verify:
 ## See also
 
 - `tasks/archive/2026/10/22/github-actions-format-ci.md` — Phase 1 (format-check) + the governing principle.
-- `github.com/billsix/geometricalgebra` › `tasks/github-actions-ci.md` — the sibling replication
+- `github.com/billsix/geometricalgebra` › `tasks/archive/2026/09/26/github-actions-ci.md` — the sibling replication
   (a PyPI-published library, so its Phase 2 is PyPI-first).

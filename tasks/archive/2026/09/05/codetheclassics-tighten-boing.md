@@ -5,7 +5,7 @@ for the other nine games; `#:` field doc-comments applied the same day (all gate
 Archived 2026-09-05.
 **Priority:** 2
 **Difficulty:** 5
-**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` (umbrella) · **Next:** `tasks/codetheclassics-tighten-cavern.md`
+**Part of:** `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` (umbrella) · **Next:** `tasks/archive/2026/09/05/codetheclassics-tighten-cavern.md`
 
 ## BLUF
 
@@ -32,7 +32,7 @@ Behaviour proven identical three ways (below).
    of the class is what it adds.
 5. **Protocols are structural, not subclassed** — tested, see the reference doc §1.6.
 6. **Renderer/`Image` shapes untouched** (dead methods removed only) — deferred to
-   `tasks/pgzero-gl-dataclasses-investigation.md`.
+   `tasks/archive/2026/09/05/pgzero-gl-dataclasses-investigation.md`.
 7. **The upstream "list comprehensions next chapter" teaching comment** on the impact-removal
    loop was replaced by the comprehension itself; the other upstream game-logic comments stay.
 
@@ -47,7 +47,7 @@ Behaviour proven identical three ways (below).
   scores 0–7 (so the bat-collision, deflection, wall-bounce, scoring and AI paths all ran).
 - `make format`: ruff clean, `ty check ports/codetheclassics/vol1` and `vol2` clean; the 36
   diagnostics in `src`/`tests` are the pre-existing gacalc-invariance ones
-  (`tasks/ty-0072-strictness-sweep.md`).
+  (`tasks/archive/2026/09/06/ty-0072-strictness-sweep.md`).
 - Negative test for the Protocol decision: a copy with `Impact.update` deleted → ty silent with
   `class Impact(Sprite)`, correct error without the subclass (reference doc §1.6).
 

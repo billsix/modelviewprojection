@@ -7,8 +7,8 @@
 > **Lead implementation.** The author considers the shared Emacs-package vendoring approach (same
 > "gist" across geometricalgebra / mvp / spimulator / texExpToPng) the **gold standard**, and wants
 > mvp done **first** as the model port. Once this lands, the same integration is ported to the other
-> vendoring projects (`spimulator/tasks/update-emacs-packages-target.md`,
-> `texExpToPng/tasks/update-emacs-packages-target.md`). So: do mvp → review → replicate.
+> vendoring projects (github.com/billsix/spimulator `tasks/archive/2026/06/14/update-emacs-packages-target.md`,
+> github.com/billsix/tex-expression-to-png `tasks/archive/2026/06/14/update-emacs-packages-target.md`). So: do mvp → review → replicate.
 
 ## Goal
 

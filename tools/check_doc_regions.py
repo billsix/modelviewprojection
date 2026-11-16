@@ -33,7 +33,7 @@ This tool makes both loud (exit 1):
 Run from the repo root: ``python tools/check_doc_regions.py`` (or ``make
 check-regions``).  A further check -- region content vs a lockfile, to catch
 cross-repo drift -- is planned but not yet wired (it depends on the marker-ID
-scheme still being decided); see ``tasks/dangling-book-code-includes.md``.
+scheme still being decided); see ``tasks/archive/2026/09/08/dangling-book-code-includes.md``.
 """
 
 from __future__ import annotations

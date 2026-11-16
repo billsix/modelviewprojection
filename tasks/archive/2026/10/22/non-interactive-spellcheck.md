@@ -23,7 +23,7 @@ clean today without dictionary edits.
   (Deferred to avoid racing a concurrent interactive `aspell` session on 2026-10-11/12.)
 - Decide whether to also add a **top-level** `make spellcheck` (containerized, like the
   standard template's other targets) — belongs with
-  `tasks/conform-makefile-dockerfile-to-standard-template.md`.
+  `tasks/archive/2026/10/22/conform-makefile-dockerfile-to-standard-template.md`.
 - If the sed filter proves too blunt on future prose (strips a real word in a directive
   argument), tighten it; it is deliberately conservative now.
 
@@ -42,7 +42,7 @@ it out of the build catch-all into its own target. There IS a drop-in compatible
 maintainer wants `.rst`-markup awareness. "Done" = `make docs`/`sphinx-build` runs with
 no TTY and no prompts, and a separate `make spellcheck` (or `-b spelling`) reports
 misspellings and fails on any. Split out of
-`tasks/conform-makefile-dockerfile-to-standard-template.md` (step 5) at the maintainer's
+`tasks/archive/2026/10/22/conform-makefile-dockerfile-to-standard-template.md` (step 5) at the maintainer's
 request; surfaced during the ePiX figure migration (2026-10-11).
 
 ## The problem (what's there now)

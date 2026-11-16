@@ -3,7 +3,7 @@
 **Status:** DONE 2026-07-09, archived (Bill: "yes it's done").
 The one open thread — leadingedge's clunky engine audio + freeze —
 is deliberately split out and lives on in
-`tasks/leadingedge-audio-clunk-and-freeze.md` (confirmed present).
+`tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md` (confirmed present).
 **Created:** 2026-07-09 (Bill)
 
 ## Design revisit + follow-up pass (2026-07-09, all landed)
@@ -84,7 +84,7 @@ speed hovering at a band boundary flapped stop()/play() on live
 miniaudio streams every few frames — rapid stream stop/start storms,
 the prime suspect for the freeze — **DISPROVEN 2026-07-09: both
 symptoms persist after the fade engine** (Bill's retest). The follow-up
-investigation lives in `tasks/leadingedge-audio-clunk-and-freeze.md`
+investigation lives in `tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md`
 (compare against git history / upstream, per Bill); the fade engine
 stays (correct pygame semantics regardless).
 
@@ -275,7 +275,7 @@ prove rather than assume.
    pytest, 10-game compile, and a before/after of the same
    instrumentation run to show the ladders are gone. Perf note: this
    compounds with gacalc's dispatch work (geometricalgebra
-   `tasks/generated-dispatch-fast-paths.md`) — attribute routing is the
+   `tasks/archive/2026/07/18/generated-dispatch-fast-paths.md`) — attribute routing is the
    shim-side half of the per-frame overhead story.
 
 ## Follow-up pass (after the de-dynamism work): more x/y pairs -> 2D vectors

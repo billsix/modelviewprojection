@@ -23,7 +23,7 @@ via `texExpToPng`, drawn as camera-facing billboards.
 
 ## Decisions LOCKED 2026-06-14 (final round)
 
-> **Update 2026-07-08 (tasks/unvendor-texexptopng.md):** the vendored-copy
+> **Update 2026-07-08 (tasks/archive/2026/07/08/unvendor-texexptopng.md):** the vendored-copy
 > mechanics below are superseded — the Dockerfile now builds texExpToPng from
 > a **SHA-pinned git clone** of `billsix/tex-expression-to-png` (pinned
 > `fbbd9a3f…`, byte-identical to what the vendored copy held, `--bg/--fg`
