@@ -1,6 +1,6 @@
 # Code-the-Classics licensing after the shim inline/re-extract
 
-**Status:** DONE + ARCHIVED 2026-09-05 — every one of the eleven game files carries the BSD-2-Clause dual-© header (applied game by game inside the tightening pass, vol 2 as © 2024) and `ports/codetheclassics/LICENSE` states the inlined engine's licence; the only remainder, the fate of the LGPL shim source under `src/modelviewprojection/pgzero_gl/`, belongs to `tasks/pgzero-gl-step3-reextract-library.md`.
+**Status:** DONE + ARCHIVED 2026-09-05 — every one of the eleven game files carries the BSD-2-Clause dual-© header (applied game by game inside the tightening pass, vol 2 as © 2024) and `ports/codetheclassics/LICENSE` states the inlined engine's licence; the only remainder, the fate of the LGPL shim source under `src/modelviewprojection/pgzero_gl/`, belongs to `tasks/archive/2026/11/15/pgzero-gl-step3-reextract-library.md`.
 **Priority:** 3
 **Difficulty:** 3
 **Progress (2026-09-05):** the header pass is **folded into the per-game tightening pass**
@@ -73,7 +73,7 @@ which removes the shim code from the game files so each file is single-license a
   al.)"). Upstream: `github.com/raspberrypipress/Code-the-Classics-Vol1`.
 - **What the shim is:** `src/modelviewprojection/pgzero_gl/` — the maintainer's clean-room
   pygame/pgzero API reimplementation, LGPL-2.1 by prior choice, © William Emerison Six.
-- **Related initiative:** `tasks/pgzero-gl-inline-strip-reextract.md` — step 3 re-extracts the
+- **Related initiative:** `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` — step 3 re-extracts the
   shim from the inlined games. This licensing cleanup should ride with it (single-license-per-file
   falls out of the re-extraction).
 
@@ -171,7 +171,7 @@ license; until then it stays as-is (it's the source the games were inlined from)
 
 ## Related
 
-- `tasks/pgzero-gl-inline-strip-reextract.md` — step 3 re-extract (the natural home for this).
+- `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` — step 3 re-extract (the natural home for this).
 - `tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md` — `boing_gl1.py` inherits the same interim LGPL header; it is in
   scope for this cleanup along with the other 10 game files.
 - `CLAUDE.md` › Code-the-Classics — records the games as BSD-2-Clause, © Eben Upton et al., and the

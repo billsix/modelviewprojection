@@ -11,25 +11,26 @@ argument follows default argument" as soon as a non-default field follows
 (and worse, only for SOME field orders: bunner survived by luck while cavern
 and avenger crashed, 2026-07-09). That is why those fields are named
 ``spawn_pos``. This test makes the constraint mechanical instead of tribal:
-it AST-scans every Actor-rooted dataclass in the games against the property
-names AST-scanned out of ``pgzero_gl/actor.py`` -- no imports, no GL needed.
+it AST-scans every Actor-rooted dataclass in each game against the property
+names of that game's own ``Actor`` class -- no imports, no GL needed.
 """
 
 import ast
 import pathlib
 
+import pytest
+
 _REPO_ROOT: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent
 CTC: pathlib.Path = _REPO_ROOT / "ports" / "codetheclassics"
 GAMES: list[pathlib.Path] = sorted(CTC.glob("vol*/*/*.py"))
-# The pgzero_gl shim moved into the package (2026-08-01); actor.py lives here
-# now, while the games stay under ports/codetheclassics (CTC above).
-_ACTOR_PY: pathlib.Path = (
-    _REPO_ROOT / "src" / "modelviewprojection" / "pgzero_gl" / "actor.py"
-)
+# Each game that has sprites defines its own Actor (boing does not).
+ACTOR_GAMES: list[pathlib.Path] = [
+    game for game in GAMES if "\nclass Actor" in game.read_text()
+]
 
 
-def actor_property_names() -> set[str]:
-    tree: ast.Module = ast.parse(_ACTOR_PY.read_text())
+def actor_property_names(game: pathlib.Path) -> set[str]:
+    tree: ast.Module = ast.parse(game.read_text())
     actor: ast.ClassDef = next(
         n
         for n in tree.body
@@ -47,19 +48,26 @@ def actor_property_names() -> set[str]:
     return names
 
 
-def test_actor_properties_exist() -> None:
-    props: set[str] = actor_property_names()
+@pytest.mark.parametrize("game", ACTOR_GAMES, ids=lambda game: game.stem)
+def test_actor_properties_exist(game: pathlib.Path) -> None:
+    props: set[str] = actor_property_names(game)
     # the core pgzero surface must be present (a rename would silently
     # defang the collision check below).  ``angle`` was removed 2026-09-04
     # (dead sprite-rotation path -- no game ever set it), so it is not here.
     assert {"x", "y", "pos", "image", "anchor"} <= props
 
 
+def test_actor_games_found() -> None:
+    # every game but the two boing files has an Actor; a rename of the class
+    # would otherwise silently empty the parametrized tests
+    assert len(ACTOR_GAMES) == len(GAMES) - 2
+
+
 def test_no_dataclass_field_shadows_an_actor_property() -> None:
-    props: set[str] = actor_property_names()
     offenders: list[str] = []
     game: pathlib.Path
-    for game in GAMES:
+    for game in ACTOR_GAMES:
+        props: set[str] = actor_property_names(game)
         tree: ast.Module = ast.parse(game.read_text())
         classes: dict[str, ast.ClassDef] = {
             n.name: n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)

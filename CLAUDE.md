@@ -73,12 +73,12 @@ The texExpToPng SHA-pin details (and the `--bg`/`--fg` + `\documentclass[varwidt
 
 ## Code-the-Classics ports (`ports/codetheclassics/`)
 
-A separate subtree from the course: **10 faithful game ports** (11 files — boing also has `boing_gl1.py`) under `ports/codetheclassics/vol1/` and `vol2/`, each ONE self-contained file on GLFW + OpenGL 3.3 core with its engine half inlined — the library-not-framework style. Behaviour-faithful (same RNG/update/draw order), structure-free.
+A separate subtree from the course: **10 faithful game ports** (11 files — boing also has `boing_gl1.py`) under `ports/codetheclassics/vol1/` and `vol2/`, each ONE file on GLFW + OpenGL 3.3 core that owns its loop and inlines its engine (renderer, shaders, `Actor`, input), self-contained apart from the shared engine modules it imports from `src/modelviewprojection/pgzero_gl/` (`audio`, `resources`, `gl`) — the library-not-framework style. Behaviour-faithful (same RNG/update/draw order), structure-free.
 
 - **Read `tasks/reference/code-the-classics-tightening.md` before editing any game** — the file-shape standard, the gacalc dialect (`length`→`magnitude`, `dot`→`scalar_product`, `rotate(deg)`→`plane_rotation`, …), and the composition `@`-vs-`compose` rule.
 - **Gates** (`tasks/reference/tests-and-gates.md`): `tools/ctc_verify_game.sh` (frame pixel identity vs a git ref), `tools/ctc_state_trace.py` + `tools/ctc_compare_traces.py` (seeded scripted-input state trace), `tools/ctc_profile_update.py` when something feels slow. All need Xvfb on `:99` + the nested image. Audio and the gamepad are never gated — play-test.
 - **gacalc vectors are FROZEN** — change a coordinate by rebinding, never in place. `ty` catches `v.x = …` but **not** `v.x += …`, so a grep for `\.(x|y|z)\s*[-+*/]?=` is part of any audit after a bulk edit.
-- Audio mixer, `Rect`/`IntRect`, gacalc costs, the shim inline/strip/re-extract history (step 3 parked), and the renderer's gacalc-transform matrices are in `tasks/reference/notable-subsystems.md`, `point-type-decision.md`, and `gacalc-transforms-in-the-renderer.md`.
+- What is shared vs per game, and why: `tasks/reference/code-the-classics-tightening.md` §9. Audio mixer, `Rect`/`IntRect`, gacalc costs, and the renderer's gacalc-transform matrices are in `tasks/reference/notable-subsystems.md`, `point-type-decision.md`, and `gacalc-transforms-in-the-renderer.md`.
 
 ---
 

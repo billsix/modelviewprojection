@@ -66,7 +66,7 @@ they are **framework-style**. Each game defines `WIDTH`/`HEIGHT`/`update()`/`dra
 inversion as `wxapp.py`'s `OnPaint`. This is faithful to upstream PyGame Zero (whose whole point is that
 inversion), but it means the ports are written in the one style the course otherwise argues against. That gap is
 the motivation for the **inline / strip / re-extract** initiative
-(`tasks/pgzero-gl-inline-strip-reextract.md`): flip the games to library style so each owns its own loop and
+(`tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md`): flip the games to library style so each owns its own loop and
 reads like a demo.
 
 ## Claim 2 — repetition, increasingly adding complexity: ACCURATE
@@ -113,8 +113,9 @@ lighting, planar shadows, texturing, per-vertex normals (demo22–24). The clean
   pedagogy, not tech debt. This is the demo-side form of the general convention "duplication across demos is
   deliberate."
 - **The one place the style was violated was `pgzero_gl`/the ports** — corrected 2026-09-05 (library-izing
-  the games: `tasks/pgzero-gl-inline-strip-reextract.md` steps 1–2 plus the tightening pass); only its step 3
-  (re-extract what is genuinely shared) remains, parked.
+  the games: `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` steps 1–2 plus the tightening pass).
+  Its step 3 (2026-11-15) moved what is genuinely shared — the audio mixer, image loading, GL helpers — into
+  `modelviewprojection.pgzero_gl`, a library the games call down into; each game still owns its loop.
 - **When adding a demo:** keep it a single top-to-bottom script that owns its loop, calls down into
   `mathutils`/`matrix_stack`/`util`, adds ~one concept over its predecessor, and shares a helper only after the
   concept it embodies has been taught inline once.
@@ -187,7 +188,7 @@ no stack. Small inaccuracy in the doc, not in the claims above — worth correct
 
 ## Related
 
-- `tasks/pgzero-gl-inline-strip-reextract.md` — the initiative to flip the ports from framework- to library-style
+- `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` — the initiative to flip the ports from framework- to library-style
   (the direct consequence of this record).
 - `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md` — the `pgzero_gl` design + per-game usage
   slices (the shim that is the framework exception).

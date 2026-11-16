@@ -29,7 +29,7 @@ record.
   `ports/codetheclassics/vol1/{boing,bunner,cavern,myriapod,soccer}` and
   `vol2/{avenger,beatstreets,eggzy,kinetix,leadingedge}`, each a single self-contained file. They used
   to run on a shared `pgzero_gl` shim; that shim has now been **inlined into each game** (steps 1–2 of
-  `tasks/pgzero-gl-inline-strip-reextract.md` — DONE and play-tested 2026-09-05), so each game owns its
+  `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` — DONE and play-tested 2026-09-05), so each game owns its
   own ~3–6k-line copy. This task tightens those inlined copies.
 - **THE guardrail — the fidelity rule (mvp `CLAUDE.md` › "Code-the-Classics ports").** The games are
   **behaviour-faithful**: *no behaviour changes* — same RNG call order, same update/draw order, same

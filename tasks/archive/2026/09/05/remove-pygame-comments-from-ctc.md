@@ -28,7 +28,7 @@ is inlined into each game — and 143 in the shim). **Comments/docstrings only �
 
 - **Why (maintainer, 2026-09-05):** *"all of the comments in the code about pygame zero are to be
   removed. I'm not trying to hide its influence, it's just misleading now."*
-- **Rides on:** the umbrella `tasks/pgzero-gl-inline-strip-reextract.md` — this is the comment-level
+- **Rides on:** the umbrella `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` — this is the comment-level
   companion to step 2 (make-specific per game); do it before or alongside step 3 (re-extract).
 - **Overlaps the licensing pass — do NOT double-handle:** the file-header block
   (*"clean-room reimplementation of the pygame / PyGame Zero APIs … LGPL"*) is rewritten by

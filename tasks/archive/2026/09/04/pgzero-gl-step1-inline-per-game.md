@@ -3,7 +3,7 @@
 **Status:** DONE — all 10 games inlined & proven behavior-preserving 2026-09-04 (staged; maintainer commits)
 **Priority:** 4
 **Difficulty:** 4
-**Part of:** `tasks/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Next:** `tasks/pgzero-gl-step2-strip-and-restructure.md`
+**Part of:** `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Next:** `tasks/pgzero-gl-step2-strip-and-restructure.md`
 
 ## Result (2026-09-04)
 
@@ -39,7 +39,7 @@ loop-absorption happen in step 2, not here.
 
 ## Context
 
-- **Read first:** the umbrella `tasks/pgzero-gl-inline-strip-reextract.md` (vision, risks, the re-extraction
+- **Read first:** the umbrella `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` (vision, risks, the re-extraction
   goal) and `tasks/reference/library-not-framework-authorship-style.md` (why single-file top-to-bottom IS the
   house style). The shim being inlined is `src/modelviewprojection/pgzero_gl/` (18 files ≈ 3.4k lines after the
   2026-09-04 dead-code removal); its map is `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md`.

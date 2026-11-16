@@ -100,7 +100,7 @@ imports work solely via `pythonpath = src` in `pytest.ini`.
   recorder; no GL required.
 - **`tests/test_ctc_actor_field_collisions.py`** — a pure-AST guard: scans
   every CtC game's Actor-rooted dataclass field names against the property
-  names of `pgzero_gl/actor.py`. Exists because a dataclass field named like a
+  names of that game's own `Actor` class. Exists because a dataclass field named like a
   base-class property picks up the *property object* as its default — and it
   only exploded for some field orders ("bunner survived by luck while cavern
   and avenger crashed", 2026-07-09). This is why those fields are `spawn_pos`.
@@ -136,6 +136,9 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   graph per frame for a diff (the input-path complement; the frame gate only
   sees the attract mode). Both need the sandbox's Xvfb on `:99` and the nested
   image. Details: `tasks/reference/code-the-classics-tightening.md` §5.
+  `tools/ctc_gate_all.sh [game ...]` runs both gates on all 11 game files against `REF`
+  (default `master`) — for a change that touches every game, such as the shared `pgzero_gl`
+  modules.
 - **Render gate for a demo / visualization / assignment** (2026-09-09):
   `tools/verify_render.sh <script> [frames] [png] [hold-keys] [--allow-blank]`
   + `tools/render_probe.py`. Drives the script for N frames in the project
