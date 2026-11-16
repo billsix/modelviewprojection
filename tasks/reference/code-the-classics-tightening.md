@@ -436,7 +436,8 @@ comment plus `music: Music = Music(ASSET_ROOT)`.
 
 **Effect:** the eleven files went from 29,341 to 23,905 lines (−5,436); the four modules are 683
 lines. Every game was gated against the pre-extraction tree: frame-180 pixel identity and a
-300-frame scripted-input state trace, all identical. Audio is not gated.
+300-frame scripted-input state trace, all identical. Audio is not gated; the maintainer
+play-tested the games 2026-11-16 ("they seem to work").
 
 ## Related
 

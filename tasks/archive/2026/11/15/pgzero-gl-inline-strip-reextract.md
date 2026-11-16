@@ -21,7 +21,7 @@ copies; the criterion for step 3 was set before extracting.
    dataclasses, and each game took ownership of its loop.
    `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`. The tightening pass then reshaped all
    ten games to one standard: `tasks/archive/2026/09/05/codetheclassics-tighten-games.md`.
-3. **Re-extract the shared library** (2026-11-15, after being parked 2026-09-06 to 2026-11-15): the audio mixer,
+3. **Re-extract the shared library** (2026-11-15, play-tested good 2026-11-16; after being parked 2026-09-06 to 2026-11-15): the audio mixer,
    image loading and GL helpers moved into `src/modelviewprojection/pgzero_gl/` (`audio`, `resources`, `gl`),
    which the games call down into; everything else stayed per game.
    `tasks/archive/2026/11/15/pgzero-gl-step3-reextract-library.md`.

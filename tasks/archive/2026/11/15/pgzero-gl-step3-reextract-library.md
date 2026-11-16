@@ -68,8 +68,8 @@ Agent judgment calls, made under the batch go-ahead:
   `make test` (66 passed) green on the branch. The book was not touched (no `doc-region` markers in `ports/`
   or `pgzero_gl/`).
 - The codemod plus `ruff format` left a zero diff on a second run.
-- **Not verified: audio and gamepad.** Neither is gated; they need a play-test on real hardware, the
-  fading/looping games first (leadingedge, avenger, bunner, soccer).
+- **Audio and gamepad:** not gated; the maintainer (William Emerison Six <billsix@gmail.com>)
+  play-tested the games on 2026-11-16: "they seem to work".
 
 ## Scripts
 
