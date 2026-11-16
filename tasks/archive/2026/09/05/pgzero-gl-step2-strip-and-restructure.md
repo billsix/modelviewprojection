@@ -8,7 +8,7 @@
 > a byte-identical frame-trace. Every step-2 restructure of a game must keep that property: capture frame N of
 > the game before the change, capture after, assert AE=0. Since step 2 *absorbs the loop* (a real structural
 > change, not a pure move), pair the trace with human play-testing — the trace only covers the no-input path.
-**Part of:** `tasks/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Depends on:** `tasks/pgzero-gl-step1-inline-per-game.md` · **Next:** `tasks/pgzero-gl-step3-reextract-library.md`
+**Part of:** `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Depends on:** `tasks/pgzero-gl-step1-inline-per-game.md` · **Next:** `tasks/archive/2026/11/15/pgzero-gl-step3-reextract-library.md`
 
 ## BLUF
 
@@ -21,7 +21,7 @@ This spans sessions; track per-game status in the table below.
 
 ## Context
 
-- **Read first:** the umbrella `tasks/pgzero-gl-inline-strip-reextract.md`, and
+- **Read first:** the umbrella `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md`, and
   `tasks/reference/library-not-framework-authorship-style.md` (why absorbing the loop is the whole point — it
   removes the last inversion of control, the thing the course argues against). The per-game **usage slices**
   (which game uses joystick/surface/mask/transform, what is load-bearing vs. dead) are in

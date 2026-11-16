@@ -48,7 +48,7 @@ until then, **the renderer keeps its hand-built numpy matrices.**
    spot.
 4. **Rollout question:** even with a fast path, the change would touch the shim renderer **plus the
    10 inlined game copies** (or land via step 3 re-extract). Decide sequencing against
-   `tasks/pgzero-gl-step3-reextract-library.md`.
+   `tasks/archive/2026/11/15/pgzero-gl-step3-reextract-library.md`.
 
 ## Recommendation (pending investigation)
 
@@ -62,5 +62,5 @@ until then, **the renderer keeps its hand-built numpy matrices.**
 
 - `tasks/gacalc-transforms-for-rotate-translate.md` — the parent study (crux: `to_matrix` exists +
   is correct; this task owns the perf half).
-- `tasks/pgzero-gl-step3-reextract-library.md` — where a renderer change would actually roll out.
+- `tasks/archive/2026/11/15/pgzero-gl-step3-reextract-library.md` — where a renderer change would actually roll out.
 - `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md` — the renderer design.

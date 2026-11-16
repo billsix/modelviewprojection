@@ -194,7 +194,7 @@ calls `Context.renderer.begin_frame(...)` / `draw()` through the identical inter
 
 - `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md` — where boing became the rawest game (the
   base this derives from); the boing depth-1/depth-2 decision block.
-- `tasks/pgzero-gl-inline-strip-reextract.md` — the umbrella initiative (inline → strip →
+- `tasks/archive/2026/11/15/pgzero-gl-inline-strip-reextract.md` — the umbrella initiative (inline → strip →
   re-extract).
 - `src/modelviewprojection/pgzero_gl/renderer_gl1.py` — the fixed-function `Renderer1x` study
   source being inlined.
