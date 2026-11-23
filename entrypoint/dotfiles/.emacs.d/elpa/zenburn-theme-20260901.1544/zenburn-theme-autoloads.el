@@ -11,14 +11,14 @@
 
 ;;; Generated autoloads from zenburn-theme.el
 
-(defvar zenburn-override-colors-alist 'nil "\
-Place to override default theme colors.
+(defvar zenburn-override-colors-alist 'nil
+"Place to override default theme colors.
 
 You can override a subset of the theme's default colors by
 defining them in this alist.")
 (custom-autoload 'zenburn-override-colors-alist "zenburn-theme" t)
-(defvar zenburn-override-semantic-colors-alist 'nil "\
-Place to override default theme semantic colors.
+(defvar zenburn-override-semantic-colors-alist 'nil
+"Place to override default theme semantic colors.
 
 Semantic colors give meaning-based names (like `zenburn-comment'
 or `zenburn-error') to entries in the positional palette.  Values

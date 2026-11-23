@@ -12,8 +12,8 @@
 ;;; Generated autoloads from yafolding.el
 
 (defvar yafolding-mode-map (let ((map (make-sparse-keymap))) (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element) (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all) (define-key map (kbd "<C-return>") #'yafolding-toggle-element) map))
-(autoload 'yafolding-mode "yafolding" "\
-Toggle yafolding mode.
+(autoload 'yafolding-mode "yafolding"
+"Toggle yafolding mode.
 
 This is a minor mode.  If called interactively, toggle the `Yafolding
 mode' mode.  If the prefix argument is positive, enable the mode, and if

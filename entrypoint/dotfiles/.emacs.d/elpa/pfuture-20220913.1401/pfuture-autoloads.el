@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from pfuture.el
 
-(autoload 'pfuture-new "pfuture" "\
-Create a new future process for command CMD.
+(autoload 'pfuture-new "pfuture"
+"Create a new future process for command CMD.
 Any arguments after the command are interpreted as arguments to the command.
 This will return a process object with additional \\='stderr and \\='stdout
 properties, which can be read via (process-get process \\='stdout) and

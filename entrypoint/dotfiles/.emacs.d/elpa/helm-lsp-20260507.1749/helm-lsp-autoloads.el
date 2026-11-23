@@ -11,20 +11,20 @@
 
 ;;; Generated autoloads from helm-lsp.el
 
-(autoload 'helm-lsp-workspace-symbol "helm-lsp" "\
-`helm' for lsp workspace/symbol.
+(autoload 'helm-lsp-workspace-symbol "helm-lsp"
+"`helm' for lsp workspace/symbol.
 When called with prefix ARG the default selection will be symbol at point.
 
 (fn ARG)" t)
-(autoload 'helm-lsp-global-workspace-symbol "helm-lsp" "\
-`helm' for lsp workspace/symbol for all of the current workspaces.
+(autoload 'helm-lsp-global-workspace-symbol "helm-lsp"
+"`helm' for lsp workspace/symbol for all of the current workspaces.
 When called with prefix ARG the default selection will be symbol at point.
 
 (fn ARG)" t)
-(autoload 'helm-lsp-code-actions "helm-lsp" "\
-Show lsp code actions using helm." t)
-(autoload 'helm-lsp-diagnostics "helm-lsp" "\
-Diagnostics using `helm'
+(autoload 'helm-lsp-code-actions "helm-lsp"
+"Show lsp code actions using helm." t)
+(autoload 'helm-lsp-diagnostics "helm-lsp"
+"Diagnostics using `helm'
 
 (fn ARG)" t)
 (register-definition-prefixes "helm-lsp" '("helm-lsp-"))

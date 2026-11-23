@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from makey.el
 
-(autoload 'makey-initialize-key-groups "makey" "\
-Initializes KEY-GROUP and creates all the relevant interactive commands.
+(autoload 'makey-initialize-key-groups "makey"
+"Initializes KEY-GROUP and creates all the relevant interactive commands.
 
 (fn KEY-GROUP)")
 (register-definition-prefixes "makey" '("makey-"))

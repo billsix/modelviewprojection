@@ -11,16 +11,16 @@
 
 ;;; Generated autoloads from cond-let.el
 
-(defvar cond-let-fontify-mode nil "\
-Non-nil if Cond-Let-Fontify mode is enabled.
+(defvar cond-let-fontify-mode nil
+"Non-nil if Cond-Let-Fontify mode is enabled.
 See the `cond-let-fontify-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `cond-let-fontify-mode'.")
 (custom-autoload 'cond-let-fontify-mode "cond-let" nil)
-(autoload 'cond-let-fontify-mode "cond-let" "\
-In Emacs Lisp mode, highlight `$' using `font-lock-variable-name-face'.
+(autoload 'cond-let-fontify-mode "cond-let"
+"In Emacs Lisp mode, highlight `$' using `font-lock-variable-name-face'.
 
 This is a global minor mode.  If called interactively, toggle the
 `Cond-Let-Fontify mode' mode.  If the prefix argument is positive,

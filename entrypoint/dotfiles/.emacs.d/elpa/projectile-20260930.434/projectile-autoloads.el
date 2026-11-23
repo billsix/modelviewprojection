@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from projectile.el
 
-(autoload 'projectile-version "projectile" "\
-Get the Projectile version as string.
+(autoload 'projectile-version "projectile"
+"Get the Projectile version as string.
 
 If called interactively or if SHOW-VERSION is non-nil, show the
 version in the echo area and the messages buffer.
@@ -25,8 +25,8 @@ if called interactively, or if SHOW-VERSION is non-nil, otherwise
 just return nil.
 
 (fn &optional SHOW-VERSION)" t)
-(autoload 'projectile-invalidate-cache "projectile" "\
-Remove the current project's files from `projectile-projects-cache'.
+(autoload 'projectile-invalidate-cache "projectile"
+"Remove the current project's files from `projectile-projects-cache'.
 
 With a prefix argument PROMPT prompts for the name of the project whose cache
 to invalidate.
@@ -38,8 +38,8 @@ is cleared when there is no current project (unless you give a prefix
 argument).
 
 (fn PROMPT)" t)
-(autoload 'projectile-invalidate-cache-all "projectile" "\
-Invalidate the caches of every known project.
+(autoload 'projectile-invalidate-cache-all "projectile"
+"Invalidate the caches of every known project.
 
 Runs the same per-project invalidation as `projectile-invalidate-cache'
 over all projects in `projectile-known-projects' (plus any project that
@@ -50,36 +50,36 @@ is enabled the projects' on-disk cache files are deleted too.
 Remote (TRAMP) projects are skipped, as touching each one could mean a
 slow connection round-trip per project; invalidate those individually
 with `projectile-invalidate-cache'." t)
-(autoload 'projectile-discard-root-cache "projectile" "\
-Clear `projectile-project-root-cache' without touching other caches.
+(autoload 'projectile-discard-root-cache "projectile"
+"Clear `projectile-project-root-cache' without touching other caches.
 Useful after creating, removing, or moving a project marker (e.g.
 `.projectile' or `.git') - Projectile would otherwise keep returning
 its previously cached answer for that directory.
 
 See also `projectile-invalidate-cache', which does this and also drops
 the per-project file list and project-type caches." t)
-(autoload 'projectile-purge-file-from-cache "projectile" "\
-Purge FILE from the cache of the current project.
+(autoload 'projectile-purge-file-from-cache "projectile"
+"Purge FILE from the cache of the current project.
 
 (fn FILE)" t)
-(autoload 'projectile-purge-dir-from-cache "projectile" "\
-Purge DIR from the cache of the current project.
+(autoload 'projectile-purge-dir-from-cache "projectile"
+"Purge DIR from the cache of the current project.
 
 (fn DIR)" t)
-(autoload 'projectile-cache-current-file "projectile" "\
-Add the currently visited file to the cache.
+(autoload 'projectile-cache-current-file "projectile"
+"Add the currently visited file to the cache.
 PROJECT-ROOT defaults to the current project.
 
 (fn &optional PROJECT-ROOT)" t)
-(autoload 'projectile-discover-projects-in-directory "projectile" "\
-Discover any projects in DIRECTORY and add them to the projectile cache.
+(autoload 'projectile-discover-projects-in-directory "projectile"
+"Discover any projects in DIRECTORY and add them to the projectile cache.
 
 If DEPTH is non-nil recursively descend exactly DEPTH levels below DIRECTORY and
 discover projects there.
 
 (fn DIRECTORY &optional DEPTH)" t)
-(autoload 'projectile-index-project-async "projectile" "\
-Index PROJECT-ROOT in the background and populate the files cache.
+(autoload 'projectile-index-project-async "projectile"
+"Index PROJECT-ROOT in the background and populate the files cache.
 
 This warms `projectile-projects-cache' without blocking Emacs, so a
 later `projectile-find-file' (or any command that lists project files)
@@ -94,22 +94,22 @@ When PROJECT-ROOT is omitted the current project is used.  Returns the
 indexing process, or nil when nothing was started.
 
 (fn &optional PROJECT-ROOT)" t)
-(autoload 'projectile-switch-to-buffer "projectile" "\
-Switch to a project buffer." t)
+(autoload 'projectile-switch-to-buffer "projectile"
+"Switch to a project buffer." t)
  (autoload 'projectile-switch-to-buffer-other-window "projectile" nil t)
  (autoload 'projectile-switch-to-buffer-other-frame "projectile" nil t)
-(autoload 'projectile-display-buffer "projectile" "\
-Display a project buffer in another window without selecting it." t)
-(autoload 'projectile-project-buffers-other-buffer "projectile" "\
-Switch to the most recently selected buffer project buffer.
+(autoload 'projectile-display-buffer "projectile"
+"Display a project buffer in another window without selecting it." t)
+(autoload 'projectile-project-buffers-other-buffer "projectile"
+"Switch to the most recently selected buffer project buffer.
 Only buffers not visible in windows are returned." t)
-(autoload 'projectile-multi-occur "projectile" "\
-Do a `multi-occur' in the project's buffers.
+(autoload 'projectile-multi-occur "projectile"
+"Do a `multi-occur' in the project's buffers.
 With a prefix argument, show NLINES of context.
 
 (fn &optional NLINES)" t)
-(autoload 'projectile-find-other-file "projectile" "\
-Switch between files with the same name but different extensions.
+(autoload 'projectile-find-other-file "projectile"
+"Switch between files with the same name but different extensions.
 With FLEX-MATCHING, match any file that contains the base name of current file.
 Other file extensions can be customized with the variable
 `projectile-other-file-alist'.
@@ -117,8 +117,8 @@ Other file extensions can be customized with the variable
 (fn &optional FLEX-MATCHING)" t)
  (autoload 'projectile-find-other-file-other-window "projectile" nil t)
  (autoload 'projectile-find-other-file-other-frame "projectile" nil t)
-(autoload 'projectile-find-file-dwim "projectile" "\
-Jump to a project's files using completion based on context.
+(autoload 'projectile-find-file-dwim "projectile"
+"Jump to a project's files using completion based on context.
 
 With a prefix arg INVALIDATE-CACHE invalidates the cache first.
 
@@ -146,71 +146,71 @@ on a partial filename like \"projectile/a\", a list of files with character
 (fn &optional INVALIDATE-CACHE)" t)
  (autoload 'projectile-find-file-dwim-other-window "projectile" nil t)
  (autoload 'projectile-find-file-dwim-other-frame "projectile" nil t)
-(autoload 'projectile-find-file "projectile" "\
-Jump to a project's file using completion.
+(autoload 'projectile-find-file "projectile"
+"Jump to a project's file using completion.
 With a prefix arg INVALIDATE-CACHE invalidates the cache first.
 
 (fn &optional INVALIDATE-CACHE)" t)
  (autoload 'projectile-find-file-other-window "projectile" nil t)
  (autoload 'projectile-find-file-other-frame "projectile" nil t)
-(autoload 'projectile-find-file-all "projectile" "\
-Jump to any file in the project, ignoring VCS and projectile ignore rules.
+(autoload 'projectile-find-file-all "projectile"
+"Jump to any file in the project, ignoring VCS and projectile ignore rules.
 This lists all files under the project root using a generic file listing
 command (fd or find), bypassing `.gitignore', `.projectile', and other
 ignore mechanisms." t)
-(autoload 'projectile-toggle-project-read-only "projectile" "\
-Toggle project read only." t)
-(autoload 'projectile-add-dir-local-variable "projectile" "\
-Run `add-dir-local-variable' with .dir-locals.el in root of project.
+(autoload 'projectile-toggle-project-read-only "projectile"
+"Toggle project read only." t)
+(autoload 'projectile-add-dir-local-variable "projectile"
+"Run `add-dir-local-variable' with .dir-locals.el in root of project.
 
 Parameters MODE VARIABLE VALUE are passed directly to `add-dir-local-variable'.
 
 (fn MODE VARIABLE VALUE)")
-(autoload 'projectile-delete-dir-local-variable "projectile" "\
-Run `delete-dir-local-variable' with .dir-locals.el in root of project.
+(autoload 'projectile-delete-dir-local-variable "projectile"
+"Run `delete-dir-local-variable' with .dir-locals.el in root of project.
 
 Parameters MODE VARIABLE VALUE are passed directly to
 `delete-dir-local-variable'.
 
 (fn MODE VARIABLE)")
-(autoload 'projectile-find-dir "projectile" "\
-Jump to a project's directory using completion.
+(autoload 'projectile-find-dir "projectile"
+"Jump to a project's directory using completion.
 
 With a prefix arg INVALIDATE-CACHE invalidates the cache first.
 
 (fn &optional INVALIDATE-CACHE)" t)
  (autoload 'projectile-find-dir-other-window "projectile" nil t)
  (autoload 'projectile-find-dir-other-frame "projectile" nil t)
-(autoload 'projectile-find-test-file "projectile" "\
-Jump to a project's test file using completion.
+(autoload 'projectile-find-test-file "projectile"
+"Jump to a project's test file using completion.
 
 With a prefix arg INVALIDATE-CACHE invalidates the cache first.
 
 (fn &optional INVALIDATE-CACHE)" t)
  (autoload 'projectile-find-related-file-other-window "projectile" nil t)
  (autoload 'projectile-find-related-file-other-frame "projectile" nil t)
-(autoload 'projectile-find-related-file "projectile" "\
-Open related file." t)
-(autoload 'projectile-related-files-fn-groups "projectile" "\
-Generate a related-files-fn which relates as KIND for files in each of GROUPS.
+(autoload 'projectile-find-related-file "projectile"
+"Open related file." t)
+(autoload 'projectile-related-files-fn-groups "projectile"
+"Generate a related-files-fn which relates as KIND for files in each of GROUPS.
 
 (fn KIND GROUPS)")
-(autoload 'projectile-related-files-fn-extensions "projectile" "\
-Generate a related-files-fn which relates as KIND for files having EXTENSIONS.
+(autoload 'projectile-related-files-fn-extensions "projectile"
+"Generate a related-files-fn which relates as KIND for files having EXTENSIONS.
 
 (fn KIND EXTENSIONS)")
-(autoload 'projectile-related-files-fn-test-with-prefix "projectile" "\
-Generate a related-files-fn which relates tests and impl.
+(autoload 'projectile-related-files-fn-test-with-prefix "projectile"
+"Generate a related-files-fn which relates tests and impl.
 Use files with EXTENSION based on TEST-PREFIX.
 
 (fn EXTENSION TEST-PREFIX)")
-(autoload 'projectile-related-files-fn-test-with-suffix "projectile" "\
-Generate a related-files-fn which relates tests and impl.
+(autoload 'projectile-related-files-fn-test-with-suffix "projectile"
+"Generate a related-files-fn which relates tests and impl.
 Use files with EXTENSION based on TEST-SUFFIX.
 
 (fn EXTENSION TEST-SUFFIX)")
-(autoload 'projectile-find-file-of-kind "projectile" "\
-Jump to a project file of a chosen file kind using completion.
+(autoload 'projectile-find-file-of-kind "projectile"
+"Jump to a project file of a chosen file kind using completion.
 
 Prompt for one of the current project type's file kinds (see the
 `:file-kinds' keyword of `projectile-register-project-type') and then
@@ -220,8 +220,8 @@ arg INVALIDATE-CACHE invalidates the cache first.
 (fn &optional INVALIDATE-CACHE)" t)
  (autoload 'projectile-find-file-of-kind-other-window "projectile" nil t)
  (autoload 'projectile-find-file-of-kind-other-frame "projectile" nil t)
-(autoload 'projectile-toggle-related-file "projectile" "\
-Jump between the current file and its related files of other kinds.
+(autoload 'projectile-toggle-related-file "projectile"
+"Jump between the current file and its related files of other kinds.
 
 This is the file-kinds generalization of
 `projectile-toggle-between-implementation-and-test'.  The current file's
@@ -230,10 +230,10 @@ declaration and its related files (files of other kinds sharing the same
 key) are collected in table order.  When exactly one related kind exists
 it is opened immediately; when several exist the first invocation prompts
 for the kind, and repeated invocations cycle through them in table order." t)
-(autoload 'projectile-project-info "projectile" "\
-Display info for current project." t)
-(autoload 'projectile-find-changed-file "projectile" "\
-Jump to a file changed in the current project.
+(autoload 'projectile-project-info "projectile"
+"Display info for current project." t)
+(autoload 'projectile-find-changed-file "projectile"
+"Jump to a file changed in the current project.
 
 That is everything git reports as staged, unstaged or untracked.  With a
 prefix ARG you are asked for a revision to compare against instead - a
@@ -245,15 +245,15 @@ Only git projects are supported.
 (fn &optional ARG)" t)
  (autoload 'projectile-find-implementation-or-test-other-window "projectile" nil t)
  (autoload 'projectile-find-implementation-or-test-other-frame "projectile" nil t)
-(autoload 'projectile-toggle-between-implementation-and-test "projectile" "\
-Toggle between an implementation file and its test file.
+(autoload 'projectile-toggle-between-implementation-and-test "projectile"
+"Toggle between an implementation file and its test file.
 
 
 See the documentation of `projectile--find-matching-file' and
 `projectile--find-matching-test' for how implementation and test files
 are determined." t)
-(autoload 'projectile-search "projectile" "\
-Search the project for SEARCH-TERM using `projectile-search-backend'.
+(autoload 'projectile-search "projectile"
+"Search the project for SEARCH-TERM using `projectile-search-backend'.
 
 With a prefix argument treat SEARCH-TERM as a regular expression (for the
 backends that distinguish literal from regexp searches).
@@ -263,8 +263,8 @@ The backend is chosen from `projectile-search-backends' according to
 `projectile-register-search-backend'.
 
 (fn &optional SEARCH-TERM REGEXP)" t)
-(autoload 'projectile-grep "projectile" "\
-Perform rgrep in the project (the grep `projectile-search' backend).
+(autoload 'projectile-grep "projectile"
+"Perform rgrep in the project (the grep `projectile-search' backend).
 
 With a prefix ARG asks for files (globbing-aware) which to grep in.
 With prefix ARG of `-' (such as `M--'), default the files (without prompt),
@@ -273,16 +273,16 @@ to `projectile-grep-default-files'.
 With REGEXP given, don't query the user for a regexp.
 
 (fn &optional REGEXP ARG)" t)
-(autoload 'projectile-ag "projectile" "\
-Run an ag search with SEARCH-TERM in the project.
+(autoload 'projectile-ag "projectile"
+"Run an ag search with SEARCH-TERM in the project.
 This is `projectile-search' with the ag backend.
 
 With an optional prefix argument ARG SEARCH-TERM is interpreted as a
 regular expression.
 
 (fn SEARCH-TERM &optional ARG)" t)
-(autoload 'projectile-ripgrep "projectile" "\
-Run a ripgrep (rg) search with SEARCH-TERM in the project.
+(autoload 'projectile-ripgrep "projectile"
+"Run a ripgrep (rg) search with SEARCH-TERM in the project.
 This is `projectile-search' with the ripgrep backend.
 
 With an optional prefix argument ARG SEARCH-TERM is interpreted as a
@@ -292,20 +292,20 @@ This command depends on the Emacs packages ripgrep or rg being
 installed to work.
 
 (fn SEARCH-TERM &optional ARG)" t)
-(autoload 'projectile-run-command-in-root "projectile" "\
-Invoke `execute-extended-command' in the project's root." t)
-(autoload 'projectile-run-shell-command-in-root "projectile" "\
-Invoke `shell-command' in the project's root.
+(autoload 'projectile-run-command-in-root "projectile"
+"Invoke `execute-extended-command' in the project's root." t)
+(autoload 'projectile-run-shell-command-in-root "projectile"
+"Invoke `shell-command' in the project's root.
 
 (fn COMMAND &optional OUTPUT-BUFFER ERROR-BUFFER)" t)
-(autoload 'projectile-run-async-shell-command-in-root "projectile" "\
-Invoke `async-shell-command' in the project's root.
+(autoload 'projectile-run-async-shell-command-in-root "projectile"
+"Invoke `async-shell-command' in the project's root.
 
 (fn COMMAND &optional OUTPUT-BUFFER ERROR-BUFFER)" t)
-(autoload 'projectile-run-gdb "projectile" "\
-Invoke `gdb' in the project's root." t)
-(autoload 'projectile-run "projectile" "\
-Run a shell, REPL or terminal in the project root.
+(autoload 'projectile-run-gdb "projectile"
+"Invoke `gdb' in the project's root." t)
+(autoload 'projectile-run "projectile"
+"Run a shell, REPL or terminal in the project root.
 
 The backend is chosen from `projectile-shell-backends' according to
 `projectile-shell-backend'; register new ones with
@@ -316,64 +316,64 @@ one.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-other-window "projectile" nil t)
-(autoload 'projectile-run-shell "projectile" "\
-Invoke `shell' in the project's root (the shell `projectile-run' backend).
+(autoload 'projectile-run-shell "projectile"
+"Invoke `shell' in the project's root (the shell `projectile-run' backend).
 Use a prefix argument ARG to indicate creation of a new process instead.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-shell-other-window "projectile" nil t)
-(autoload 'projectile-run-eshell "projectile" "\
-Invoke `eshell' in the project's root (the eshell `projectile-run' backend).
+(autoload 'projectile-run-eshell "projectile"
+"Invoke `eshell' in the project's root (the eshell `projectile-run' backend).
 Use a prefix argument ARG to indicate creation of a new process instead.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-eshell-other-window "projectile" nil t)
-(autoload 'projectile-run-ielm "projectile" "\
-Invoke `ielm' in the project's root (the ielm `projectile-run' backend).
+(autoload 'projectile-run-ielm "projectile"
+"Invoke `ielm' in the project's root (the ielm `projectile-run' backend).
 Use a prefix argument ARG to indicate creation of a new process instead.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-ielm-other-window "projectile" nil t)
-(autoload 'projectile-run-term "projectile" "\
-Invoke `term' in the project's root (the term `projectile-run' backend).
+(autoload 'projectile-run-term "projectile"
+"Invoke `term' in the project's root (the term `projectile-run' backend).
 Use a prefix argument ARG to indicate creation of a new process instead.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-term-other-window "projectile" nil t)
-(autoload 'projectile-run-vterm "projectile" "\
-Invoke `vterm' in the project's root (the vterm `projectile-run' backend).
+(autoload 'projectile-run-vterm "projectile"
+"Invoke `vterm' in the project's root (the vterm `projectile-run' backend).
 Use a prefix argument ARG to indicate creation of a new process instead.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-vterm-other-window "projectile" nil t)
-(autoload 'projectile-run-eat "projectile" "\
-Invoke `eat' in the project's root (the eat `projectile-run' backend).
+(autoload 'projectile-run-eat "projectile"
+"Invoke `eat' in the project's root (the eat `projectile-run' backend).
 Use a prefix argument ARG to indicate creation of a new process instead.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-eat-other-window "projectile" nil t)
-(autoload 'projectile-run-ghostel "projectile" "\
-Invoke `ghostel' in the project's root (the ghostel `projectile-run' backend).
+(autoload 'projectile-run-ghostel "projectile"
+"Invoke `ghostel' in the project's root (the ghostel `projectile-run' backend).
 Use a prefix argument ARG to indicate creation of a new process instead.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-run-ghostel-other-window "projectile" nil t)
-(autoload 'projectile-replace "projectile" "\
-Replace a literal string in the project's files.
+(autoload 'projectile-replace "projectile"
+"Replace a literal string in the project's files.
 
 With a prefix argument ARG prompts you for a directory and file name patterns
 on which to run the replacement.
 
 (fn &optional ARG)" t)
-(autoload 'projectile-replace-regexp "projectile" "\
-Replace a regexp in the project's files.
+(autoload 'projectile-replace-regexp "projectile"
+"Replace a regexp in the project's files.
 
 With a prefix argument ARG prompts you for a directory on which
 to run the replacement.
 
 (fn &optional ARG)" t)
-(autoload 'projectile-replace-undo "projectile" "\
-Revert the last project-wide replace applied from the replace reviewer.
+(autoload 'projectile-replace-undo "projectile"
+"Revert the last project-wide replace applied from the replace reviewer.
 
 Only replaces applied with \\<projectile-replace-mode-map>\\[projectile-replace--apply] in a
 `*projectile-replace*' buffer are recorded, and only the most recent one:
@@ -387,22 +387,22 @@ switch in the meantime is reported and left alone rather than corrupted.
 Files that were reverted are dropped from the record, so undoing twice
 can never apply anything twice, while files that were skipped stay
 undoable once you have sorted them out." t)
-(autoload 'projectile-replace-review "projectile" "\
-Review and apply a literal project-wide replacement.
+(autoload 'projectile-replace-review "projectile"
+"Review and apply a literal project-wide replacement.
 
 Prompts for a literal search string and a replacement, gathers every
 match across the project into a `*projectile-replace*' buffer, and lets
 you toggle which matches to apply before committing them.  This is a
 non-blocking, previewable alternative to `projectile-replace'." t)
-(autoload 'projectile-replace-regexp-review "projectile" "\
-Review and apply a project-wide regexp replacement.
+(autoload 'projectile-replace-regexp-review "projectile"
+"Review and apply a project-wide regexp replacement.
 
 Like `projectile-replace-review', but the search term is an Emacs
 regexp and the replacement may reference capture groups (\\1, \\&).
 This is a non-blocking, previewable alternative to
 `projectile-replace-regexp'." t)
-(autoload 'projectile-search-review "projectile" "\
-Search the project for a literal string and review the matches read-only.
+(autoload 'projectile-search-review "projectile"
+"Search the project for a literal string and review the matches read-only.
 
 Prompts for a literal search string (defaulting to the symbol or region
 at point), gathers every match across the project into a read-only
@@ -410,14 +410,14 @@ at point), gathers every match across the project into a read-only
 filter and reshape the search.  Use \\<projectile-search-mode-map>\\[projectile-search--to-replace] to turn it into a
 reviewable replacement.  This is the read-only sibling of
 `projectile-replace-review'." t)
-(autoload 'projectile-search-regexp-review "projectile" "\
-Search the project for an Emacs regexp and review the matches read-only.
+(autoload 'projectile-search-regexp-review "projectile"
+"Search the project for an Emacs regexp and review the matches read-only.
 
 Like `projectile-search-review', but the search term is an Emacs regexp,
 so full Emacs regexp syntax (e.g. symbol boundaries like `\\_<foo\\_>')
 is honored." t)
-(autoload 'projectile-todos "projectile" "\
-Collect the project's TODO-style annotations and review them read-only.
+(autoload 'projectile-todos "projectile"
+"Collect the project's TODO-style annotations and review them read-only.
 
 Searches every project file for the annotation keywords in
 `projectile-todo-keywords' (`TODO', `FIXME', `HACK', ... - customize the
@@ -436,30 +436,30 @@ With a prefix argument ARG, prompt for which keywords to search for
 instead of using all of them.
 
 (fn &optional ARG)" t)
-(autoload 'projectile-todos-in-projects "projectile" "\
-Collect the TODO-style annotations of PROJECTS into the search reviewer.
+(autoload 'projectile-todos-in-projects "projectile"
+"Collect the TODO-style annotations of PROJECTS into the search reviewer.
 With ARG non-nil, prompt for which keywords to search for.  PROJECTS is a
 list of project roots, so one project and a whole group take the same
 path; see `projectile-search-in-projects' for what changes when there is
 more than one.
 
 (fn PROJECTS &optional ARG)")
-(autoload 'projectile-kill-buffers "projectile" "\
-Kill project buffers.
+(autoload 'projectile-kill-buffers "projectile"
+"Kill project buffers.
 
 The buffers are killed according to the value of
 `projectile-kill-buffers-filter'." t)
-(autoload 'projectile-save-project-buffers "projectile" "\
-Save all project buffers." t)
-(autoload 'projectile-dired "projectile" "\
-Open `dired' at the root of the project.
+(autoload 'projectile-save-project-buffers "projectile"
+"Save all project buffers." t)
+(autoload 'projectile-dired "projectile"
+"Open `dired' at the root of the project.
 With a prefix argument ARG, prompt for a known project to open in dired.
 
 (fn &optional ARG)" t)
  (autoload 'projectile-dired-other-window "projectile" nil t)
  (autoload 'projectile-dired-other-frame "projectile" nil t)
-(autoload 'projectile-vc "projectile" "\
-Open `vc-dir' at the root of the project.
+(autoload 'projectile-vc "projectile"
+"Open `vc-dir' at the root of the project.
 
 For git projects `magit-status-internal' is used if available.
 For hg projects `monky-status' is used if available.
@@ -470,10 +470,10 @@ called with a prefix argument, the user is prompted for a project
 directory to open.
 
 (fn &optional PROJECT-ROOT)" t)
-(autoload 'projectile-recentf "projectile" "\
-Show a list of recently visited files in a project." t)
-(autoload 'projectile-discard-command-cache "projectile" "\
-Discard the cached lifecycle commands for the current project.
+(autoload 'projectile-recentf "projectile"
+"Show a list of recently visited files in a project." t)
+(autoload 'projectile-discard-command-cache "projectile"
+"Discard the cached lifecycle commands for the current project.
 
 Projectile caches the last command used for each of the configure,
 compile, test, install, package, and run actions and prefers it over the
@@ -483,20 +483,20 @@ Handy on `after-save-hook' for `.dir-locals.el' buffers.
 
 This only clears the cached commands, not the command history offered at
 the prompt.  See also `projectile-discard-root-cache'." t)
-(autoload 'projectile-find-file-in-subproject "projectile" "\
-Jump to a file in one of the current project's subprojects.
+(autoload 'projectile-find-file-in-subproject "projectile"
+"Jump to a file in one of the current project's subprojects.
 Prompts for the subproject first, so the file completion only covers
 that part of the repository." t)
-(autoload 'projectile-configure-project "projectile" "\
-Run project configure command.
+(autoload 'projectile-configure-project "projectile"
+"Run project configure command.
 
 Normally you'll be prompted for a compilation command, unless
 variable `compilation-read-command'.  You can force the prompt
 with a prefix ARG.
 
 (fn ARG)" t)
-(autoload 'projectile-compile-project "projectile" "\
-Run project compilation command.
+(autoload 'projectile-compile-project "projectile"
+"Run project compilation command.
 
 Normally you'll be prompted for a compilation command, unless
 variable `compilation-read-command'.  You can force the prompt
@@ -504,32 +504,32 @@ with a prefix ARG.  Per project default command can be set through
 `projectile-project-compilation-cmd'.
 
 (fn ARG)" t)
-(autoload 'projectile-test-project "projectile" "\
-Run project test command.
+(autoload 'projectile-test-project "projectile"
+"Run project test command.
 
 Normally you'll be prompted for a compilation command, unless
 variable `compilation-read-command'.  You can force the prompt
 with a prefix ARG.
 
 (fn ARG)" t)
-(autoload 'projectile-install-project "projectile" "\
-Run project install command.
+(autoload 'projectile-install-project "projectile"
+"Run project install command.
 
 Normally you'll be prompted for a compilation command, unless
 variable `compilation-read-command'.  You can force the prompt
 with a prefix ARG.
 
 (fn ARG)" t)
-(autoload 'projectile-package-project "projectile" "\
-Run project package command.
+(autoload 'projectile-package-project "projectile"
+"Run project package command.
 
 Normally you'll be prompted for a compilation command, unless
 variable `compilation-read-command'.  You can force the prompt
 with a prefix ARG.
 
 (fn ARG)" t)
-(autoload 'projectile-run-project "projectile" "\
-Run project run command.
+(autoload 'projectile-run-project "projectile"
+"Run project run command.
 
 Normally you'll be prompted for a compilation command, unless
 variable `compilation-read-command'.  You can force the prompt
@@ -542,8 +542,8 @@ with a prefix ARG.
  (autoload 'projectile-install-subproject "projectile" nil t)
  (autoload 'projectile-package-subproject "projectile" nil t)
  (autoload 'projectile-run-subproject "projectile" nil t)
-(autoload 'projectile--test-at-point-file-name "projectile" "\
-Return FILE spelled relative to DIR for a test-at-point command.
+(autoload 'projectile--test-at-point-file-name "projectile"
+"Return FILE spelled relative to DIR for a test-at-point command.
 
 Prefer the name as spelled.  A file under a symlinked subdirectory of
 the project resolves to somewhere outside it, so running it through
@@ -559,8 +559,8 @@ macOS.  Fall back to resolving both, and keep that only if it does stay
 inside DIR.
 
 (fn FILE DIR)")
-(autoload 'projectile-repeat-last-command "projectile" "\
-Run last projectile external command.
+(autoload 'projectile-repeat-last-command "projectile"
+"Run last projectile external command.
 
 External commands are: `projectile-configure-project',
 `projectile-compile-project', `projectile-test-project',
@@ -572,8 +572,8 @@ command reads).
 If the prefix argument SHOW-PROMPT is non nil, the command can be edited.
 
 (fn SHOW-PROMPT)" t)
-(autoload 'projectile-run-task "projectile" "\
-Run one of the current project's named tasks.
+(autoload 'projectile-run-task "projectile"
+"Run one of the current project's named tasks.
 
 The task is picked with completion among the tasks of the project's
 type, those in `projectile-tasks' (which win for same-named tasks) and
@@ -589,23 +589,23 @@ The command runs through the same machinery as
 compilation buffer named after the task.
 
 (fn ARG)" t)
-(autoload 'projectile-repeat-last-task "projectile" "\
-Re-run the last task executed in the current project.
+(autoload 'projectile-repeat-last-task "projectile"
+"Re-run the last task executed in the current project.
 
 This re-runs the exact command the task ran last time, including any
 ad-hoc edits made then.  With a prefix ARG the command can be edited
 again before it's run.
 
 (fn ARG)" t)
-(autoload 'projectile-switch-project "projectile" "\
-Switch to a project we have visited before.
+(autoload 'projectile-switch-project "projectile"
+"Switch to a project we have visited before.
 Invokes the command referenced by `projectile-switch-project-action' on switch.
 With a prefix ARG invokes `projectile-dispatch' instead
 of `projectile-switch-project-action'.
 
 (fn &optional ARG)" t)
-(autoload 'projectile-switch-open-project "projectile" "\
-Switch to a project we have currently opened.
+(autoload 'projectile-switch-open-project "projectile"
+"Switch to a project we have currently opened.
 Invokes the command referenced by `projectile-switch-project-action' on switch.
 With a prefix ARG invokes `projectile-dispatch' instead
 of `projectile-switch-project-action'.
@@ -613,8 +613,8 @@ of `projectile-switch-project-action'.
 (fn &optional ARG)" t)
  (autoload 'projectile-switch-project-other-window "projectile" nil t)
  (autoload 'projectile-switch-project-other-frame "projectile" nil t)
-(autoload 'projectile-switch-to-most-recent-project "projectile" "\
-Switch to the project recorded in `projectile-most-recent-project'.
+(autoload 'projectile-switch-to-most-recent-project "projectile"
+"Switch to the project recorded in `projectile-most-recent-project'.
 That's the project that was current before the most recent project
 switch, so calling this from a buffer in the switched-to project takes
 you back where you came from.  With a prefix ARG invokes
@@ -622,25 +622,25 @@ you back where you came from.  With a prefix ARG invokes
 `projectile-switch-project-action'.
 
 (fn &optional ARG)" t)
-(autoload 'projectile-find-file-in-directory "projectile" "\
-Jump to a file in a (maybe regular) DIRECTORY.
+(autoload 'projectile-find-file-in-directory "projectile"
+"Jump to a file in a (maybe regular) DIRECTORY.
 
 This command will first prompt for the directory the file is in.
 
 (fn &optional DIRECTORY)" t)
-(autoload 'projectile-find-file-in-known-projects "projectile" "\
-Jump to a file in any of the known projects.
+(autoload 'projectile-find-file-in-known-projects "projectile"
+"Jump to a file in any of the known projects.
 This is `projectile-find-file-in-projects' over every project you have
 ever visited." t)
-(autoload 'projectile-cleanup-known-projects "projectile" "\
-Remove known projects that don't exist anymore." t)
-(defalias 'projectile-forget-zombie-projects #'projectile-cleanup-known-projects "\
-Forget known projects that don't exist any more.
+(autoload 'projectile-cleanup-known-projects "projectile"
+"Remove known projects that don't exist anymore." t)
+(defalias 'projectile-forget-zombie-projects #'projectile-cleanup-known-projects
+"Forget known projects that don't exist any more.
 An alias for `projectile-cleanup-known-projects', provided for
 discoverability and parity with project.el's
 `project-forget-zombie-projects'.")
-(autoload 'projectile-forget-projects-under "projectile" "\
-Remove known projects located under DIRECTORY.
+(autoload 'projectile-forget-projects-under "projectile"
+"Remove known projects located under DIRECTORY.
 
 Interactively, prompt for DIRECTORY.  With optional argument
 RECURSIVE non-nil (interactively, the prefix argument), remove
@@ -654,28 +654,28 @@ project.el's `project-forget-projects-under'.  Return the number of
 projects removed.
 
 (fn DIRECTORY &optional RECURSIVE)" t)
-(autoload 'projectile-clear-known-projects "projectile" "\
-Clear both `projectile-known-projects' and `projectile-known-projects-file'." t)
-(autoload 'projectile-reset-known-projects "projectile" "\
-Clear known projects and rediscover." t)
-(autoload 'projectile-remove-known-project "projectile" "\
-Remove PROJECT from the list of known projects.
+(autoload 'projectile-clear-known-projects "projectile"
+"Clear both `projectile-known-projects' and `projectile-known-projects-file'." t)
+(autoload 'projectile-reset-known-projects "projectile"
+"Clear known projects and rediscover." t)
+(autoload 'projectile-remove-known-project "projectile"
+"Remove PROJECT from the list of known projects.
 
 (fn &optional PROJECT)" t)
-(autoload 'projectile-remove-current-project-from-known-projects "projectile" "\
-Remove the current project from the list of known projects." t)
-(autoload 'projectile-add-known-project "projectile" "\
-Add PROJECT-ROOT to the list of known projects.
+(autoload 'projectile-remove-current-project-from-known-projects "projectile"
+"Remove the current project from the list of known projects." t)
+(autoload 'projectile-add-known-project "projectile"
+"Add PROJECT-ROOT to the list of known projects.
 
 (fn PROJECT-ROOT)" t)
-(autoload 'projectile-add-and-switch-project "projectile" "\
-Add PROJECT-ROOT to the list of known projects and switch to it.
+(autoload 'projectile-add-and-switch-project "projectile"
+"Add PROJECT-ROOT to the list of known projects and switch to it.
 This combines `projectile-add-known-project' and
 `projectile-switch-project-by-name' into a single command.
 
 (fn PROJECT-ROOT)" t)
-(autoload 'projectile-switch-worktree "projectile" "\
-Switch to another checkout of the current project\\='s repository.
+(autoload 'projectile-switch-worktree "projectile"
+"Switch to another checkout of the current project\\='s repository.
 
 That's the project\\='s git worktrees, plus any other clone of the same
 upstream that Projectile already knows about - both are the same thing in
@@ -685,8 +685,8 @@ Invokes the command referenced by `projectile-switch-project-action' on
 switch.  With a prefix ARG invokes `projectile-dispatch' instead.
 
 (fn &optional ARG)" t)
-(autoload 'projectile-switch-sibling-project "projectile" "\
-Switch to a project related to the current one.
+(autoload 'projectile-switch-sibling-project "projectile"
+"Switch to a project related to the current one.
 
 Related means grouped with it in `projectile-project-groups', or sharing
 the owner of its upstream remote, or - failing both - starting with the
@@ -696,13 +696,13 @@ Invokes the command referenced by `projectile-switch-project-action' on
 switch.  With a prefix ARG invokes `projectile-dispatch' instead.
 
 (fn &optional ARG)" t)
-(autoload 'projectile-find-file-in-projects "projectile" "\
-Jump to a file in any of PROJECTS.
+(autoload 'projectile-find-file-in-projects "projectile"
+"Jump to a file in any of PROJECTS.
 PROMPT overrides the completion prompt.
 
 (fn PROJECTS &optional PROMPT)")
-(autoload 'projectile-search-in-projects "projectile" "\
-Search PROJECTS for a term and review the matches read-only.
+(autoload 'projectile-search-in-projects "projectile"
+"Search PROJECTS for a term and review the matches read-only.
 LITERAL non-nil searches for a literal string, otherwise the term is an
 Emacs regexp.  PROMPT overrides the label the term is read with.
 
@@ -719,46 +719,46 @@ you happen to be sitting, and a literal search runs `rg' over each of
 them in turn when ripgrep is available.
 
 (fn PROJECTS &optional LITERAL PROMPT)")
-(autoload 'projectile-switch-to-buffer-in-projects "projectile" "\
-Switch to a buffer belonging to any of PROJECTS.
+(autoload 'projectile-switch-to-buffer-in-projects "projectile"
+"Switch to a buffer belonging to any of PROJECTS.
 PROMPT overrides the completion prompt.  The current buffer is left out
 of the choices, as `projectile-switch-to-buffer' does.
 
 (fn PROJECTS &optional PROMPT)")
-(autoload 'projectile-find-file-in-sibling-projects "projectile" "\
-Jump to a file in the current project or any related to it.
+(autoload 'projectile-find-file-in-sibling-projects "projectile"
+"Jump to a file in the current project or any related to it.
 Related is what `projectile-switch-sibling-project' means by it." t)
-(autoload 'projectile-search-in-sibling-projects "projectile" "\
-Search the current project and the ones related to it, reviewing the matches.
+(autoload 'projectile-search-in-sibling-projects "projectile"
+"Search the current project and the ones related to it, reviewing the matches.
 
 Related is what `projectile-switch-sibling-project' means by it.  With a
 prefix argument REGEXP the search term is an Emacs regexp rather than a
 literal string.
 
 (fn &optional REGEXP)" t)
-(autoload 'projectile-switch-to-buffer-in-sibling-projects "projectile" "\
-Switch to a buffer of the current project or of one related to it.
+(autoload 'projectile-switch-to-buffer-in-sibling-projects "projectile"
+"Switch to a buffer of the current project or of one related to it.
 Related is what `projectile-switch-sibling-project' means by it." t)
-(autoload 'projectile-multi-occur-in-projects "projectile" "\
-Do a `multi-occur' in the buffers of any of PROJECTS.
+(autoload 'projectile-multi-occur-in-projects "projectile"
+"Do a `multi-occur' in the buffers of any of PROJECTS.
 NLINES is the number of context lines `multi-occur' shows.
 
 Note this searches the buffers you have open, not the projects on disk -
 `projectile-search-in-projects' is the one that reads files.
 
 (fn PROJECTS &optional NLINES)")
-(autoload 'projectile-multi-occur-in-sibling-projects "projectile" "\
-Do a `multi-occur' in the buffers of the current project and related ones.
+(autoload 'projectile-multi-occur-in-sibling-projects "projectile"
+"Do a `multi-occur' in the buffers of the current project and related ones.
 Related is what `projectile-switch-sibling-project' means by it.  With a
 prefix argument, show NLINES of context.
 
 (fn &optional NLINES)" t)
-(autoload 'projectile-todos-in-sibling-projects "projectile" "\
-Collect TODO-style annotations across the current project and related ones.
+(autoload 'projectile-todos-in-sibling-projects "projectile"
+"Collect TODO-style annotations across the current project and related ones.
 Related is what `projectile-switch-sibling-project' means by it.  See
 `projectile-todos' for what counts as an annotation." t)
-(autoload 'projectile-bookmark-set "projectile" "\
-Set a bookmark named NAME at point, scoped to the current project.
+(autoload 'projectile-bookmark-set "projectile"
+"Set a bookmark named NAME at point, scoped to the current project.
 
 The bookmark is a regular Emacs bookmark - it lands in `bookmark-alist',
 shows up in `list-bookmarks' and is persisted by `bookmark.el' itself.
@@ -770,8 +770,8 @@ the project is recognised as the project's even without the prefix (see
 `projectile-bookmark-scope').
 
 (fn NAME)" t)
-(autoload 'projectile-bookmark-jump "projectile" "\
-Jump to the project bookmark named NAME.
+(autoload 'projectile-bookmark-jump "projectile"
+"Jump to the project bookmark named NAME.
 Only the current project's bookmarks are offered for completion - see
 `projectile-bookmark-scope' for how that's decided.
 
@@ -781,28 +781,28 @@ prompt of `bookmark.el'.  Use `projectile-bookmark-delete' to get rid of
 such a stale bookmark.
 
 (fn NAME)" t)
-(autoload 'projectile-bookmark-delete "projectile" "\
-Delete the project bookmark named NAME.
+(autoload 'projectile-bookmark-delete "projectile"
+"Delete the project bookmark named NAME.
 Only the current project's bookmarks are offered for completion - see
 `projectile-bookmark-scope' for how that's decided.
 
 (fn NAME)" t)
-(autoload 'projectile-ibuffer "projectile" "\
-Open an IBuffer window showing all buffers in the current project.
+(autoload 'projectile-ibuffer "projectile"
+"Open an IBuffer window showing all buffers in the current project.
 
 Let user choose another project when PROMPT-FOR-PROJECT is supplied.
 
 (fn PROMPT-FOR-PROJECT)" t)
-(autoload 'projectile-edit-dir-locals "projectile" "\
-Edit or create a .dir-locals.el file of the project." t)
-(autoload 'projectile-report-copy "projectile" "\
-Copy the current report buffer to the kill ring as plain text.
+(autoload 'projectile-edit-dir-locals "projectile"
+"Edit or create a .dir-locals.el file of the project." t)
+(autoload 'projectile-report-copy "projectile"
+"Copy the current report buffer to the kill ring as plain text.
 
 Strips the faces and buttons, so what lands in the clipboard is exactly
 the text of the report - ready to paste into an issue, an email or a
 chat window without dragging Emacs\\='s text properties along." t)
-(autoload 'projectile-doctor "projectile" "\
-Diagnose Projectile's view of the current project.
+(autoload 'projectile-doctor "projectile"
+"Diagnose Projectile's view of the current project.
 
 Open a read-only report describing the project Projectile sees around
 `default-directory': its root and which of
@@ -820,8 +820,8 @@ invalidates the file cache.  A project that isn't cached yet is indexed
 with caching switched off and that run is reported as a fresh index.  On
 remote projects indexing and program lookups are skipped rather than
 risking a hang, and the report says so." t)
-(autoload 'projectile-dashboard "projectile" "\
-Show a dashboard summarising the project around `default-directory'.
+(autoload 'projectile-dashboard "projectile"
+"Show a dashboard summarising the project around `default-directory'.
 
 The dashboard covers the project's name, root, type and file count, the
 version control system with the current branch and how many files are
@@ -843,8 +843,8 @@ from two short git commands, run only on a local git project; on a
 remote project, or under any other VCS, that section says so instead.
 
 `projectile-dashboard-sections' controls which sections are shown." t)
-(autoload 'projectile-other-window-command "projectile" "\
-Show the buffer of the next Projectile command in another window.
+(autoload 'projectile-other-window-command "projectile"
+"Show the buffer of the next Projectile command in another window.
 
 Set up the next command's buffer to be displayed in a new window (via
 `other-window-prefix') and keep `projectile-command-map' active for the
@@ -853,8 +853,8 @@ gets the other-window treatment without re-typing the Projectile
 prefix.  Any non-Projectile command works as well; commands that use
 `switch-to-buffer' are covered too, by temporarily enabling
 `switch-to-buffer-obey-display-actions'." t)
-(autoload 'projectile-other-frame-command "projectile" "\
-Show the buffer of the next Projectile command in another frame.
+(autoload 'projectile-other-frame-command "projectile"
+"Show the buffer of the next Projectile command in another frame.
 
 Set up the next command's buffer to be displayed in a new frame (via
 `other-frame-prefix') and keep `projectile-command-map' active for the
@@ -863,20 +863,20 @@ gets the other-frame treatment without re-typing the Projectile
 prefix.  Any non-Projectile command works as well; commands that use
 `switch-to-buffer' are covered too, by temporarily enabling
 `switch-to-buffer-obey-display-actions'." t)
-(autoload 'project-projectile "projectile" "\
-Return Projectile project of form ('projectile . root-dir) for DIR.
+(autoload 'project-projectile "projectile"
+"Return Projectile project of form ('projectile . root-dir) for DIR.
 
 (fn DIR)")
-(defvar projectile-mode nil "\
-Non-nil if Projectile mode is enabled.
+(defvar projectile-mode nil
+"Non-nil if Projectile mode is enabled.
 See the `projectile-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `projectile-mode'.")
 (custom-autoload 'projectile-mode "projectile" nil)
-(autoload 'projectile-mode "projectile" "\
-Minor mode to assist project management and navigation.
+(autoload 'projectile-mode "projectile"
+"Minor mode to assist project management and navigation.
 
 When called interactively, toggle `projectile-mode'.  With prefix
 ARG, enable `projectile-mode' if ARG is positive, otherwise disable
@@ -889,13 +889,13 @@ Otherwise behave as if called interactively.
 \\{projectile-mode-map}
 
 (fn &optional ARG)" t)
-(autoload 'projectile-session-switch-to-buffer "projectile" "\
-Switch to a buffer belonging to the current tab's project.
+(autoload 'projectile-session-switch-to-buffer "projectile"
+"Switch to a buffer belonging to the current tab's project.
 Complete over just the buffers of the project bound to the current tab.
 When the current tab holds no project, fall back to the plain
 `switch-to-buffer'." t)
-(autoload 'projectile-session-save "projectile" "\
-Save the current window layout and buffers as PROJECT's session.
+(autoload 'projectile-session-save "projectile"
+"Save the current window layout and buffers as PROJECT's session.
 PROJECT defaults to the current project's root.  The layout is captured
 from the selected frame, so this saves whichever project's tab is
 current.  Buffers are recorded via `projectile-session-buffer-serializers';
@@ -903,28 +903,28 @@ a layout with no serializable buffer is not saved.  Return non-nil on a
 successful save.
 
 (fn &optional PROJECT)" t)
-(autoload 'projectile-session-restore "projectile" "\
-Restore PROJECT's saved session into the selected frame.
+(autoload 'projectile-session-restore "projectile"
+"Restore PROJECT's saved session into the selected frame.
 PROJECT defaults to the current project's root.  Buffers are recreated
 first, then the saved window layout is put back; windows whose buffer
 can't be recreated fall back to a placeholder.  Return non-nil when a
 session was restored.
 
 (fn &optional PROJECT)" t)
-(autoload 'projectile-session-forget "projectile" "\
-Delete PROJECT's saved session file.
+(autoload 'projectile-session-forget "projectile"
+"Delete PROJECT's saved session file.
 PROJECT defaults to the current project's root.
 
 (fn &optional PROJECT)" t)
-(autoload 'projectile-session-save-all "projectile" "\
-Save the session of every open project in one go.
+(autoload 'projectile-session-save-all "projectile"
+"Save the session of every open project in one go.
 Every open project tab's window layout and buffers are saved (see
 `projectile-session-save'); a tab whose layout has no serializable buffer
 is skipped.  Unlike autosave, this runs regardless of
 `projectile-session-auto-save'.  When called interactively, report how many
 sessions were saved." t)
-(autoload 'projectile-session-restore-all "projectile" "\
-Reopen every saved project's session into its own tab.
+(autoload 'projectile-session-restore-all "projectile"
+"Reopen every saved project's session into its own tab.
 For each project with a session saved on disk (see
 `projectile-session--saved-roots'): when a tab for it is already open,
 leave it be rather than duplicating it; otherwise create a fresh project
@@ -937,16 +937,16 @@ End on the first successfully restored project's tab (falling back to the
 starting tab when nothing was restored) rather than wherever the iteration
 left off.  When called interactively, report how many sessions were
 restored.  Return that count." t)
-(defvar projectile-session-mode nil "\
-Non-nil if Projectile-Session mode is enabled.
+(defvar projectile-session-mode nil
+"Non-nil if Projectile-Session mode is enabled.
 See the `projectile-session-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `projectile-session-mode'.")
 (custom-autoload 'projectile-session-mode "projectile" nil)
-(autoload 'projectile-session-mode "projectile" "\
-Global minor mode giving each project its own `tab-bar' tab.
+(autoload 'projectile-session-mode "projectile"
+"Global minor mode giving each project its own `tab-bar' tab.
 
 When enabled, `tab-bar-mode' is turned on and project switching becomes
 tab-aware: switching to a project selects its existing tab, restoring
@@ -983,8 +983,8 @@ disabled.
 
 ;;; Generated autoloads from projectile-consult.el
 
-(autoload 'projectile-consult-find-file "projectile-consult" "\
-Find a file in the current project with a streaming Consult UI.
+(autoload 'projectile-consult-find-file "projectile-consult"
+"Find a file in the current project with a streaming Consult UI.
 
 The candidate list is produced by Projectile's own indexing command (see
 `projectile-project-files-producer'), so it honours the project's VCS and

@@ -11,16 +11,16 @@
 
 ;;; Generated autoloads from discover.el
 
-(autoload 'discover-show-context-menu "discover" "\
-Shows a context menu GROUP-NAME
+(autoload 'discover-show-context-menu "discover"
+"Shows a context menu GROUP-NAME
 
 (fn GROUP-NAME)")
-(autoload 'discover-get-context-symbol "discover" "\
-Macro that returns the context menu symbol for GROUP-NAME
+(autoload 'discover-get-context-symbol "discover"
+"Macro that returns the context menu symbol for GROUP-NAME
 
 (fn GROUP-NAME)" nil t)
-(autoload 'discover-add-context-menu "discover" "\
-Save a context menu to Discover and bind it to the correct keys.
+(autoload 'discover-add-context-menu "discover"
+"Save a context menu to Discover and bind it to the correct keys.
 
 
 Example 1. Enable Discover in a mode:
@@ -79,8 +79,8 @@ context menu by calling `discover-get-context-menu-command-name'
 with the symbol name of the context menu..
 
 (fn &rest PROPERTIES)")
-(autoload 'discover-mode "discover" "\
-Helps you discover Emacs with interactive context menus.
+(autoload 'discover-mode "discover"
+"Helps you discover Emacs with interactive context menus.
 
 Key bindings:
 \\{discover-map}
@@ -101,25 +101,25 @@ disabled.
 
 (fn &optional ARG)" t)
 (put 'global-discover-mode 'globalized-minor-mode t)
-(defvar global-discover-mode nil "\
-Non-nil if Global Discover mode is enabled.
+(defvar global-discover-mode nil
+"Non-nil if Global Discover mode is enabled.
 See the `global-discover-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `global-discover-mode'.")
 (custom-autoload 'global-discover-mode "discover" nil)
-(autoload 'global-discover-mode "discover" "\
-Toggle Discover mode in all buffers.
+(autoload 'global-discover-mode "discover"
+"Toggle Discover mode in many buffers.
+Specifically, Discover mode is enabled in all buffers where
+`discover-mode-turn-on' would do it.
+
 With prefix ARG, enable Global Discover mode if ARG is positive;
 otherwise, disable it.
 
 If called from Lisp, toggle the mode if ARG is `toggle'.
 Enable the mode if ARG is nil, omitted, or is a positive number.
 Disable the mode if ARG is a negative number.
-
-Discover mode is enabled in all buffers where `discover-mode-turn-on'
-would do it.
 
 See `discover-mode' for more information on Discover mode.
 

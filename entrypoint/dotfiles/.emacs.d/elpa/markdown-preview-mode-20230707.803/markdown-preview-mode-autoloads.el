@@ -11,12 +11,12 @@
 
 ;;; Generated autoloads from markdown-preview-mode.el
 
-(autoload 'markdown-preview-open-browser "markdown-preview-mode" "\
-Open the `markdown-preview' in the browser." t)
-(autoload 'markdown-preview-cleanup "markdown-preview-mode" "\
-Cleanup `markdown-preview' mode." t)
-(autoload 'markdown-preview-mode "markdown-preview-mode" "\
-Markdown preview mode.
+(autoload 'markdown-preview-open-browser "markdown-preview-mode"
+"Open the `markdown-preview' in the browser." t)
+(autoload 'markdown-preview-cleanup "markdown-preview-mode"
+"Cleanup `markdown-preview' mode." t)
+(autoload 'markdown-preview-mode "markdown-preview-mode"
+"Markdown preview mode.
 
 This is a minor mode.  If called interactively, toggle the
 `Markdown-Preview mode' mode.  If the prefix argument is positive,

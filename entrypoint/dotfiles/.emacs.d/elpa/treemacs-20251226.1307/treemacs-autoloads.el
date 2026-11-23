@@ -11,10 +11,10 @@
 
 ;;; Generated autoloads from treemacs.el
 
-(autoload 'treemacs-version "treemacs" "\
-Return the `treemacs-version'." t)
-(autoload 'treemacs "treemacs" "\
-Initialise or toggle treemacs.
+(autoload 'treemacs-version "treemacs"
+"Return the `treemacs-version'." t)
+(autoload 'treemacs "treemacs"
+"Initialise or toggle treemacs.
 - If the treemacs window is visible hide it.
 - If a treemacs buffer exists, but is not visible show it.
 - If no treemacs buffer exists for the current frame create and show it.
@@ -23,32 +23,32 @@ Initialise or toggle treemacs.
 - With a prefix ARG launch treemacs and force it to select a workspace
 
 (fn &optional ARG)" t)
-(autoload 'treemacs-select-directory "treemacs" "\
-Select a directory to open in treemacs.
+(autoload 'treemacs-select-directory "treemacs"
+"Select a directory to open in treemacs.
 This command will open *just* the selected directory in treemacs.  If there are
 other projects in the workspace they will be removed.
 
 To *add* a project to the current workspace use
 `treemacs-add-project-to-workspace' or
 `treemacs-add-and-display-current-project' instead." t)
-(autoload 'treemacs-find-file "treemacs" "\
-Find and focus the current file in the treemacs window.
+(autoload 'treemacs-find-file "treemacs"
+"Find and focus the current file in the treemacs window.
 If the current buffer visits no file or with a prefix ARG ask for the
 file instead.
 Will show/create a treemacs buffers if it is not visible/does not exist.
 For the most part only useful when `treemacs-follow-mode' is not active.
 
 (fn &optional ARG)" t)
-(autoload 'treemacs-find-tag "treemacs" "\
-Find and move point to the tag at point in the treemacs view.
+(autoload 'treemacs-find-tag "treemacs"
+"Find and move point to the tag at point in the treemacs view.
 Most likely to be useful when `treemacs-tag-follow-mode' is not active.
 
 Will ask to change the treemacs root if the file to find is not under the
 root.  If no treemacs buffer exists it will be created with the current file's
 containing directory as root.  Will do nothing if the current buffer is not
 visiting a file or Emacs cannot find any tags for the current file." t)
-(autoload 'treemacs-start-on-boot "treemacs" "\
-Initialiser specifically to start treemacs as part of your init file.
+(autoload 'treemacs-start-on-boot "treemacs"
+"Initialiser specifically to start treemacs as part of your init file.
 
 Ensures that all visual elements are present which might otherwise be missing
 because their setup requires an interactive command or a post-command hook.
@@ -56,8 +56,8 @@ because their setup requires an interactive command or a post-command hook.
 FOCUS-TREEMACS indicates whether the treemacs window should be selected.
 
 (fn &optional FOCUS-TREEMACS)")
-(autoload 'treemacs-select-window "treemacs" "\
-Select the treemacs window if it is visible.
+(autoload 'treemacs-select-window "treemacs"
+"Select the treemacs window if it is visible.
 Bring it to the foreground if it is not visible.
 Initialise a new treemacs buffer as calling `treemacs' would if there is no
 treemacs buffer for this frame.
@@ -68,12 +68,12 @@ In case treemacs is already selected behaviour will depend on
 A non-nil prefix ARG will also force a workspace switch.
 
 (fn &optional ARG)" t)
-(autoload 'treemacs-show-changelog "treemacs" "\
-Show the changelog of treemacs." t)
-(autoload 'treemacs-edit-workspaces "treemacs" "\
-Edit your treemacs workspaces and projects as an `org-mode' file." t)
-(autoload 'treemacs-add-and-display-current-project-exclusively "treemacs" "\
-Display the current project, and *only* the current project.
+(autoload 'treemacs-show-changelog "treemacs"
+"Show the changelog of treemacs." t)
+(autoload 'treemacs-edit-workspaces "treemacs"
+"Edit your treemacs workspaces and projects as an `org-mode' file." t)
+(autoload 'treemacs-add-and-display-current-project-exclusively "treemacs"
+"Display the current project, and *only* the current project.
 Like `treemacs-add-and-display-current-project' this will add the current
 project to treemacs based on either projectile, the built-in project.el, or the
 current working directory.
@@ -81,8 +81,8 @@ current working directory.
 However the \\='exclusive\\=' part means that it will make the current project
 the only project, all other projects *will be removed* from the current
 workspace." t)
-(autoload 'treemacs-add-and-display-current-project "treemacs" "\
-Open treemacs and add the current project root to the workspace.
+(autoload 'treemacs-add-and-display-current-project "treemacs"
+"Open treemacs and add the current project root to the workspace.
 The project is determined first by projectile (if treemacs-projectile is
 installed), then by project.el, then by the current working directory.
 
@@ -103,8 +103,8 @@ An error message is displayed if the current buffer is not part of any project."
 
 ;;; Generated autoloads from treemacs-bookmarks.el
 
-(autoload 'treemacs-bookmark "treemacs-bookmarks" "\
-Find a bookmark in treemacs.
+(autoload 'treemacs-bookmark "treemacs-bookmarks"
+"Find a bookmark in treemacs.
 Only bookmarks marking either a file or a directory are offered for selection.
 Treemacs will try to find and focus the given bookmark's location, in a similar
 fashion to `treemacs-find-file'.
@@ -112,12 +112,12 @@ fashion to `treemacs-find-file'.
 With a prefix argument ARG treemacs will also open the bookmarked location.
 
 (fn &optional ARG)" t)
-(autoload 'treemacs--bookmark-handler "treemacs-bookmarks" "\
-Open Treemacs into a bookmark RECORD.
+(autoload 'treemacs--bookmark-handler "treemacs-bookmarks"
+"Open Treemacs into a bookmark RECORD.
 
 (fn RECORD)")
-(autoload 'treemacs-add-bookmark "treemacs-bookmarks" "\
-Add the current node to Emacs' list of bookmarks.
+(autoload 'treemacs-add-bookmark "treemacs-bookmarks"
+"Add the current node to Emacs' list of bookmarks.
 For file and directory nodes their absolute path is saved.  Tag nodes
 additionally also save the tag's position.  A tag can only be bookmarked if the
 treemacs node is pointing to a valid buffer position." t)
@@ -151,15 +151,15 @@ treemacs node is pointing to a valid buffer position." t)
 
 ;;; Generated autoloads from treemacs-file-management.el
 
-(autoload 'treemacs-delete-file "treemacs-file-management" "\
-Delete node at point.
+(autoload 'treemacs-delete-file "treemacs-file-management"
+"Delete node at point.
 A delete action must always be confirmed.  Directories are deleted recursively.
 By default files are deleted by moving them to the trash.  With a prefix ARG
 they will instead be wiped irreversibly.
 
 (fn &optional ARG)" t)
-(autoload 'treemacs-delete-marked-files "treemacs-file-management" "\
-Delete all marked files.
+(autoload 'treemacs-delete-marked-files "treemacs-file-management"
+"Delete all marked files.
 
 A delete action must always be confirmed.  Directories are deleted recursively.
 By default files are deleted by moving them to the trash.  With a prefix ARG
@@ -168,58 +168,58 @@ they will instead be wiped irreversibly.
 For marking files see `treemacs-bulk-file-actions'.
 
 (fn &optional ARG)" t)
-(autoload 'treemacs-move-file "treemacs-file-management" "\
-Move file (or directory) at point.
+(autoload 'treemacs-move-file "treemacs-file-management"
+"Move file (or directory) at point.
 
 If the selected target is an existing directory the source file will be directly
 moved into this directory.  If the given target instead does not exist then it
 will be treated as the moved file's new name, meaning the original source file
 will be both moved and renamed." t)
-(autoload 'treemacs-copy-file "treemacs-file-management" "\
-Copy file (or directory) at point.
+(autoload 'treemacs-copy-file "treemacs-file-management"
+"Copy file (or directory) at point.
 
 If the selected target is an existing directory the source file will be directly
 copied into this directory.  If the given target instead does not exist then it
 will be treated as the copied file's new name, meaning the original source file
 will be both copied and renamed." t)
-(autoload 'treemacs-move-marked-files "treemacs-file-management" "\
-Move all marked files.
+(autoload 'treemacs-move-marked-files "treemacs-file-management"
+"Move all marked files.
 
 For marking files see `treemacs-bulk-file-actions'." t)
-(autoload 'treemacs-copy-marked-files "treemacs-file-management" "\
-Copy all marked files.
+(autoload 'treemacs-copy-marked-files "treemacs-file-management"
+"Copy all marked files.
 
 For marking files see `treemacs-bulk-file-actions'." t)
-(autoload 'treemacs-rename-file "treemacs-file-management" "\
-Rename the file/directory at point.
+(autoload 'treemacs-rename-file "treemacs-file-management"
+"Rename the file/directory at point.
 
 Buffers visiting the renamed file or visiting a file inside the renamed
 directory and windows showing them will be reloaded.  The list of recent files
 will likewise be updated." t)
-(autoload 'treemacs-show-marked-files "treemacs-file-management" "\
-Print a list of all files marked by treemacs." t)
-(autoload 'treemacs-mark-or-unmark-path-at-point "treemacs-file-management" "\
-Mark or unmark the absolute path of the node at point." t)
-(autoload 'treemacs-reset-marks "treemacs-file-management" "\
-Unmark all previously marked files in the current buffer." t)
-(autoload 'treemacs-delete-marked-paths "treemacs-file-management" "\
-Delete all previously marked files." t)
-(autoload 'treemacs-bulk-file-actions "treemacs-file-management" "\
-Activate the bulk file actions hydra.
+(autoload 'treemacs-show-marked-files "treemacs-file-management"
+"Print a list of all files marked by treemacs." t)
+(autoload 'treemacs-mark-or-unmark-path-at-point "treemacs-file-management"
+"Mark or unmark the absolute path of the node at point." t)
+(autoload 'treemacs-reset-marks "treemacs-file-management"
+"Unmark all previously marked files in the current buffer." t)
+(autoload 'treemacs-delete-marked-paths "treemacs-file-management"
+"Delete all previously marked files." t)
+(autoload 'treemacs-bulk-file-actions "treemacs-file-management"
+"Activate the bulk file actions hydra.
 This interface allows to quickly (unmark) files, so as to copy, move or delete
 them in bulk.
 
 Note that marking files is *permanent*, files will stay marked until they are
 either manually unmarked or deleted.  You can show a list of all currently
 marked files with `treemacs-show-marked-files' or `s' in the hydra." t)
-(autoload 'treemacs-create-file "treemacs-file-management" "\
-Create a new file.
+(autoload 'treemacs-create-file "treemacs-file-management"
+"Create a new file.
 Enter first the directory to create the new file in, then the new file's name.
 The pre-selection for what directory to create in is based on the \"nearest\"
 path to point - the containing directory for tags and files or the directory
 itself, using $HOME when there is no path at or near point to grab." t)
-(autoload 'treemacs-create-dir "treemacs-file-management" "\
-Create a new directory.
+(autoload 'treemacs-create-dir "treemacs-file-management"
+"Create a new directory.
 Enter first the directory to create the new dir in, then the new dir's name.
 The pre-selection for what directory to create in is based on the \"nearest\"
 path to point - the containing directory for tags and files or the directory
@@ -244,16 +244,16 @@ itself, using $HOME when there is no path at or near point to grab." t)
 
 ;;; Generated autoloads from treemacs-git-commit-diff-mode.el
 
-(defvar treemacs-git-commit-diff-mode nil "\
-Non-nil if Treemacs-Git-Commit-Diff mode is enabled.
+(defvar treemacs-git-commit-diff-mode nil
+"Non-nil if Treemacs-Git-Commit-Diff mode is enabled.
 See the `treemacs-git-commit-diff-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `treemacs-git-commit-diff-mode'.")
 (custom-autoload 'treemacs-git-commit-diff-mode "treemacs-git-commit-diff-mode" nil)
-(autoload 'treemacs-git-commit-diff-mode "treemacs-git-commit-diff-mode" "\
-Minor mode to display commit differences for your git-tracked projects.
+(autoload 'treemacs-git-commit-diff-mode "treemacs-git-commit-diff-mode"
+"Minor mode to display commit differences for your git-tracked projects.
 
 When enabled treemacs will add an annotation next to every git project showing
 how many commits ahead or behind your current branch is compared to its remote
@@ -290,16 +290,16 @@ disabled.
 
 ;;; Generated autoloads from treemacs-header-line.el
 
-(defvar treemacs-indicate-top-scroll-mode nil "\
-Non-nil if Treemacs-Indicate-Top-Scroll mode is enabled.
+(defvar treemacs-indicate-top-scroll-mode nil
+"Non-nil if Treemacs-Indicate-Top-Scroll mode is enabled.
 See the `treemacs-indicate-top-scroll-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `treemacs-indicate-top-scroll-mode'.")
 (custom-autoload 'treemacs-indicate-top-scroll-mode "treemacs-header-line" nil)
-(autoload 'treemacs-indicate-top-scroll-mode "treemacs-header-line" "\
-Minor mode which shows whether treemacs is scrolled all the way to the top.
+(autoload 'treemacs-indicate-top-scroll-mode "treemacs-header-line"
+"Minor mode which shows whether treemacs is scrolled all the way to the top.
 
 When this mode is enabled the header line of the treemacs window will display
 whether the window's first line is visible or not.
@@ -332,8 +332,8 @@ disabled.
 
 ;;; Generated autoloads from treemacs-hydras.el
 
-(autoload 'treemacs-common-helpful-hydra "treemacs-hydras" "\
-Summon a helpful hydra to show you the treemacs keymap.
+(autoload 'treemacs-common-helpful-hydra "treemacs-hydras"
+"Summon a helpful hydra to show you the treemacs keymap.
 
 This hydra will show the most commonly used keybinds for treemacs.  For the more
 advanced (probably rarely used keybinds) see `treemacs-advanced-helpful-hydra'.
@@ -341,8 +341,8 @@ advanced (probably rarely used keybinds) see `treemacs-advanced-helpful-hydra'.
 The keybinds shown in this hydra are not static, but reflect the actual
 keybindings currently in use (including evil mode).  If the hydra is unable to
 find the key a command is bound to it will show a blank instead." t)
-(autoload 'treemacs-advanced-helpful-hydra "treemacs-hydras" "\
-Summon a helpful hydra to show you the treemacs keymap.
+(autoload 'treemacs-advanced-helpful-hydra "treemacs-hydras"
+"Summon a helpful hydra to show you the treemacs keymap.
 
 This hydra will show the more advanced (rarely used) keybinds for treemacs.  For
 the more commonly used keybinds see `treemacs-common-helpful-hydra'.
@@ -355,8 +355,8 @@ find the key a command is bound to it will show a blank instead." t)
 
 ;;; Generated autoloads from treemacs-icons.el
 
-(autoload 'treemacs-resize-icons "treemacs-icons" "\
-Resize the current theme's icons to the given SIZE.
+(autoload 'treemacs-resize-icons "treemacs-icons"
+"Resize the current theme's icons to the given SIZE.
 
 If SIZE is \\='nil' the icons are not resized and will retain their default size
 of 22 pixels.
@@ -372,8 +372,8 @@ Custom icons are not taken into account, only the size of treemacs' own icons
 png are changed.
 
 (fn SIZE)" t)
-(autoload 'treemacs-define-custom-icon "treemacs-icons" "\
-Define a custom ICON for the current theme to use for FILE-EXTENSIONS.
+(autoload 'treemacs-define-custom-icon "treemacs-icons"
+"Define a custom ICON for the current theme to use for FILE-EXTENSIONS.
 
 Note that treemacs has a very loose definition of what constitutes a file
 extension - it's either everything past the last period, or just the file's full
@@ -384,15 +384,15 @@ Additionally FILE-EXTENSIONS are also not case sensitive and will be stored in a
 down-cased state.
 
 (fn ICON &rest FILE-EXTENSIONS)")
-(autoload 'treemacs-define-custom-image-icon "treemacs-icons" "\
-Same as `treemacs-define-custom-icon' but for image icons instead of strings.
+(autoload 'treemacs-define-custom-image-icon "treemacs-icons"
+"Same as `treemacs-define-custom-icon' but for image icons instead of strings.
 FILE is the path to an icon image (and not the actual icon string).
 FILE-EXTENSIONS are all the (not case-sensitive) file extensions the icon
 should be used for.
 
 (fn FILE &rest FILE-EXTENSIONS)")
-(autoload 'treemacs-map-icons-with-auto-mode-alist "treemacs-icons" "\
-Remaps icons for EXTENSIONS according to `auto-mode-alist'.
+(autoload 'treemacs-map-icons-with-auto-mode-alist "treemacs-icons"
+"Remaps icons for EXTENSIONS according to `auto-mode-alist'.
 EXTENSIONS should be a list of file extensions such that they match the regex
 stored in `auto-mode-alist', for example \\='(\".cc\").
 MODE-ICON-ALIST is an alist that maps which mode from `auto-mode-alist' should
@@ -421,22 +421,26 @@ be assigned which treemacs icon, for example
 
 ;;; Generated autoloads from treemacs-mode.el
 
-(autoload 'treemacs-mode "treemacs-mode" "\
-A major mode for displaying the file system in a tree layout.
+(autoload 'treemacs-mode "treemacs-mode"
+"A major mode for displaying the file system in a tree layout.
 
-(fn)" t)
+In addition to any hooks its parent mode `special-mode' might have
+run, this mode runs the hook `treemacs-mode-hook', as the final or
+penultimate step during initialization.
+
+\\{treemacs-mode-map}" t)
 (register-definition-prefixes "treemacs-mode" '("treemacs-"))
 
 
 ;;; Generated autoloads from treemacs-mouse-interface.el
 
-(autoload 'treemacs-leftclick-action "treemacs-mouse-interface" "\
-Move focus to the clicked line.
+(autoload 'treemacs-leftclick-action "treemacs-mouse-interface"
+"Move focus to the clicked line.
 Must be bound to a mouse click, or EVENT will not be supplied.
 
 (fn EVENT)" t)
-(autoload 'treemacs-doubleclick-action "treemacs-mouse-interface" "\
-Run the appropriate double-click action for the current node.
+(autoload 'treemacs-doubleclick-action "treemacs-mouse-interface"
+"Run the appropriate double-click action for the current node.
 In the default configuration this means to expand/collapse directories and open
 files and tags in the most recently used window.
 
@@ -446,8 +450,8 @@ This function's exact configuration is stored in
 Must be bound to a mouse double click to properly handle a click EVENT.
 
 (fn EVENT)" t)
-(autoload 'treemacs-single-click-expand-action "treemacs-mouse-interface" "\
-A modified single-leftclick action that expands the clicked nodes.
+(autoload 'treemacs-single-click-expand-action "treemacs-mouse-interface"
+"A modified single-leftclick action that expands the clicked nodes.
 Can be bound to <mouse1> if you prefer to expand nodes with a single click
 instead of a double click.  Either way it must be bound to a mouse click, or
 EVENT will not be supplied.
@@ -456,13 +460,13 @@ Clicking on icons will expand a file's tags, just like
 `treemacs-leftclick-action'.
 
 (fn EVENT)" t)
-(autoload 'treemacs-dragleftclick-action "treemacs-mouse-interface" "\
-Drag a file/dir node to be opened in a window.
+(autoload 'treemacs-dragleftclick-action "treemacs-mouse-interface"
+"Drag a file/dir node to be opened in a window.
 Must be bound to a mouse click, or EVENT will not be supplied.
 
 (fn EVENT)" t)
-(autoload 'treemacs-define-doubleclick-action "treemacs-mouse-interface" "\
-Define the behaviour of `treemacs-doubleclick-action'.
+(autoload 'treemacs-define-doubleclick-action "treemacs-mouse-interface"
+"Define the behaviour of `treemacs-doubleclick-action'.
 Determines that a button with a given STATE should lead to the execution of
 ACTION.
 
@@ -470,14 +474,14 @@ The list of possible states can be found in `treemacs-valid-button-states'.
 ACTION should be one of the `treemacs-visit-node-*' commands.
 
 (fn STATE ACTION)")
-(autoload 'treemacs-node-buffer-and-position "treemacs-mouse-interface" "\
-Return source buffer or list of buffer and position for the current node.
+(autoload 'treemacs-node-buffer-and-position "treemacs-mouse-interface"
+"Return source buffer or list of buffer and position for the current node.
 This information can be used for future display.  Stay in the selected window
 and ignore any prefix argument.
 
 (fn &optional _)" t)
-(autoload 'treemacs-rightclick-menu "treemacs-mouse-interface" "\
-Show a contextual right click menu based on click EVENT.
+(autoload 'treemacs-rightclick-menu "treemacs-mouse-interface"
+"Show a contextual right click menu based on click EVENT.
 
 (fn EVENT)" t)
 (register-definition-prefixes "treemacs-mouse-interface" '("treemacs--"))
@@ -485,16 +489,16 @@ Show a contextual right click menu based on click EVENT.
 
 ;;; Generated autoloads from treemacs-peek-mode.el
 
-(defvar treemacs-peek-mode nil "\
-Non-nil if Treemacs-Peek mode is enabled.
+(defvar treemacs-peek-mode nil
+"Non-nil if Treemacs-Peek mode is enabled.
 See the `treemacs-peek-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `treemacs-peek-mode'.")
 (custom-autoload 'treemacs-peek-mode "treemacs-peek-mode" nil)
-(autoload 'treemacs-peek-mode "treemacs-peek-mode" "\
-Minor mode that allows you to peek at buffers before deciding to open them.
+(autoload 'treemacs-peek-mode "treemacs-peek-mode"
+"Minor mode that allows you to peek at buffers before deciding to open them.
 
 While the mode is active treemacs will automatically display the file at point,
 without leaving the treemacs window.
@@ -534,16 +538,16 @@ disabled.
 
 ;;; Generated autoloads from treemacs-project-follow-mode.el
 
-(defvar treemacs-project-follow-mode nil "\
-Non-nil if Treemacs-Project-Follow mode is enabled.
+(defvar treemacs-project-follow-mode nil
+"Non-nil if Treemacs-Project-Follow mode is enabled.
 See the `treemacs-project-follow-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `treemacs-project-follow-mode'.")
 (custom-autoload 'treemacs-project-follow-mode "treemacs-project-follow-mode" nil)
-(autoload 'treemacs-project-follow-mode "treemacs-project-follow-mode" "\
-Toggle `treemacs-only-current-project-mode'.
+(autoload 'treemacs-project-follow-mode "treemacs-project-follow-mode"
+"Toggle `treemacs-only-current-project-mode'.
 
 This is a minor mode meant for those who do not care about treemacs' workspace
 features, or its preference to work with multiple projects simultaneously.  When
@@ -596,20 +600,20 @@ disabled.
 
 ;;; Generated autoloads from treemacs-tag-follow-mode.el
 
-(autoload 'treemacs--flatten&sort-imenu-index "treemacs-tag-follow-mode" "\
-Flatten current file's imenu index and sort it by tag position.
+(autoload 'treemacs--flatten&sort-imenu-index "treemacs-tag-follow-mode"
+"Flatten current file's imenu index and sort it by tag position.
 The tags are sorted into the order in which they appear, regardless of section
 or nesting depth.")
-(defvar treemacs-tag-follow-mode nil "\
-Non-nil if Treemacs-Tag-Follow mode is enabled.
+(defvar treemacs-tag-follow-mode nil
+"Non-nil if Treemacs-Tag-Follow mode is enabled.
 See the `treemacs-tag-follow-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `treemacs-tag-follow-mode'.")
 (custom-autoload 'treemacs-tag-follow-mode "treemacs-tag-follow-mode" nil)
-(autoload 'treemacs-tag-follow-mode "treemacs-tag-follow-mode" "\
-Toggle `treemacs-tag-follow-mode'.
+(autoload 'treemacs-tag-follow-mode "treemacs-tag-follow-mode"
+"Toggle `treemacs-tag-follow-mode'.
 
 This acts as more fine-grained alternative to `treemacs-follow-mode' and will
 thus disable `treemacs-follow-mode' on activation.  When enabled treemacs will
@@ -651,18 +655,18 @@ disabled.
 
 ;;; Generated autoloads from treemacs-tags.el
 
-(autoload 'treemacs--expand-file-node "treemacs-tags" "\
-Open tag items for file BTN.
+(autoload 'treemacs--expand-file-node "treemacs-tags"
+"Open tag items for file BTN.
 Recursively open all tags below BTN when RECURSIVE is non-nil.
 
 (fn BTN &optional RECURSIVE)")
-(autoload 'treemacs--collapse-file-node "treemacs-tags" "\
-Close node given by BTN.
+(autoload 'treemacs--collapse-file-node "treemacs-tags"
+"Close node given by BTN.
 Remove all open tag entries under BTN when RECURSIVE.
 
 (fn BTN &optional RECURSIVE)")
-(autoload 'treemacs--visit-or-expand/collapse-tag-node "treemacs-tags" "\
-Visit tag section BTN if possible, expand or collapse it otherwise.
+(autoload 'treemacs--visit-or-expand/collapse-tag-node "treemacs-tags"
+"Visit tag section BTN if possible, expand or collapse it otherwise.
 Pass prefix ARG on to either visit or toggle action.
 
 FIND-WINDOW is a special provision depending on this function's invocation
@@ -678,22 +682,22 @@ function is also called from the top level vist-node functions like
 the display window.
 
 (fn BTN ARG FIND-WINDOW)")
-(autoload 'treemacs--expand-tag-node "treemacs-tags" "\
-Open tags node items for BTN.
+(autoload 'treemacs--expand-tag-node "treemacs-tags"
+"Open tags node items for BTN.
 Open all tag section under BTN when call is RECURSIVE.
 
 (fn BTN &optional RECURSIVE)")
-(autoload 'treemacs--collapse-tag-node "treemacs-tags" "\
-Close tags node at BTN.
+(autoload 'treemacs--collapse-tag-node "treemacs-tags"
+"Close tags node at BTN.
 Remove all open tag entries under BTN when RECURSIVE.
 
 (fn BTN &optional RECURSIVE)")
-(autoload 'treemacs--goto-tag "treemacs-tags" "\
-Go to the tag at BTN.
+(autoload 'treemacs--goto-tag "treemacs-tags"
+"Go to the tag at BTN.
 
 (fn BTN)")
-(autoload 'treemacs--create-imenu-index-function "treemacs-tags" "\
-The `imenu-create-index-function' for treemacs buffers.")
+(autoload 'treemacs--create-imenu-index-function "treemacs-tags"
+"The `imenu-create-index-function' for treemacs buffers.")
 (function-put 'treemacs--create-imenu-index-function 'side-effect-free 't)
 (register-definition-prefixes "treemacs-tags" '("treemacs--"))
 

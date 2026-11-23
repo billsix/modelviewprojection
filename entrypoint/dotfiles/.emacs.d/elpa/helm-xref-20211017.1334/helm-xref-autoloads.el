@@ -11,20 +11,20 @@
 
 ;;; Generated autoloads from helm-xref.el
 
-(autoload 'helm-xref-show-xrefs "helm-xref" "\
-Function to display XREFS.
+(autoload 'helm-xref-show-xrefs "helm-xref"
+"Function to display XREFS.
 
 Needs to be set the value of `xref-show-xrefs-function'.
 
 (fn XREFS ALIST)")
-(autoload 'helm-xref-show-xrefs-27 "helm-xref" "\
-Function to display XREFS.
+(autoload 'helm-xref-show-xrefs-27 "helm-xref"
+"Function to display XREFS.
 
 Needs to be set the value of `xref-show-xrefs-function'.
 
 (fn FETCHER ALIST)")
-(autoload 'helm-xref-show-defs-27 "helm-xref" "\
-Function to display list of definitions.
+(autoload 'helm-xref-show-defs-27 "helm-xref"
+"Function to display list of definitions.
 
 (fn FETCHER ALIST)")
 (if (< emacs-major-version 27) (setq xref-show-xrefs-function 'helm-xref-show-xrefs) (progn (setq xref-show-xrefs-function 'helm-xref-show-xrefs-27) (setq xref-show-definitions-function 'helm-xref-show-defs-27)))

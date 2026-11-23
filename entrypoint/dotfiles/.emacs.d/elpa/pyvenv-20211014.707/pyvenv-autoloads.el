@@ -11,29 +11,29 @@
 
 ;;; Generated autoloads from pyvenv.el
 
-(autoload 'pyvenv-activate "pyvenv" "\
-Activate the virtual environment in DIRECTORY.
+(autoload 'pyvenv-activate "pyvenv"
+"Activate the virtual environment in DIRECTORY.
 
 (fn DIRECTORY)" t)
-(autoload 'pyvenv-deactivate "pyvenv" "\
-Deactivate any current virtual environment." t)
-(autoload 'pyvenv-workon "pyvenv" "\
-Activate a virtual environment from $WORKON_HOME.
+(autoload 'pyvenv-deactivate "pyvenv"
+"Deactivate any current virtual environment." t)
+(autoload 'pyvenv-workon "pyvenv"
+"Activate a virtual environment from $WORKON_HOME.
 
 If the virtual environment NAME is already active, this function
 does not try to reactivate the environment.
 
 (fn NAME)" t)
-(defvar pyvenv-mode nil "\
-Non-nil if Pyvenv mode is enabled.
+(defvar pyvenv-mode nil
+"Non-nil if Pyvenv mode is enabled.
 See the `pyvenv-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `pyvenv-mode'.")
 (custom-autoload 'pyvenv-mode "pyvenv" nil)
-(autoload 'pyvenv-mode "pyvenv" "\
-Global minor mode for pyvenv.
+(autoload 'pyvenv-mode "pyvenv"
+"Global minor mode for pyvenv.
 
 Will show the current virtualenv in the mode line, and respect a
 `pyvenv-workon' setting in files.
@@ -53,16 +53,16 @@ The mode's hook is called both when the mode is enabled and when it is
 disabled.
 
 (fn &optional ARG)" t)
-(defvar pyvenv-tracking-mode nil "\
-Non-nil if Pyvenv-Tracking mode is enabled.
+(defvar pyvenv-tracking-mode nil
+"Non-nil if Pyvenv-Tracking mode is enabled.
 See the `pyvenv-tracking-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `pyvenv-tracking-mode'.")
 (custom-autoload 'pyvenv-tracking-mode "pyvenv" nil)
-(autoload 'pyvenv-tracking-mode "pyvenv" "\
-Global minor mode to track the current virtualenv.
+(autoload 'pyvenv-tracking-mode "pyvenv"
+"Global minor mode to track the current virtualenv.
 
 When this mode is active, pyvenv will activate a buffer-specific
 virtualenv whenever the user switches to a buffer with a
@@ -83,8 +83,8 @@ The mode's hook is called both when the mode is enabled and when it is
 disabled.
 
 (fn &optional ARG)" t)
-(autoload 'pyvenv-restart-python "pyvenv" "\
-Restart Python inferior processes." t)
+(autoload 'pyvenv-restart-python "pyvenv"
+"Restart Python inferior processes." t)
 (register-definition-prefixes "pyvenv" '("pyvenv-"))
 
 ;;; End of scraped data

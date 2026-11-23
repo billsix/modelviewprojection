@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from cfrs.el
 
-(autoload 'cfrs-read "cfrs" "\
-Read a string using a pos-frame with given PROMPT and INITIAL-INPUT.
+(autoload 'cfrs-read "cfrs"
+"Read a string using a pos-frame with given PROMPT and INITIAL-INPUT.
 
 (fn PROMPT &optional INITIAL-INPUT)")
 (register-definition-prefixes "cfrs" '("cfrs-"))

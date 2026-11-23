@@ -11,14 +11,14 @@
 
 ;;; Generated autoloads from blacken.el
 
-(autoload 'blacken-buffer "blacken" "\
-Try to blacken the current buffer.
+(autoload 'blacken-buffer "blacken"
+"Try to blacken the current buffer.
 
 Show black output, if black exit abnormally and DISPLAY is t.
 
 (fn &optional DISPLAY)" t)
-(autoload 'blacken-mode "blacken" "\
-Automatically run black before saving.
+(autoload 'blacken-mode "blacken"
+"Automatically run black before saving.
 
 This is a minor mode.  If called interactively, toggle the `Blacken
 mode' mode.  If the prefix argument is positive, enable the mode, and if

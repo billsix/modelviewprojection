@@ -11,25 +11,41 @@
 
 ;;; Generated autoloads from markdown-mode.el
 
-(autoload 'markdown-mode "markdown-mode" "\
-Major mode for editing Markdown files.
+(autoload 'markdown-mode "markdown-mode"
+"Major mode for editing Markdown files.
 
-(fn)" t)
+In addition to any hooks its parent mode `text-mode' might have run,
+this mode runs the hook `markdown-mode-hook', as the final or
+penultimate step during initialization.
+
+\\{markdown-mode-map}" t)
 (add-to-list 'auto-mode-alist '("\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\|mdx\\)\\'" . markdown-mode))
-(autoload 'gfm-mode "markdown-mode" "\
-Major mode for editing GitHub Flavored Markdown files.
+(autoload 'gfm-mode "markdown-mode"
+"Major mode for editing GitHub Flavored Markdown files.
 
-(fn)" t)
-(autoload 'markdown-view-mode "markdown-mode" "\
-Major mode for viewing Markdown content.
+In addition to any hooks its parent mode `markdown-mode' might have
+run, this mode runs the hook `gfm-mode-hook', as the final or
+penultimate step during initialization.
 
-(fn)" t)
-(autoload 'gfm-view-mode "markdown-mode" "\
-Major mode for viewing GitHub Flavored Markdown content.
+\\{gfm-mode-map}" t)
+(autoload 'markdown-view-mode "markdown-mode"
+"Major mode for viewing Markdown content.
 
-(fn)" t)
-(autoload 'markdown-live-preview-mode "markdown-mode" "\
-Toggle native previewing on save for a specific markdown file.
+In addition to any hooks its parent mode `markdown-mode' might have
+run, this mode runs the hook `markdown-view-mode-hook', as the final
+or penultimate step during initialization.
+
+\\{markdown-view-mode-map}" t)
+(autoload 'gfm-view-mode "markdown-mode"
+"Major mode for viewing GitHub Flavored Markdown content.
+
+In addition to any hooks its parent mode `gfm-mode' might have run,
+this mode runs the hook `gfm-view-mode-hook', as the final or
+penultimate step during initialization.
+
+\\{gfm-view-mode-map}" t)
+(autoload 'markdown-live-preview-mode "markdown-mode"
+"Toggle native previewing on save for a specific markdown file.
 
 This is a minor mode.  If called interactively, toggle the
 `Markdown-Live-Preview mode' mode.  If the prefix argument is positive,

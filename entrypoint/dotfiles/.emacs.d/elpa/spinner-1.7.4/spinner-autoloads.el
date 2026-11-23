@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from spinner.el
 
-(autoload 'spinner-create "spinner" "\
-Create a spinner of the given TYPE.
+(autoload 'spinner-create "spinner"
+"Create a spinner of the given TYPE.
 The possible TYPEs are described in `spinner--type-to-frames'.
 
 FPS, if given, is the number of desired frames per second.
@@ -34,8 +34,8 @@ the spinner before this time, in which case it won't display at
 all.
 
 (fn &optional TYPE BUFFER-LOCAL FPS DELAY)")
-(autoload 'spinner-start "spinner" "\
-Start a mode-line spinner of given TYPE-OR-OBJECT.
+(autoload 'spinner-start "spinner"
+"Start a mode-line spinner of given TYPE-OR-OBJECT.
 If TYPE-OR-OBJECT is an object created with `make-spinner',
 simply activate it.  This method is designed for minor modes, so
 they can use the spinner as part of their lighter by doing:

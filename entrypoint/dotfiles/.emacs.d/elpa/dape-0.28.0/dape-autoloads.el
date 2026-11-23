@@ -12,8 +12,8 @@
 ;;; Generated autoloads from dape.el
 
 (put 'dape-command 'safe-local-variable #'listp)
-(autoload 'dape "dape" "\
-Start debugging session with selected configuration.
+(autoload 'dape "dape"
+"Start debugging session with selected configuration.
 When called interactively, the command prompts for a alist KEY from
 `dape-configs', followed by additional property-value pairs.  These
 pairs override the properties in the plist associated with the key
@@ -32,25 +32,25 @@ For more information see `dape-configs'.
 
 (fn CONFIG &optional SKIP-COMPILE)" t)
 (put 'dape-breakpoint-global-mode 'globalized-minor-mode t)
-(defvar dape-breakpoint-global-mode nil "\
-Non-nil if Dape-Breakpoint-Global mode is enabled.
+(defvar dape-breakpoint-global-mode nil
+"Non-nil if Dape-Breakpoint-Global mode is enabled.
 See the `dape-breakpoint-global-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `dape-breakpoint-global-mode'.")
 (custom-autoload 'dape-breakpoint-global-mode "dape" nil)
-(autoload 'dape-breakpoint-global-mode "dape" "\
-Toggle Dape-Breakpoint mode in all buffers.
+(autoload 'dape-breakpoint-global-mode "dape"
+"Toggle Dape-Breakpoint mode in many buffers.
+Specifically, Dape-Breakpoint mode is enabled in all buffers where
+`turn-on-dape-breakpoint-mode' would do it.
+
 With prefix ARG, enable Dape-Breakpoint-Global mode if ARG is
 positive; otherwise, disable it.
 
 If called from Lisp, toggle the mode if ARG is `toggle'.
 Enable the mode if ARG is nil, omitted, or is a positive number.
 Disable the mode if ARG is a negative number.
-
-Dape-Breakpoint mode is enabled in all buffers where
-`turn-on-dape-breakpoint-mode' would do it.
 
 See `dape-breakpoint-mode' for more information on Dape-Breakpoint
 mode.

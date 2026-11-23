@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from wfnames.el
 
-(autoload 'wfnames-setup-buffer "wfnames" "\
-Initialize wfnames buffer with FILES and display it with DISPLAY-FN.
+(autoload 'wfnames-setup-buffer "wfnames"
+"Initialize wfnames buffer with FILES and display it with DISPLAY-FN.
 
 Arg DISPLAY-FN default to `switch-to-buffer' if unspecified.
 When APPEND is specified, append FILES to existing `wfnames-buffer'.

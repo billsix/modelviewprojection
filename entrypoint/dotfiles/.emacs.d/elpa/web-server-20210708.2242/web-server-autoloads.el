@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from web-server.el
 
-(autoload 'ws-start "web-server" "\
-Start a server using HANDLERS and return the server object.
+(autoload 'ws-start "web-server"
+"Start a server using HANDLERS and return the server object.
 
 HANDLERS may be a single function (which is then called on every
 request) or a list of conses of the form (MATCHER . FUNCTION),

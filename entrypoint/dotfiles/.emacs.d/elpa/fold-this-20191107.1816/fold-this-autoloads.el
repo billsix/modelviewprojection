@@ -11,24 +11,24 @@
 
 ;;; Generated autoloads from fold-this.el
 
-(autoload 'fold-this "fold-this" "\
-Fold the region between BEG and END.
+(autoload 'fold-this "fold-this"
+"Fold the region between BEG and END.
 
 If FOLD-HEADER is specified, show this text in place of the
 folded region.  If not, default to `fold-this-overlay-text'.
 
 (fn BEG END &optional FOLD-HEADER)" t)
-(autoload 'fold-this-sexp "fold-this" "\
-Fold sexp around point.
+(autoload 'fold-this-sexp "fold-this"
+"Fold sexp around point.
 
 If the point is at a symbol, fold the parent sexp.  If the point
 is in front of a sexp, fold the following sexp." t)
-(autoload 'fold-this-all "fold-this" "\
-Fold  all occurences of text in region.
+(autoload 'fold-this-all "fold-this"
+"Fold  all occurences of text in region.
 
 (fn BEG END)" t)
-(autoload 'fold-this-mode "fold-this" "\
-Toggle folding on or off.
+(autoload 'fold-this-mode "fold-this"
+"Toggle folding on or off.
 
 With folding activated add custom map \\[fold-this-keymap]
 
@@ -47,16 +47,16 @@ The mode's hook is called both when the mode is enabled and when it is
 disabled.
 
 (fn &optional ARG)" t)
-(defvar fold-this-persistent-mode nil "\
-Non-nil if Fold-This-Persistent mode is enabled.
+(defvar fold-this-persistent-mode nil
+"Non-nil if Fold-This-Persistent mode is enabled.
 See the `fold-this-persistent-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `fold-this-persistent-mode'.")
 (custom-autoload 'fold-this-persistent-mode "fold-this" nil)
-(autoload 'fold-this-persistent-mode "fold-this" "\
-Enable persistence of overlays for `fold-this-mode'
+(autoload 'fold-this-persistent-mode "fold-this"
+"Enable persistence of overlays for `fold-this-mode'
 
 This is a global minor mode.  If called interactively, toggle the
 `Fold-This-Persistent mode' mode.  If the prefix argument is positive,

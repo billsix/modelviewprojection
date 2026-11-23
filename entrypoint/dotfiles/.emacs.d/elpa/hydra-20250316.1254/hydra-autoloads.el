@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from hydra.el
 
-(autoload 'defhydra "hydra" "\
-Create a Hydra - a family of functions with prefix NAME.
+(autoload 'defhydra "hydra"
+"Create a Hydra - a family of functions with prefix NAME.
 
 NAME should be a symbol, it will be the prefix of all functions
 defined here.
@@ -64,7 +64,6 @@ generated NAME/body command.  This command is also the return
 result of `defhydra'.
 
 (fn NAME BODY &optional DOCSTRING &rest HEADS)" nil t)
-(function-put 'defhydra 'lisp-indent-function 'defun)
 (function-put 'defhydra 'doc-string-elt 3)
 (register-definition-prefixes "hydra" '("defhydra" "hydra-"))
 

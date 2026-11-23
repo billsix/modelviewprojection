@@ -76,8 +76,8 @@
 
 ;;; Generated autoloads from dap-hydra.el
 
-(autoload 'dap-hydra "dap-hydra" "\
-Run `dap-hydra/body'." t)
+(autoload 'dap-hydra "dap-hydra"
+"Run `dap-hydra/body'." t)
 (register-definition-prefixes "dap-hydra" '("dap-hydra"))
 
 
@@ -113,8 +113,8 @@ Run `dap-hydra/body'." t)
 
 ;;; Generated autoloads from dap-mode.el
 
-(autoload 'dap-debug "dap-mode" "\
-Run debug configuration DEBUG-ARGS.
+(autoload 'dap-debug "dap-mode"
+"Run debug configuration DEBUG-ARGS.
 
 If DEBUG-ARGS is not specified the configuration is generated
 after selecting configuration template.
@@ -124,16 +124,16 @@ after selecting configuration template.
 be used to compile the project, spin up docker, ....
 
 (fn DEBUG-ARGS)" t)
-(defvar dap-mode nil "\
-Non-nil if Dap mode is enabled.
+(defvar dap-mode nil
+"Non-nil if Dap mode is enabled.
 See the `dap-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `dap-mode'.")
 (custom-autoload 'dap-mode "dap-mode" nil)
-(autoload 'dap-mode "dap-mode" "\
-Global minor mode for DAP mode.
+(autoload 'dap-mode "dap-mode"
+"Global minor mode for DAP mode.
 
 This is a global minor mode.  If called interactively, toggle the `Dap
 mode' mode.  If the prefix argument is positive, enable the mode, and if
@@ -150,16 +150,16 @@ The mode's hook is called both when the mode is enabled and when it is
 disabled.
 
 (fn &optional ARG)" t)
-(defvar dap-auto-configure-mode nil "\
-Non-nil if Dap-Auto-Configure mode is enabled.
+(defvar dap-auto-configure-mode nil
+"Non-nil if Dap-Auto-Configure mode is enabled.
 See the `dap-auto-configure-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `dap-auto-configure-mode'.")
 (custom-autoload 'dap-auto-configure-mode "dap-mode" nil)
-(autoload 'dap-auto-configure-mode "dap-mode" "\
-Auto configure dap minor mode.
+(autoload 'dap-auto-configure-mode "dap-mode"
+"Auto configure dap minor mode.
 
 This is a global minor mode.  If called interactively, toggle the
 `Dap-Auto-Configure mode' mode.  If the prefix argument is positive,
@@ -181,16 +181,16 @@ disabled.
 
 ;;; Generated autoloads from dap-mouse.el
 
-(defvar dap-tooltip-mode nil "\
-Non-nil if Dap-Tooltip mode is enabled.
+(defvar dap-tooltip-mode nil
+"Non-nil if Dap-Tooltip mode is enabled.
 See the `dap-tooltip-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `dap-tooltip-mode'.")
 (custom-autoload 'dap-tooltip-mode "dap-mouse" nil)
-(autoload 'dap-tooltip-mode "dap-mouse" "\
-Toggle the display of GUD tooltips.
+(autoload 'dap-tooltip-mode "dap-mouse"
+"Toggle the display of GUD tooltips.
 
 This is a global minor mode.  If called interactively, toggle the
 `Dap-Tooltip mode' mode.  If the prefix argument is positive, enable the
@@ -262,16 +262,16 @@ disabled.
 
 ;;; Generated autoloads from dap-ui.el
 
-(defvar dap-ui-mode nil "\
-Non-nil if Dap-Ui mode is enabled.
+(defvar dap-ui-mode nil
+"Non-nil if Dap-Ui mode is enabled.
 See the `dap-ui-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `dap-ui-mode'.")
 (custom-autoload 'dap-ui-mode "dap-ui" nil)
-(autoload 'dap-ui-mode "dap-ui" "\
-Displaying DAP visuals.
+(autoload 'dap-ui-mode "dap-ui"
+"Displaying DAP visuals.
 
 This is a global minor mode.  If called interactively, toggle the
 `Dap-Ui mode' mode.  If the prefix argument is positive, enable the
@@ -288,18 +288,18 @@ The mode's hook is called both when the mode is enabled and when it is
 disabled.
 
 (fn &optional ARG)" t)
-(autoload 'dap-ui-breakpoints-list "dap-ui" "\
-List breakpoints." t)
-(defvar dap-ui-controls-mode nil "\
-Non-nil if Dap-Ui-Controls mode is enabled.
+(autoload 'dap-ui-breakpoints-list "dap-ui"
+"List breakpoints." t)
+(defvar dap-ui-controls-mode nil
+"Non-nil if Dap-Ui-Controls mode is enabled.
 See the `dap-ui-controls-mode' command
 for a description of this minor mode.
 Setting this variable directly does not take effect;
 either customize it (see the info node `Easy Customization')
 or call the function `dap-ui-controls-mode'.")
 (custom-autoload 'dap-ui-controls-mode "dap-ui" nil)
-(autoload 'dap-ui-controls-mode "dap-ui" "\
-Displaying DAP visuals.
+(autoload 'dap-ui-controls-mode "dap-ui"
+"Displaying DAP visuals.
 
 This is a global minor mode.  If called interactively, toggle the
 `Dap-Ui-Controls mode' mode.  If the prefix argument is positive, enable
@@ -316,16 +316,16 @@ The mode's hook is called both when the mode is enabled and when it is
 disabled.
 
 (fn &optional ARG)" t)
-(autoload 'dap-ui-sessions "dap-ui" "\
-Show currently active sessions." t)
+(autoload 'dap-ui-sessions "dap-ui"
+"Show currently active sessions." t)
 (autoload 'dap-ui-locals "dap-ui" nil t)
 (autoload 'dap-ui-loaded-sources "dap-ui" nil t)
-(autoload 'dap-ui-show-many-windows "dap-ui" "\
-Show auto configured feature windows." t)
-(autoload 'dap-ui-hide-many-windows "dap-ui" "\
-Hide all debug windows when sessions are dead." t)
-(autoload 'dap-ui-repl "dap-ui" "\
-Start an adapter-specific REPL.
+(autoload 'dap-ui-show-many-windows "dap-ui"
+"Show auto configured feature windows." t)
+(autoload 'dap-ui-hide-many-windows "dap-ui"
+"Hide all debug windows when sessions are dead." t)
+(autoload 'dap-ui-repl "dap-ui"
+"Start an adapter-specific REPL.
 This could be used to evaluate JavaScript in a browser, to
 evaluate python in the context of the debugee, ...." t)
 (register-definition-prefixes "dap-ui" '("dap-"))

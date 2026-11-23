@@ -11,8 +11,8 @@
 
 ;;; Generated autoloads from highlight-indentation.el
 
-(autoload 'highlight-indentation-mode "highlight-indentation" "\
-Highlight indentation minor mode highlights indentation based on spaces
+(autoload 'highlight-indentation-mode "highlight-indentation"
+"Highlight indentation minor mode highlights indentation based on spaces
 
 This is a minor mode.  If called interactively, toggle the
 `Highlight-Indentation mode' mode.  If the prefix argument is positive,
@@ -29,14 +29,14 @@ The mode's hook is called both when the mode is enabled and when it is
 disabled.
 
 (fn &optional ARG)" t)
-(autoload 'highlight-indentation-set-offset "highlight-indentation" "\
-Set indentation offset locally in buffer, will prevent
+(autoload 'highlight-indentation-set-offset "highlight-indentation"
+"Set indentation offset locally in buffer, will prevent
 highlight-indentation from trying to guess indentation offset
 from major mode
 
 (fn OFFSET)" t)
-(autoload 'highlight-indentation-current-column-mode "highlight-indentation" "\
-Highlight Indentation minor mode displays a vertical bar
+(autoload 'highlight-indentation-current-column-mode "highlight-indentation"
+"Highlight Indentation minor mode displays a vertical bar
 
 corresponding to the indentation of the current line
 
