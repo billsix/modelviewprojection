@@ -22,8 +22,8 @@ remote yet; the maintainer will create `github.com/billsix/Programming3DComputer
 
 The work: 1. copy every commit of this repository into the new one with all port code removed (`git filter-repo`, run on a
 fresh clone in a scratch directory, never on this checkout; the result is then pushed or fetched into the new directory).
-`src/modelviewprojection/mathutils.py` stays. `src/modelviewprojection/pgzero_gl/` goes with the Code the Classics games if question 2 of
-`tasks/extract-code-the-classics-to-own-repo.md` is answered yes (recommended; it is awaiting the maintainer), otherwise it stays. 2. Clean the port references from the new tip with a normal commit.
+`src/modelviewprojection/mathutils.py` stays. `src/modelviewprojection/pgzero_gl/` goes with the Code the Classics games (decided
+2026-11-24, question 2 of `tasks/extract-code-the-classics-to-own-repo.md`), so it is not copied either. 2. Clean the port references from the new tip with a normal commit.
 Done means: the new repository has the same number of commits as this one (less any the maintainer chooses to drop, question 2),
 each new commit's tree equals the old commit's tree minus the removed paths (proved by a script), the tags map across, nothing
 ported remains in any commit's tree, the tip builds and passes the gates, and this repository's working tree and history are
@@ -54,9 +54,9 @@ as an ad-hoc script under `tasks/adhoc/copy-history-without-ports/` and, when it
   `tasks/resync-mcnopper-ports-with-upstream.md` and `tasks/reference/ports/`. Question 4.
 - **Port references at the current tip that must be edited by a normal commit after the rewrite** (found with `git grep -l
   "ports/"`): `.gitignore`, `CLAUDE.md`, `Makefile` (lines near 221 and 234), `README.md`, `entrypoint/format.sh` (the
-  `ruff` and `ty check` lines for `ports/`), `pyproject.toml` (per-file ignores for `ports/**`), `tools/keywordify.py`, and
-  `src/modelviewprojection/pgzero_gl/LICENSE` and `__init__.py` (comments naming the games). A rewrite cannot edit what a
-  file said; only a new commit can.
+  `ruff` and `ty check` lines for `ports/`), `pyproject.toml` (per-file ignores for `ports/**`), and `tools/keywordify.py`.
+  (The `pgzero_gl` files that name the games are not copied at all.) A history copy cannot edit what a file said; only a new commit
+  can.
 - **Consequences of keeping this repository as it is.** Nothing is renamed, so the old GitHub URL, stars, forks, issues, releases,
   Actions history and the book's Pages site (`http://billsix.github.io/modelviewprojection/intro.html`) stay with this repository
   and keep working. The new repository starts with none of them: its Pages URL, CI (`.github/workflows/checks.yml` and
@@ -76,13 +76,12 @@ Code the Classics table is in `tasks/extract-code-the-classics-to-own-repo.md` h
 
 - **STAYS (curriculum, not ports):** demos `demo19a`–`demo19e`, `demo22`, `demo22a`, `demo22b`, `demo23`, `demo24` with their own
   shaders and textures (`Block4/5/6.tga`, `floor.tga`, `stone.tga`, `grass/wood/orb.tga` and the `.vert`/`.frag` files in their
-  directories), `src/modelviewprojection/mathutils.py`, and demos 01–21. `src/modelviewprojection/pgzero_gl/` is undecided: it is
-  excluded from the copy (like the ports) if the pgzero question above is answered yes, kept otherwise. None reads
+  directories), `src/modelviewprojection/mathutils.py`, and demos 01–21. None reads
   a file under `ports/`, so deleting the five port trees cannot break them.
-- **GOES (not copied):** the five `ports/` trees (including the SuperBible v4 counterparts of the curriculum demos), `tools/ctc_*`,
+- **GOES (not copied):** the five `ports/` trees (including the SuperBible v4 counterparts of the curriculum demos),
+  `src/modelviewprojection/pgzero_gl/` (it moves to the Code the Classics repository), `tools/ctc_*`,
   `tools/keywordify.py` (moves to the SuperBible repository), `tests/test_ctc_actor_field_collisions.py`.
-- **Edited at the new tip:** the files in the list above ("Port references at the current tip"), plus the `pgzero_gl` docstring
-  and `LICENSE` that name the games if `pgzero_gl` stays. The new `README.md` drops the link to the book's Pages URL (question 5:
+- **Edited at the new tip:** the files in the list above ("Port references at the current tip"). The new `README.md` drops the link to the book's Pages URL (question 5:
   there are no Pages for the new repository yet) and says the book is built locally.
 
 ## Plan (each phase is a staging boundary; the maintainer performs every GitHub action and push)
