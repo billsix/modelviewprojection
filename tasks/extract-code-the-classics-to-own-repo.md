@@ -5,8 +5,8 @@
 **Difficulty:** 5
 **Created:** 2026-11-23
 **Part of:** a three-task split, the maintainer's plan (William Emerison Six <billsix@gmail.com>, 2026-11-23): task 1 is
-`tasks/python-port-into-master.md` in `github.com/billsix/OpenGLSuperBibleV4Code`, this is task 2, and task 3 is
-`tasks/rewrite-history-without-ports.md` here. Task 3 must not start until tasks 1 and 2 are done.
+`tasks/archive/2026/11/24/python-port-into-master.md` in `github.com/billsix/OpenGLSuperBibleV4Code` (done), this is task 2, and task 3 is
+`tasks/copy-history-without-ports.md` here. Task 3 must not start until tasks 1 and 2 are done.
 **Depends on:** the maintainer adding the GitHub remote. The directory `/mnt/sda1/CodeTheClassics` exists with an empty
 `git init` and no remote (2026-11-24); the maintainer will create `github.com/billsix/CodeTheClassics` and add it as a remote
 named `github`. The name in question 1 is therefore settled.
@@ -39,7 +39,7 @@ the games' reference docs and open tasks have moved, and nothing here has been d
 - **Dependencies on this repository:** the games import the shared package `modelviewprojection.pgzero_gl`
   (`audio` 11 files, `resources` 11, `gl` 10; LGPL-2.1, `src/modelviewprojection/pgzero_gl/`), `modelviewprojection.mathutils`
   (13 call sites across the ports) and `gacalc` (`g2`, `g3`, `transforms`; `github.com/billsix/geometricalgebra`).
-  `pgzero_gl` is a compatibility library that stays in `modelviewprojection` (the maintainer's decision), so the new
+  `pgzero_gl` is a compatibility library that stays in `modelviewprojection` (and is carried into `Programming3DComputerGraphics`) (the maintainer's decision), so the new
   repository depends on it. Design notes: `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md`.
 - **Licences:** the game code is BSD-2-Clause, copyright Eben Upton (2019 vol 1, 2024 vol 2), derived from the Debian
   packaging; the inlined engine in each game file is BSD-2-Clause, copyright William Emerison Six; `pgzero_gl` is
@@ -94,8 +94,9 @@ No remaining mvp demo, test (apart from the one listed) or book page imports fro
    `/mnt/sda1/CodeTheClassics`, GitHub remote to be added).
 2. How does the new repository get `modelviewprojection`? It is not on PyPI (it installs editable from a checkout). Options:
    (a) `pip install git+https://github.com/billsix/modelviewprojection@<commit>` in the image; (b) a git submodule;
-   (c) clone it in the Dockerfile. Recommend (a), pinned to a commit of the rewritten repository (task 3), which means
-   task 3 should finish first or the pin must be updated afterwards.
+   (c) clone it in the Dockerfile. Recommend (a), pinned to a commit of `github.com/billsix/Programming3DComputerGraphics` (the new repository task 3 creates;
+   the Python package in it is still named `modelviewprojection`), which means task 3 should finish first or the pin must be
+   updated afterwards.
 3. Assets: commit the 140 MB of upstream images, sounds and music (as the mvp tree does today), or fetch them from the
    Debian source tarballs at image build time, as sb7code does with its media pack? Recommend: fetch at build time and
    commit nothing, unless the maintainer wants to ship them (the licence question above).
