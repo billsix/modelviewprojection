@@ -1,3 +1,5 @@
+> **This repository is no longer maintained.** It is kept unchanged for historical reference. Its successor, with the same history minus the Python ports, is `github.com/billsix/Programming3DComputerGraphics`. The SuperBible v4 port is now `python/` in `github.com/billsix/OpenGLSuperBibleV4Code`, and the Code the Classics games are in `github.com/billsix/CodeTheClassics`.
+
 ModelViewProjection
 ===================
 
