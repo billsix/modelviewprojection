@@ -5,7 +5,7 @@
 **Difficulty:** 6
 **Created:** 2026-11-23
 **Part of:** the maintainer's three-task split (William Emerison Six <billsix@gmail.com>, 2026-11-23): task 1 is
-`tasks/python-port-branch.md` in `github.com/billsix/OpenGLSuperBibleV4Code`, task 2 is
+`tasks/python-port-into-master.md` in `github.com/billsix/OpenGLSuperBibleV4Code`, task 2 is
 `tasks/extract-code-the-classics-to-own-repo.md` here, this is task 3.
 **Depends on:** tasks 1 and 2 done and their repositories pushed (this task deletes the only other copy of the ports'
 working tree from the new history; the archived repository keeps the old one).
@@ -59,6 +59,21 @@ builds and passes this repository's gates. The rewrite command is built as an ad
   repoint a dead SHA to its replacement or drop it. `git filter-repo` writes `.git/filter-repo/commit-map` (old hash,
   new hash); use it to repoint citations, and where a cited commit was removed or emptied, say "see
   `modelviewprojection-archived`".
+
+## What stays at the new tip and what goes (verified 2026-11-24)
+
+The full lists are in the two sibling tasks, so each is written once: the SuperBible v4 table is in
+`tasks/python-port-into-master.md` of `github.com/billsix/OpenGLSuperBibleV4Code` ("Which mvp demos stay and which go"), the
+Code the Classics table is in `tasks/extract-code-the-classics-to-own-repo.md` here. The result, for this task's removal list:
+
+- **STAYS (curriculum, not ports):** demos `demo19a`–`demo19e`, `demo22`, `demo22a`, `demo22b`, `demo23`, `demo24` with their own
+  shaders and textures (`Block4/5/6.tga`, `floor.tga`, `stone.tga`, `grass/wood/orb.tga` and the `.vert`/`.frag` files in their
+  directories), `src/modelviewprojection/pgzero_gl/`, `src/modelviewprojection/mathutils.py`, and demos 01–21. None reads
+  a file under `ports/`, so deleting the five port trees cannot break them.
+- **GOES:** the five `ports/` trees (including the SuperBible v4 counterparts of the curriculum demos), `tools/ctc_*`,
+  `tools/keywordify.py` (moves to the SuperBible repository), `tests/test_ctc_actor_field_collisions.py`.
+- **Edited at the tip:** the files in the list above ("Port references at the current tip"), plus the `pgzero_gl` docstring
+  and `LICENSE` that name the games.
 
 ## Plan (each phase is a staging boundary; the maintainer performs every GitHub action and push)
 

@@ -5,9 +5,11 @@
 **Difficulty:** 5
 **Created:** 2026-11-23
 **Part of:** a three-task split, the maintainer's plan (William Emerison Six <billsix@gmail.com>, 2026-11-23): task 1 is
-`tasks/python-port-branch.md` in `github.com/billsix/OpenGLSuperBibleV4Code`, this is task 2, and task 3 is
+`tasks/python-port-into-master.md` in `github.com/billsix/OpenGLSuperBibleV4Code`, this is task 2, and task 3 is
 `tasks/rewrite-history-without-ports.md` here. Task 3 must not start until tasks 1 and 2 are done.
-**Depends on:** the maintainer creating the empty repository (name proposed: `CodeTheClassics`, question 1).
+**Depends on:** the maintainer adding the GitHub remote. The directory `/mnt/sda1/CodeTheClassics` exists with an empty
+`git init` and no remote (2026-11-24); the maintainer will create `github.com/billsix/CodeTheClassics` and add it as a remote
+named `github`. The name in question 1 is therefore settled.
 
 ## BLUF
 
@@ -56,6 +58,21 @@ the games' reference docs and open tasks have moved, and nothing here has been d
 - **Container:** this repository's `Dockerfile` and `Makefile` are the template (the container-per-project layout in the
   maintainer's conventions); the games need glfw, PyOpenGL, numpy, imageio, a display (X11 or Wayland), and audio.
 
+## What stays in mvp and what goes after this port (verified 2026-11-24; task 3 does the deleting)
+
+No remaining mvp demo, test (apart from the one listed) or book page imports from `ports/codetheclassics/` or reads its assets
+(`git grep` over `src`, `tests`, `book/docs`, `notebooks`, `assignments`).
+
+| Path | After the move |
+|---|---|
+| `src/modelviewprojection/pgzero_gl/` (`audio.py`, `gl.py`, `resources.py`, `LICENSE`, `py.typed`) | **STAYS** (maintainer's decision); the new repository depends on it. Its docstring and `LICENSE` name the games and need rewording at task 3's tip commit. No in-tree consumer remains once the games leave. |
+| `src/modelviewprojection/mathutils.py` | **STAYS** (the demos' own module; 13 game call sites move out) |
+| `ports/codetheclassics/` (10 games, their `images/`, `sounds/`, `music/`, `LICENSE`, `README.md`) | **GOES** |
+| `tools/ctc_gate_all.sh`, `ctc_verify_game.sh`, `ctc_state_trace.py`, `ctc_compare_traces.py`, `ctc_capture_frame.py`, `ctc_profile_update.py` | **GO** (copied to the new repository and re-pointed) |
+| `tests/test_ctc_actor_field_collisions.py` (reads `ports/codetheclassics`) | **GOES**; copy it to the new repository |
+| `tasks/reference/code-the-classics-tightening.md`, `coordinate-spaces-in-code-the-classics.md`, `pgzero-gl-design-for-a-personal-learning-library.md`, the games' part of `tests-and-gates.md` | copied; mvp keeps the `pgzero_gl` design doc (it describes a library that stays) |
+| gate and config lines naming the games (`entrypoint/format.sh`, `Makefile`, `pyproject.toml`, `.gitignore`, `README.md`, `CLAUDE.md`) | **edited** at task 3's tip commit |
+
 ## Plan (each phase is a staging boundary)
 
 1. The maintainer creates the repository; add it as a remote named `github` (not `origin`).
@@ -73,7 +90,8 @@ the games' reference docs and open tasks have moved, and nothing here has been d
 
 ## Open questions
 
-1. Repository name: `CodeTheClassics` (the maintainer's wording), or `code-the-classics-gl`? Recommend `CodeTheClassics`.
+1. Repository name: answered 2026-11-24, `CodeTheClassics` (William Emerison Six <billsix@gmail.com>; local directory
+   `/mnt/sda1/CodeTheClassics`, GitHub remote to be added).
 2. How does the new repository get `modelviewprojection`? It is not on PyPI (it installs editable from a checkout). Options:
    (a) `pip install git+https://github.com/billsix/modelviewprojection@<commit>` in the image; (b) a git submodule;
    (c) clone it in the Dockerfile. Recommend (a), pinned to a commit of the rewritten repository (task 3), which means
