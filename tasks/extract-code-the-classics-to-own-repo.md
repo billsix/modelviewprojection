@@ -36,11 +36,18 @@ the games' reference docs and open tasks have moved, and nothing here has been d
   readable top to bottom: its own engine (renderer, `Actor`, `Rect`, keyboard, loop) inlined, then the game. The standard
   they were tightened to is `tasks/reference/code-the-classics-tightening.md`; the coordinate model is
   `tasks/reference/coordinate-spaces-in-code-the-classics.md`.
-- **Dependencies on this repository:** the games import the shared package `modelviewprojection.pgzero_gl`
-  (`audio` 11 files, `resources` 11, `gl` 10; LGPL-2.1, `src/modelviewprojection/pgzero_gl/`), `modelviewprojection.mathutils`
-  (13 call sites across the ports) and `gacalc` (`g2`, `g3`, `transforms`; `github.com/billsix/geometricalgebra`).
-  `pgzero_gl` is a compatibility library that stays in `modelviewprojection` (and is carried into `Programming3DComputerGraphics`) (the maintainer's decision), so the new
-  repository depends on it. Design notes: `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md`.
+- **What the games need from this repository (measured 2026-11-24 with `git grep` over `ports/codetheclassics`):** exactly one
+  thing, the shared package `modelviewprojection.pgzero_gl` (`resources` 11 imports, `audio` 11, `gl` 10; LGPL-2.1;
+  `src/modelviewprojection/pgzero_gl/`: 683 lines in four modules). They use **no** `modelviewprojection.mathutils` (the "13 call
+  sites" an earlier draft of this task counted are the SuperBible port's) and nothing else of the course. `pgzero_gl` itself imports
+  nothing from the rest of `modelviewprojection`, and nothing outside the games imports it (`git grep` over `src`, `tests`, `book/docs`,
+  `notebooks`, `assignments`: only the gate and config lines listed below name it). The games also import `gacalc` (`g2`, `g3`,
+  `transforms`; `github.com/billsix/geometricalgebra`, on PyPI as `gacalc`, pinned `0.1.1` here). Design notes:
+  `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md`.
+  An earlier draft kept `pgzero_gl` in `modelviewprojection` as a library the new repository depends on. The maintainer asked on
+  2026-11-24 why the games should depend on the course repository at all, given that the SuperBible port vendors what it needs.
+  The measurements above answer it: the dependency is one self-contained 683-line package that only these games use, so it can
+  move into the new repository (question 2).
 - **Licences:** the game code is BSD-2-Clause, copyright Eben Upton (2019 vol 1, 2024 vol 2), derived from the Debian
   packaging; the inlined engine in each game file is BSD-2-Clause, copyright William Emerison Six; `pgzero_gl` is
   LGPL-2.1. `ports/codetheclassics/LICENSE` carries all of it; copy it verbatim. The `images/`, `sounds/` and `music/`
@@ -65,8 +72,8 @@ No remaining mvp demo, test (apart from the one listed) or book page imports fro
 
 | Path | After the move |
 |---|---|
-| `src/modelviewprojection/pgzero_gl/` (`audio.py`, `gl.py`, `resources.py`, `LICENSE`, `py.typed`) | **STAYS** (maintainer's decision); the new repository depends on it. Its docstring and `LICENSE` name the games and need rewording at task 3's tip commit. No in-tree consumer remains once the games leave. |
-| `src/modelviewprojection/mathutils.py` | **STAYS** (the demos' own module; 13 game call sites move out) |
+| `src/modelviewprojection/pgzero_gl/` (`audio.py`, `gl.py`, `resources.py`, `LICENSE`, `py.typed`) | **GOES with the games** if question 2 is answered yes (recommended): it moves into the new repository as the top-level package `pgzero_gl`, `LICENSE` included, and is dropped from `Programming3DComputerGraphics` like the ports. If question 2 is answered no, it STAYS and the new repository depends on it. Either way no in-tree consumer remains in the course once the games leave. |
+| `src/modelviewprojection/mathutils.py` | **STAYS** (the demos' own module; the games do not use it, the SuperBible port vendors two functions of it) |
 | `ports/codetheclassics/` (10 games, their `images/`, `sounds/`, `music/`, `LICENSE`, `README.md`) | **GOES** |
 | `tools/ctc_gate_all.sh`, `ctc_verify_game.sh`, `ctc_state_trace.py`, `ctc_compare_traces.py`, `ctc_capture_frame.py`, `ctc_profile_update.py` | **GO** (copied to the new repository and re-pointed) |
 | `tests/test_ctc_actor_field_collisions.py` (reads `ports/codetheclassics`) | **GOES**; copy it to the new repository |
@@ -79,8 +86,10 @@ No remaining mvp demo, test (apart from the one listed) or book page imports fro
 2. Copy `ports/codetheclassics/` to the new repository's root as `vol1/` and `vol2/`; carry `LICENSE` and `README.md`;
    rewrite the README to name the two upstreams with links and to say these are translations to GLFW and OpenGL 3.3.
 3. Container (`Dockerfile`, `Makefile`: `image`, `shell`, `shell-exec`, `run GAME=vol1/boing`, `check`, `format`,
-   `type-check`), `pyproject.toml` with the ruff and `ty` settings that apply to the games, and a dependency on
-   `modelviewprojection` and `gacalc` pinned by URL and commit (question 2).
+   `type-check`), `pyproject.toml` with the ruff and `ty` settings that apply to the games, and `gacalc` pinned in
+   `requirements.txt` and `constraints.txt` (`make update-pins`), as `OpenGLSuperBibleV4Code` does. With question 2 answered yes,
+   copy `src/modelviewprojection/pgzero_gl/` to `pgzero_gl/` and rewrite the 32 imports `from modelviewprojection.pgzero_gl.X`
+   to `from pgzero_gl.X` (an idempotent codemod under `tasks/adhoc/`, run twice to prove it).
 4. Move the verification tools and re-point them; run the frame gate on at least `boing` and `eggzy`.
 5. Docs: copy `code-the-classics-tightening.md`, `coordinate-spaces-in-code-the-classics.md` and the games' parts of
    `tests-and-gates.md` into `tasks/reference/` of the new repository, rewritten to read against it alone; move the open
@@ -92,15 +101,17 @@ No remaining mvp demo, test (apart from the one listed) or book page imports fro
 
 1. Repository name: answered 2026-11-24, `CodeTheClassics` (William Emerison Six <billsix@gmail.com>; local directory
    `/mnt/sda1/CodeTheClassics`, GitHub remote to be added).
-2. How does the new repository get `modelviewprojection`? It is not on PyPI (it installs editable from a checkout). Options:
-   (a) `pip install git+https://github.com/billsix/modelviewprojection@<commit>` in the image; (b) a git submodule;
-   (c) clone it in the Dockerfile. Recommend (a), pinned to a commit of `github.com/billsix/Programming3DComputerGraphics` (the new repository task 3 creates;
-   the Python package in it is still named `modelviewprojection`), which means task 3 should finish first or the pin must be
-   updated afterwards.
-3. Assets: commit the 140 MB of upstream images, sounds and music (as the mvp tree does today), or fetch them from the
-   Debian source tarballs at image build time, as sb7code does with its media pack? Recommend: fetch at build time and
-   commit nothing, unless the maintainer wants to ship them (the licence question above).
-4. Volume 2's upstream repository link: is there an official one, or should the README cite the book page and the Debian
-   tarball only?
-5. Should the new repository's history carry the history of these games (4,876 file touches under `ports/codetheclassics` across all refs, 2026-11-23) (via `git filter-repo --path
-   ports/codetheclassics --path-rename ports/codetheclassics/:`), as in question 1 of task 1? Recommend: yes.
+2. **Awaiting the maintainer.** Should `pgzero_gl` move into the new repository (and out of the course repository's new history),
+   so `CodeTheClassics` depends on nothing but `gacalc`? Recommend: yes. The games need nothing else from the course (see
+   Context), the package is 683 lines nothing else uses, the LGPL-2.1 licence travels with it, and its history can come along
+   (`git filter-repo --path src/modelviewprojection/pgzero_gl --path-rename src/modelviewprojection/pgzero_gl/:pgzero_gl/`).
+   This replaces the earlier recommendation of a `pip install git+…@<commit>` dependency on the course repository, which was
+   for a library the course does not otherwise use and made task 2 wait on task 3. The cost of yes: a fix to `pgzero_gl` is made in
+   one place only, here, and `Programming3DComputerGraphics` loses the module (it has no other user).
+3. Assets: answered 2026-11-24, commit the upstream images, sounds and music (William Emerison Six <billsix@gmail.com>:
+   "commit them"). 140 MB in 4,555 files, no file over 20 MB (GitHub's per-file limit is 100 MB), so a plain clone works. The
+   licence question in Context stays flagged in the README exactly as `github.com/billsix/sb7code` flags its media pack.
+4. Volume 2's upstream link: answered 2026-11-24, yes (cite the book page and the Debian tarball only, since no official
+   repository was found).
+5. History of the games: answered 2026-11-24 by "go with your recommendations": yes, carry it
+   (`git filter-repo --path ports/codetheclassics --path-rename ports/codetheclassics/:`).

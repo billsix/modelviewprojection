@@ -6,6 +6,12 @@ out of `tasks/archive/2026/11/04/release-standalone-book-assets.md`. No work unt
 **Priority:** 6
 **Difficulty:** 3 (a small deploy workflow if yes)
 
+**Update 2026-11-24:** the course is moving to a new repository, `github.com/billsix/Programming3DComputerGraphics` (task
+`tasks/copy-history-without-ports.md`). This repository's Pages URL (`https://billsix.github.io/modelviewprojection/`) stays with this
+repository, which is kept unchanged for history and no longer maintained. The maintainer has made no Pages site and does not want one
+yet; when this decision is taken it applies to the new repository (URL `https://billsix.github.io/Programming3DComputerGraphics/`), whose
+README links no Pages site until then.
+
 ## BLUF
 
 The book already builds to HTML in CI. **Question: do you want that HTML published as a live website via

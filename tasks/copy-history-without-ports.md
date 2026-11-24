@@ -18,10 +18,12 @@ cleaned, not rewritten, no longer actively maintained, kept for historical refer
 repository is **`Programming3DComputerGraphics`**, directory `/mnt/sda1/Programming3DComputerGraphics` (an empty `git init`, no
 remote yet; the maintainer will create `github.com/billsix/Programming3DComputerGraphics` and add it as a remote named `github`).
 
+**The deletion of the ports is part of this task, and it is done by not copying them** (the maintainer's wording, 2026-11-24: "only copying over the non port stuff to the new repo"): there is no separate deletion step, in either repository. Nothing is removed from this repository, and the new one never receives the ports.
+
 The work: 1. copy every commit of this repository into the new one with all port code removed (`git filter-repo`, run on a
 fresh clone in a scratch directory, never on this checkout; the result is then pushed or fetched into the new directory).
-Compatibility libraries stay (`src/modelviewprojection/pgzero_gl/`, `src/modelviewprojection/mathutils.py`), and the extracted
-repositories depend on the new repository and `gacalc`. 2. Clean the port references from the new tip with a normal commit.
+`src/modelviewprojection/mathutils.py` stays. `src/modelviewprojection/pgzero_gl/` goes with the Code the Classics games if question 2 of
+`tasks/extract-code-the-classics-to-own-repo.md` is answered yes (recommended; it is awaiting the maintainer), otherwise it stays. 2. Clean the port references from the new tip with a normal commit.
 Done means: the new repository has the same number of commits as this one (less any the maintainer chooses to drop, question 2),
 each new commit's tree equals the old commit's tree minus the removed paths (proved by a script), the tags map across, nothing
 ported remains in any commit's tree, the tip builds and passes the gates, and this repository's working tree and history are
@@ -74,12 +76,14 @@ Code the Classics table is in `tasks/extract-code-the-classics-to-own-repo.md` h
 
 - **STAYS (curriculum, not ports):** demos `demo19a`–`demo19e`, `demo22`, `demo22a`, `demo22b`, `demo23`, `demo24` with their own
   shaders and textures (`Block4/5/6.tga`, `floor.tga`, `stone.tga`, `grass/wood/orb.tga` and the `.vert`/`.frag` files in their
-  directories), `src/modelviewprojection/pgzero_gl/`, `src/modelviewprojection/mathutils.py`, and demos 01–21. None reads
+  directories), `src/modelviewprojection/mathutils.py`, and demos 01–21. `src/modelviewprojection/pgzero_gl/` is undecided: it is
+  excluded from the copy (like the ports) if the pgzero question above is answered yes, kept otherwise. None reads
   a file under `ports/`, so deleting the five port trees cannot break them.
-- **GOES:** the five `ports/` trees (including the SuperBible v4 counterparts of the curriculum demos), `tools/ctc_*`,
+- **GOES (not copied):** the five `ports/` trees (including the SuperBible v4 counterparts of the curriculum demos), `tools/ctc_*`,
   `tools/keywordify.py` (moves to the SuperBible repository), `tests/test_ctc_actor_field_collisions.py`.
-- **Edited at the tip:** the files in the list above ("Port references at the current tip"), plus the `pgzero_gl` docstring
-  and `LICENSE` that name the games.
+- **Edited at the new tip:** the files in the list above ("Port references at the current tip"), plus the `pgzero_gl` docstring
+  and `LICENSE` that name the games if `pgzero_gl` stays. The new `README.md` drops the link to the book's Pages URL (question 5:
+  there are no Pages for the new repository yet) and says the book is built locally.
 
 ## Plan (each phase is a staging boundary; the maintainer performs every GitHub action and push)
 
@@ -117,19 +121,22 @@ rm`'d in this task's archive commit.
 
 1. Name for the new repository: answered 2026-11-24, `Programming3DComputerGraphics` (William Emerison Six
    <billsix@gmail.com>; local directory `/mnt/sda1/Programming3DComputerGraphics`). This repository is not renamed.
-2. "Every single commit": keep the 23 commits that touched only ports as empty commits (`--prune-empty never`, the new
-   history has the same 1,440 commits) or let `filter-repo` drop them (cleaner, 1,417)? Recommend: keep them, with their
-   messages, so the history stays comparable one-to-one with this repository.
-3. Which refs to carry? Recommend: `master` and both tags only; `doctests`, `morePorts`, `claudeCode` and
-   `geometricalgebra` stay only in this repository (the last is a stale copy of a project now in its own repository).
-4. Port-support files outside `ports/` (tools and ad-hoc scripts and task docs named in Context): strip them from history
-   too, or keep them? Recommend: strip the code (`tools/ctc_*`, and the history-only `tools/mcnopper/` and port-only `tasks/adhoc/` dirs),
-   keep task and reference documents (they record decisions and are small), and list them so nothing dangles.
-5. GitHub Pages and releases: the new repository has neither. Should Pages be enabled there (the standing question in
-   `tasks/release-book-github-pages-decision.md`), and should the tagged releases be recreated? Recommend: decide Pages first;
-   recreate releases only if people download them.
-6. The self-hosted `origin` remote: create a bare repository for `Programming3DComputerGraphics` next to the old one on the
-   self-hosted box and add it as `origin` of the new directory. This repository's `origin` stays as it is. Recommend: yes.
-7. This repository gets one superseded notice (a paragraph at the top of `README.md` and `CLAUDE.md` saying it is no longer
-   maintained and pointing at `github.com/billsix/Programming3DComputerGraphics`), or is left byte-for-byte as it is?
-   Recommend: add the notice, so a future session does not keep working here; it is the only edit this repository gets.
+   Related: the maintainer confirmed 2026-11-24 that this task is the "rewriting of history" in the sense of copying only the
+   non-port files, with no separate deletion.
+2. Answered 2026-11-24 ("go with your recommendations"): keep the 23 commits that touched only ports as empty commits
+   (`--prune-empty never`, the new history has the same 1,440 commits), with their messages, so it stays comparable one-to-one
+   with this repository.
+3. Answered 2026-11-24: carry `master` and both tags only; `doctests`, `morePorts`, `claudeCode` and `geometricalgebra` stay only in
+   this repository (the last is a stale copy of a project now in its own repository).
+4. Answered 2026-11-24: strip the port code from history (`tools/ctc_*`, the history-only `tools/mcnopper/` and port-only
+   `tasks/adhoc/` directories), keep task and reference documents (they record decisions and are small), and list the kept ones
+   so nothing dangles.
+5. Answered 2026-11-24: no GitHub Pages, no releases, and no GitHub work at all as part of this task (the maintainer has made no
+   Pages site and does not want one yet). The standing decision is the existing task `tasks/release-book-github-pages-decision.md`,
+   which now also covers the new repository; nothing here depends on it.
+6. Answered 2026-11-24: the maintainer creates the bare repository on the self-hosted box later and cannot push yet. The `origin`
+   remote of `/mnt/sda1/Programming3DComputerGraphics` is added now, pointing at the path the box's other repositories use; nothing
+   is pushed. The `github` remote is added when the maintainer creates the GitHub repository.
+7. Answered 2026-11-24 ("go with your recommendations"): add one "superseded, no longer maintained" notice (a paragraph at the top
+   of `README.md` and `CLAUDE.md` pointing at `github.com/billsix/Programming3DComputerGraphics`) to this repository; it is the
+   only edit this repository gets.
